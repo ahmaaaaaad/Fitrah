@@ -412,6 +412,38 @@
       "review_status": "pending_sharia_review"
     },
     {
+      "key": "57:3",
+      "surah": 57,
+      "surah_name_ar": "الحديد",
+      "surah_name_en": "Al-Hadid",
+      "ayahs": [
+        3
+      ],
+      "text_uthmani": "هُوَ ٱلۡأَوَّلُ وَٱلۡأٓخِرُ وَٱلظَّـٰهِرُ وَٱلۡبَاطِنُۖ وَهُوَ بِكُلِّ شَيۡءٍ عَلِيمٌ",
+      "translation_en": "He is the First and the Last, the Ascendant and the Intimate, and He is, of all things, Knowing",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "world1.dalil_who_created_god"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "29:46",
+      "surah": 29,
+      "surah_name_ar": "العنكبوت",
+      "surah_name_en": "Al-'Ankabut",
+      "ayahs": [
+        46
+      ],
+      "text_uthmani": "۞وَلَا تُجَٰدِلُوٓاْ أَهۡلَ ٱلۡكِتَٰبِ إِلَّا بِٱلَّتِي هِيَ أَحۡسَنُ إِلَّا ٱلَّذِينَ ظَلَمُواْ مِنۡهُمۡۖ وَقُولُوٓاْ ءَامَنَّا بِٱلَّذِيٓ أُنزِلَ إِلَيۡنَا وَأُنزِلَ إِلَيۡكُمۡ وَإِلَٰهُنَا وَإِلَٰهُكُمۡ وَٰحِدٞ وَنَحۡنُ لَهُۥ مُسۡلِمُونَ",
+      "translation_en": "And do not argue with the People of the Scripture except in a way that is best, except for those who commit injustice among them, and say, \"We believe in that which has been revealed to us and revealed to you. And our God and your God is one; and we are Muslims [in submission] to Him",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "world1.dalil_same_god"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
       "key": "6:108",
       "surah": 6,
       "surah_name_ar": "الأنعام",

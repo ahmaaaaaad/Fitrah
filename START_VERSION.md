@@ -1,12 +1,15 @@
 # Start version (before 4 October 2026)
 
-The challenge rules allow entering with prior work if its state is documented; only work done during the challenge days (4–6 October 2026) is evaluated. This file records exactly what existed before 4 October. The git tag `start-version` marks this commit.
+The challenge rules allow entering with prior work if its state is documented; only work done during the challenge days (4–6 October 2026) is evaluated. This file records exactly what existed before 4 October. The git tag `start-version` marks the first commit; every commit dated before 4 October 2026 is part of the start version.
 
 ## Existed before the challenge days
 - **Rendering engine** (`client/src/core/scene.js`): renderer, camera, bloom post-processing, adaptive pixel ratio, frame loop.
 - **World 1 environment prototype** (`client/src/scenes/world1.js`): fog, star field, drifting shards, the light orb with float motion, camera follow, tap-to-move.
 - **Verse data** (`data/quran/verses.json`): the 27 passages named in the design document, generated from their sources (see `docs/SOURCES.md`).
 - **World 1 quiz draft** (`data/content/world1_quiz.json`).
+- **World 1 content script draft** (`data/content/world1_script.json`, built by `tools/build_world1_script.py`): all player-facing text in Arabic and English for onboarding, Dalil's fixed lines, the Horizon, World 1 and the short ending, plus 9 pre-written Dalil answers. Added 2 October.
+- **Sharia review file** (`docs/review/world1-content-review.pdf`, built by `tools/review_pdf.py`). Added 2 October.
+- Verses 57:3 and 29:46 added to `data/quran/verses.json` for two Dalil answers. Added 2 October.
 - **Dalil test set draft** (`eval/questions.json`, 50 questions) and scoring procedure.
 - Design document, idea deck, and a pre-rendered concept video (not part of the product).
 
