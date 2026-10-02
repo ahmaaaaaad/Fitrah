@@ -1,32 +1,44 @@
-// Fitrah – entry point
-import * as THREE from 'three';
-import { start, scene, camera, renderer, composer } from './core/scene.js';
-import { createWorld1 } from './scenes/world1.js';
+// Fitrah – entry point: engine, cosmos, Horizon, camera rig, interface, journey.
+import './fonts.css';
+import './styles.css';
+import { start, onUpdate, scene, camera, renderer, composer, renderNow } from './core/scene.js';
+import { createCosmos } from './world/cosmos.js';
+import { createHorizon } from './world/horizon.js';
+import { createRig } from './world/rig.js';
+import { createGame } from './flow/game.js';
+import { hud } from './ui/components.js';
+import { h, root, hide } from './ui/dom.js';
+import { script as S } from './core/content.js';
+import { i18n } from './core/i18n.js';
 
-const container = document.getElementById('app');
-start(container);
+i18n.set('ar'); // the page opens right-to-left; the player picks a language on the first screen
 
-const world = createWorld1();
+const frame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-// Tap / click to move: project the pointer onto the orb's horizontal plane
-// and glide the orb there. This is the seed of the point-and-click navigation.
-const raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
-const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-const hit = new THREE.Vector3();
+async function boot() {
+  const loading = h('div', { class: 'loading', role: 'status' }, h('div', {}, h('div', { class: 'dot' }), h('div', { class: 'msg' }, S.ui.loading.ar)));
+  root().append(loading);
+  await frame(); // let the loading screen paint before the heavy bake
 
-container.addEventListener('pointerup', (e) => {
-  const rect = container.getBoundingClientRect();
-  pointer.set(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
-  raycaster.setFromCamera(pointer, camera);
-  plane.constant = -world.orb.anchor.position.y;
-  if (raycaster.ray.intersectPlane(plane, hit)) {
-    hit.clampLength(0, 30); // keep the orb inside the playable area
-    world.moveOrbTo(hit);
-  }
-});
+  start(document.getElementById('app'));
+  const cosmos = createCosmos({ scene, renderer });
+  const horizon = createHorizon({ root: cosmos.root, glowTex: cosmos.GLOW });
+  const rig = createRig(camera);
+  onUpdate((dt, t) => { cosmos.update(dt, t); horizon.update(dt, t); rig.update(dt, t); });
+  renderer.compile(scene, camera);
+  renderNow();
 
-// Handy handles for tweaking from the browser console during development.
-if (import.meta.env.DEV) {
-  window.fitrah = { scene, camera, renderer, composer, world };
+  hud.build();
+  const game = createGame({ cosmos, horizon, rig });
+  window.fitrah = { scene, camera, renderer, composer, cosmos, horizon, rig, game };
+
+  await Promise.race([document.fonts?.ready, new Promise((r) => setTimeout(r, 2500))]);
+  await frame();
+  hide(loading, { duration: 1.2, y: 0 });
+
+  const step = new URLSearchParams(location.search).get('step');
+  game.run(step).catch((err) => { console.error('[fitrah]', err); });
 }
+
+// In the Claude artifact viewer, boot through its update hook; elsewhere boot directly.
+if (window.claude?.hot?.ready) window.claude.hot.ready(boot); else boot();

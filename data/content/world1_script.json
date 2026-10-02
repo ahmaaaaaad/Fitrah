@@ -721,6 +721,104 @@
     "closing_label": {
       "ar": "جواب العالم الأول",
       "en": "World One's answer"
+    },
+    "sound_on": {
+      "ar": "تشغيل الصوت",
+      "en": "Turn sound on"
+    },
+    "sound_off": {
+      "ar": "كتم الصوت",
+      "en": "Mute sound"
+    },
+    "true_label": {
+      "ar": "صح",
+      "en": "True"
+    },
+    "false_label": {
+      "ar": "خطأ",
+      "en": "False"
+    },
+    "quiz_title_pre": {
+      "ar": "قبل أن نبدأ",
+      "en": "Before we begin"
+    },
+    "quiz_title_post": {
+      "ar": "محطة الفهم",
+      "en": "Understanding check"
+    },
+    "station_label": {
+      "ar": "العالم الأول · المحطة {n}: {title}",
+      "en": "World One · Station {n}: {title}"
+    },
+    "oneness_drag": {
+      "ar": "اسحب المستوى المائل للأسفل حتى ينطبق على الآخر",
+      "en": "Drag the tilted plane down until it lines up with the other"
+    },
+    "loading": {
+      "ar": "يتشكّل الكون…",
+      "en": "The cosmos is forming…"
+    },
+    "restart": {
+      "ar": "ابدأ الرحلة من جديد",
+      "en": "Start the journey again"
+    },
+    "score_line": {
+      "ar": "قبل الرحلة: {pre} من {total} · بعدها: {post} من {total}",
+      "en": "Before the journey: {pre} of {total} · After: {post} of {total}"
+    },
+    "view_verse": {
+      "ar": "اقرأ",
+      "en": "Read"
+    },
+    "pick_verse": {
+      "ar": "اختر آية لتشاركها",
+      "en": "Pick a verse to share"
+    },
+    "human_form": {
+      "lang_label": {
+        "ar": "لغة المحادثة",
+        "en": "Conversation language"
+      },
+      "contact_label": {
+        "ar": "وسيلة التواصل (بريد أو رقم)",
+        "en": "How to reach you (email or number)"
+      },
+      "message_label": {
+        "ar": "ما الذي تودّ السؤال عنه؟ (اختياري)",
+        "en": "What would you like to ask about? (optional)"
+      },
+      "submit": {
+        "ar": "أرسل الطلب",
+        "en": "Send request"
+      },
+      "saved": {
+        "ar": "حُفظ طلبك على جهازك فقط، وسيُرسل إلى جهة شريكة عند اعتمادها. لا يُرسل شيء الآن.",
+        "en": "Your request is saved on this device only. It will be sent once a partner center is confirmed; nothing is sent now."
+      }
+    },
+    "learn": {
+      "title": {
+        "ar": "تابع التعلّم",
+        "en": "Keep learning"
+      },
+      "note": {
+        "ar": "موسوعة القرآن الكريم المترجمة: ترجمات معتمدة لمعاني القرآن بأكثر من ستين لغة.",
+        "en": "The Noble Qur'an Encyclopedia: approved translations of the Qur'an's meanings in more than sixty languages."
+      },
+      "quranenc_label": {
+        "ar": "افتح quranenc.com",
+        "en": "Open quranenc.com"
+      }
+    },
+    "share": {
+      "title": {
+        "ar": "شارك آية",
+        "en": "Share a verse"
+      },
+      "save_hint": {
+        "ar": "اضغط مطولاً على الصورة أو انقر بالزر الأيمن لحفظها.",
+        "en": "Long-press or right-click the image to save it."
+      }
     }
   },
   "ending": {

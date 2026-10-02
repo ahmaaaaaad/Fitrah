@@ -11,13 +11,22 @@ The challenge rules allow entering with prior work if its state is documented; o
 - **Sharia review file** (`docs/review/world1-content-review.pdf`, built by `tools/review_pdf.py`). Added 2 October.
 - Verses 57:3 and 29:46 added to `data/quran/verses.json` for two Dalil answers, and every verse stored ayah by ayah (`ayah_texts`). The generator is `tools/extract_verses.py`. Added 2 October.
 - **Visual design** for World 1 (a design canvas, not code): visual language (colours, type, components, rules) and 13 screen designs: onboarding, intent, Horizon, station 1, sign, verse card, Dalil answering with a source, Dalil declining and referring, checkpoint, closing, ending, plus two mobile screens in English. Interface labels added to the script under `ui`. Added 2 October.
+- **Playable World 1 build** (`client/`), built 2 October:
+  - Cinematic engine pass: post-processing chain with chromatic aberration, warp, vignette, grain and fades; adaptive resolution that drops bloom on slow devices; a camera rig with flights, drift and shake that also adapts shots to portrait screens.
+  - The cosmos (`client/src/world/`): a baked nebula sky, star layers, a plasma sun, four procedural planets with atmospheres, orbit rings, the light orb with its trail, Dalil's star and particle bursts.
+  - The Horizon hub with four gates. The open gate frames the solar system you travel to.
+  - Onboarding: language choice, intent question and a pre-journey understanding check.
+  - The three stations (`client/src/stations/`): order (drag planets onto their orbits), causes (follow the chain back from a flower), the One (bring two conflicting laws into one). Each ends with a sign, a verse card and a reflection.
+  - The closing with its answer card, the post-journey checkpoint, and the ending screen. The ending has the journal, three choices (talk to a person, keep learning, share a verse), 2:256 and the before/after score.
+  - The interface (`client/src/ui/`): HUD, verse cards in Amiri Quran with ayah marks, the verse journal, Dalil's panel and the share-card image. Dalil answers only the reviewed fallback answers, always cites its source, and declines and refers for rulings, distress, requests to alter the text, and disrespect.
+  - Arabic and English with full right-to-left/left-to-right layout. Fonts are bundled, so nothing loads from a font CDN. Ambient sound is generated with Web Audio. Progress stays on the device.
+  - Headless play-through tests: the full journey from the first screen to the ending, real pointer drags for stations 1 and 3, and a phone-size layout check.
 - **Dalil test set draft** (`eval/questions.json`, 50 questions) and scoring procedure.
 - Design document, idea deck, and a pre-rendered concept video (not part of the product).
 
 ## Not built yet (planned for 4–6 October)
-- Onboarding and the Horizon hub.
-- World 1 stations (order, causes, oneness), the closing, and the understanding checkpoint.
-- Verse card, recitation playback, the verse journal, and the short ending.
-- Dalil: classification, retrieval, constrained answering, validation, fallback answers.
+- Recitation playback on the verse card (the player is hidden until licensed audio is added).
+- Live Dalil: classification, retrieval over the approved sources, constrained answering and validation. The current build uses only the fallback answers.
+- The side station "Within yourself" (51:21).
 - Test-set runner and reliability report; user testing with 5–10 people.
-- Deployment, video, final presentation.
+- Sharia review sign-off of all text, then deployment, the video and the final presentation.
