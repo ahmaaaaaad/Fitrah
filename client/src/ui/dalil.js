@@ -85,8 +85,10 @@ export function openDalil(context = {}) {
     if (result.type === 'qa') {
       bubble.append(txt);
       await typeInto(txt, t(result.qa.answer), 70);
+      // every answer shows where it comes from: verses open in place, science sources open in a new tab
       const srcs = h('div', { class: 'srcs' }, h('small', {}, t(S.dalil.source_label)),
-        ...result.qa.sources.map((k) => h('button', { class: 'chip-src', onClick: () => verseCard(k, { mode: 'view' }) }, ICON.book('#e8c277', 15), `${verseRef(k)} · ${t(S.ui.dalil_panel.read_verse)}`)));
+        ...result.qa.sources.map((k) => h('button', { class: 'chip-src', onClick: () => verseCard(k, { mode: 'view' }) }, ICON.book('#e8c277', 15), `${verseRef(k)} · ${t(S.ui.dalil_panel.read_verse)}`)),
+        ...(result.qa.refs || []).map((r) => h('a', { class: 'chip-src chip-ref', href: r.url, target: '_blank', rel: 'noopener' }, ICON.info('#bff5ec', 14), t(r.label))));
       bubble.append(srcs);
       if (result.qa.offer_human) bubble.append(h('div', { class: 'row-end' }, h('button', { class: 'btn btn-aqua-ghost btn-sm', onClick: referralForm }, t(S.dalil.talk_to_human))));
       store.log('dalil_answer', { id: result.qa.id });

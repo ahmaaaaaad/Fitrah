@@ -13,6 +13,7 @@ export function createRig(camera) {
   let flight = null;
 
   function snap(pos, lk, fov) {
+    follow = null; flight?.kill();
     target.pos.copy(pos); target.look.copy(lk);
     camera.position.copy(pos); look.copy(lk); camera.lookAt(look);
     if (fov) { target.fov = fov; camera.fov = fov; camera.updateProjectionMatrix(); }
@@ -39,7 +40,7 @@ export function createRig(camera) {
 
   function followTarget(get, offset, lookOffset = new THREE.Vector3(), lambda = 2.4) {
     flight?.kill();
-    follow = { get, offset: offset.clone(), lookOffset: lookOffset.clone(), lambda };
+    follow = { get, offset, lookOffset, lambda }; // kept by reference: tweening the offset moves the shot
   }
 
   function update(dt, t) {

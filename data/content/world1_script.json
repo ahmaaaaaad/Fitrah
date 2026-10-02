@@ -226,70 +226,193 @@
       "en": "World One · The Cosmos"
     },
     "arrival": {
-      "verse": "3:190",
+      "verse": "41:53",
       "after_lines": [
         {
           "ar": "في لغة القرآن، كلمة «آية» تعني الجملة من كلام الله، وتعني أيضاً العلامة.",
           "en": "In the Qur'an's language, the word ayah means a verse, and it also means a sign."
         },
         {
-          "ar": "في هذا العالم، كل علامة تكتشفها في الكون تفتح لك آية.",
-          "en": "In this world, every sign you discover in the cosmos opens a verse for you."
+          "ar": "رحلتك تبدأ من الآفاق: نجم، ثم كواكب، ثم ورقة شجر، ثم أنت.",
+          "en": "Your journey starts in the horizons: a star, then planets, then a leaf, then you."
         }
       ]
     },
     "stations": [
       {
-        "id": "order",
+        "id": "mizan",
         "number": 1,
         "title": {
-          "ar": "النظام",
-          "en": "Order"
+          "ar": "الميزان",
+          "en": "The Balance"
         },
         "intro": {
-          "ar": "الكواكب تائهة. مداراتها متداخلة، والنظام مفقود.",
-          "en": "The planets are lost. Their paths cross, and order is gone."
+          "ar": "نجم في آخر عمره. في قلبه تُصنع ذرات الكربون، مادة كل كائن حي.",
+          "en": "A star near the end of its life. Its core makes carbon, the stuff of every living thing."
         },
         "instruction": {
-          "ar": "اسحب كل كوكب إلى مداره",
-          "en": "Drag each planet onto its orbit"
+          "ar": "أدِر الحلقة حول قلب النجم، ثم أعدها",
+          "en": "Turn the ring around the star's core, then bring it back"
         },
         "hints": [
           {
-            "ar": "ابحث عن الحلقة الخافتة التي تناسب الكوكب.",
-            "en": "Look for the faint ring that fits the planet."
+            "ar": "ادفع الحلقة بعيداً وراقب الكربون.",
+            "en": "Push the ring away and watch the carbon."
           },
           {
-            "ar": "الكوكب الأقرب إلى الشمس يأخذ أصغر مدار.",
-            "en": "The planet closest to the sun takes the smallest orbit."
+            "ar": "للنافذة طرفان. جرّب الطرف الآخر.",
+            "en": "The window has two edges. Try the other one."
           }
         ],
+        "qadar": {
+          "edge_line": {
+            "ar": "خارج نافذة ضيقة لا يتكوّن كربون.",
+            "en": "Outside a narrow window, no carbon forms."
+          },
+          "return_line": {
+            "ar": "أعد الحلقة إلى موضعها.",
+            "en": "Bring the ring back."
+          },
+          "measured": {
+            "ar": "٧٫٦٥ ميغا إلكترون فولت · القيمة المقيسة",
+            "en": "7.65 MeV · the measured value"
+          },
+          "model_note": {
+            "ar": "نموذج مبسّط للتوضيح؛ حدود النافذة من القياس.",
+            "en": "A simplified model; only the window's edges come from measurement."
+          },
+          "success": {
+            "ar": "عاد الكربون. والنجم يزفر غباره لتُصنع منه الكواكب.",
+            "en": "The carbon returns. The star breathes out the dust that planets are made from."
+          },
+          "sign": {
+            "ar": "آية في الكون: كل شيء بقدر",
+            "en": "A sign in creation: everything in measure"
+          },
+          "verse": "54:49"
+        },
+        "orbits": {
+          "intro": {
+            "ar": "من غبار النجم وُلدت كواكب، لكنها بلا مدار.",
+            "en": "Planets formed from the star's dust, but none has an orbit yet."
+          },
+          "instruction": {
+            "ar": "اسحب كوكباً إلى الخلف ثم أفلته",
+            "en": "Pull a planet back, then let go"
+          },
+          "fall": {
+            "ar": "أبطأ مما ينبغي: سقط في النجم.",
+            "en": "Too slow: it fell into the star."
+          },
+          "escape": {
+            "ar": "أسرع مما ينبغي: ضاع في البرد.",
+            "en": "Too fast: it drifted into the cold."
+          },
+          "wide": {
+            "ar": "مداره بيضاوي جداً، يحرقه الحر ثم يجمّده البرد.",
+            "en": "Its orbit is too stretched: scorched, then frozen."
+          },
+          "locked": {
+            "ar": "استقر في ميزانه.",
+            "en": "It settled into its balance."
+          },
+          "hints": [
+            {
+              "ar": "الخط المضيء يريك مساره قبل أن تُفلته.",
+              "en": "The glowing line shows its path before you let go."
+            },
+            {
+              "ar": "اجعل المسار دائرة تقريباً داخل حلقته.",
+              "en": "Make the path nearly a circle, inside its band."
+            }
+          ]
+        },
         "success": {
-          "ar": "عاد كل شيء إلى مكانه.",
-          "en": "Everything is back in its place."
+          "ar": "كل كوكب في ميزانه، فصار للنظام لحن واحد.",
+          "en": "Every planet in its balance, and the system sings one chord."
         },
         "sign": {
-          "ar": "آية في الكون: إحكام المدارات",
-          "en": "A sign in creation: precise orbits"
+          "ar": "آية في الكون: الميزان",
+          "en": "A sign in creation: the balance"
         },
-        "verse": "67:3",
+        "verse": "55:7-9",
         "reflection": {
-          "ar": "لو تغيّر مدار واحد قليلاً، ماذا يحدث؟ هل يأتي هذا الإحكام من الصدفة؟",
-          "en": "If one orbit shifted slightly, what would happen? Could this precision come from chance?"
+          "ar": "لو كانت السرعة أقل قليلاً أو أكثر قليلاً، ماذا كان سيحدث؟ ومن وضع هذا الميزان؟",
+          "en": "If the speed were a little less or a little more, what would happen? And who set this balance?"
         },
         "dalil_suggestions": [
           {
-            "id": "order-1",
+            "id": "mizan-1",
             "question": {
-              "ar": "هل يمكن أن يأتي هذا النظام صدفة؟",
-              "en": "Could this order come from chance?"
+              "ar": "ما هو رنين هويل؟",
+              "en": "What is the Hoyle resonance?"
             },
             "answer": {
-              "ar": "القرآن يدعوك إلى النظر في إحكام الخلق نفسه، ويقول إنك لن ترى فيه تفاوتاً، ثم يطلب منك أن تعيد النظر: هل ترى من خلل؟ ويقدّم هذا الإحكام آيةً تدل على الخالق.",
-              "en": "The Qur'an invites you to look at this very precision. It says you will see no inconsistency in creation, then asks you to look again: do you see any flaw? It presents this order as a sign pointing to the Creator."
+              "ar": "النجوم تصنع الكربون بدمج ثلاث نوى هيليوم عبر مستوى طاقة في الكربون قيمته نحو ٧٫٦٥ ميغا إلكترون فولت، تنبأ به الفلكي فريد هويل قبل أن يُقاس. ولو وقع هذا المستوى خارج نحو ٧٫٣ إلى ٧٫٩ لما صنعت النجوم كربوناً يكفي للحياة. والقرآن يقول: «إنا كل شيء خلقناه بقدر».",
+              "en": "Stars make carbon by fusing three helium nuclei through an energy level of carbon at about 7.65 MeV, which the astronomer Fred Hoyle predicted before it was measured. If that level fell outside about 7.3 to 7.9 MeV, stars would not make enough carbon for life. The Qur'an says: \"Indeed, all things We created with measure.\""
             },
             "sources": [
-              "67:3"
+              "54:49"
+            ],
+            "refs": [
+              {
+                "label": {
+                  "ar": "عملية ألفا الثلاثية",
+                  "en": "Triple-alpha process"
+                },
+                "url": "https://en.wikipedia.org/wiki/Triple-alpha_process"
+              }
+            ],
+            "offer_human": false,
+            "review_status": "pending_sharia_review"
+          },
+          {
+            "id": "mizan-2",
+            "question": {
+              "ar": "هل يعني هذا أن العلم يثبت وجود الله؟",
+              "en": "Does this mean science proves God?"
+            },
+            "answer": {
+              "ar": "يسمّي القرآن ظواهر الكون «آيات»، أي علامات تدعو إلى التفكر ولا تُغني عنه. والعلماء يختلفون في تفسير هذا الضبط الدقيق. أما القرآن فيدعوك إلى النظر في الخلق والسؤال عمّن قدّره. وهذا حوار يستحق أن تكمله مع مختص.",
+              "en": "The Qur'an calls such things signs (ayat): they invite reflection, they don't replace it. Scientists disagree on how to explain this fine-tuning. The Qur'an invites you to look at creation and ask who set its measure. It's a conversation worth continuing with a specialist."
+            },
+            "sources": [
+              "54:49",
+              "3:190"
+            ],
+            "refs": [
+              {
+                "label": {
+                  "ar": "الضبط الدقيق للكون",
+                  "en": "Fine-tuned universe"
+                },
+                "url": "https://en.wikipedia.org/wiki/Fine-tuned_universe"
+              }
+            ],
+            "offer_human": true,
+            "review_status": "pending_sharia_review"
+          },
+          {
+            "id": "mizan-3",
+            "question": {
+              "ar": "لماذا يسقط الكوكب إذا كان بطيئاً؟",
+              "en": "Why does a slow planet fall?"
+            },
+            "answer": {
+              "ar": "الجاذبية تشدّ الكوكب نحو النجم دائماً. فإذا كانت سرعته مناسبة ظلّ يسقط حول النجم لا فيه، وهذا هو المدار. وإن كان أبطأ سقط فيه، وإن تجاوز سرعة الإفلات، وهي أكبر من سرعة المدار الدائري بنحو ١٫٤ مرة، انطلق بعيداً ولم يعد.",
+              "en": "Gravity pulls the planet toward the star all the time. At the right speed it keeps falling around the star instead of into it: that's an orbit. Slower, it falls in. Above escape speed, about 1.4 times the circular speed, it flies off and never returns."
+            },
+            "sources": [
+              "55:7-9"
+            ],
+            "refs": [
+              {
+                "label": {
+                  "ar": "السرعة المدارية",
+                  "en": "Orbital speed"
+                },
+                "url": "https://en.wikipedia.org/wiki/Orbital_speed"
+              }
             ],
             "offer_human": false,
             "review_status": "pending_sharia_review"
@@ -307,92 +430,111 @@
             "sources": [
               "3:190"
             ],
-            "offer_human": false,
-            "review_status": "pending_sharia_review"
-          },
-          {
-            "id": "order-3",
-            "question": {
-              "ar": "لماذا يتحدث القرآن عن الكون كثيراً؟",
-              "en": "Why does the Qur'an talk about the universe so much?"
-            },
-            "answer": {
-              "ar": "لأنه يخاطب عقل الإنسان، ويجعل التفكر في السماوات والأرض طريقاً إلى معرفة الخالق.",
-              "en": "Because it speaks to human reason, and makes reflecting on the heavens and the earth a path to knowing the Creator."
-            },
-            "sources": [
-              "3:190",
-              "67:3"
-            ],
+            "refs": [],
             "offer_human": false,
             "review_status": "pending_sharia_review"
           }
         ]
       },
       {
-        "id": "causes",
+        "id": "sabab",
         "number": 2,
         "title": {
-          "ar": "من لا شيء؟",
-          "en": "From nothing?"
+          "ar": "السبب",
+          "en": "The Cause"
         },
         "intro": {
-          "ar": "زهرة واحدة. لكن من أين جاءت؟",
-          "en": "A single flower. But where did it come from?"
+          "ar": "هذا الكوكب حيّ. لكن من أين تأتي طاقة الحياة فيه؟",
+          "en": "This planet is alive. But where does its living energy come from?"
         },
         "instruction": {
-          "ar": "اضغط «من أين جاء؟» لتتبع السلسلة",
-          "en": "Tap \"Where did it come from?\" to follow the chain"
-        },
-        "chain_button": {
-          "ar": "من أين جاء؟",
-          "en": "Where did it come from?"
-        },
-        "chain": [
-          {
-            "ar": "زهرة",
-            "en": "A flower"
-          },
-          {
-            "ar": "بذرة",
-            "en": "A seed"
-          },
-          {
-            "ar": "شجرة",
-            "en": "A tree"
-          },
-          {
-            "ar": "مطر وتراب",
-            "en": "Rain and soil"
-          },
-          {
-            "ar": "شمس",
-            "en": "A sun"
-          },
-          {
-            "ar": "نجوم",
-            "en": "Stars"
-          }
-        ],
-        "chain_end": {
-          "ar": "هل تستمر السلسلة إلى ما لا نهاية؟",
-          "en": "Does the chain go on forever?"
+          "ar": "اتبع الضوء إلى الداخل",
+          "en": "Follow the light inward"
         },
         "hints": [
           {
-            "ar": "استمر في السؤال عن الأصل.",
-            "en": "Keep asking where each thing came from."
+            "ar": "كل خطوة تفتح التي بعدها.",
+            "en": "Each step opens the next."
           }
         ],
+        "descent": {
+          "sky": {
+            "ar": "ضوء الشمس أبيض. والهواء يبعثر الأزرق أكثر من الأحمر بنحو ست مرات، فتصير السماء زرقاء.",
+            "en": "Sunlight is white. Air scatters blue about six times more than red, so the sky turns blue."
+          },
+          "leaf": {
+            "ar": "ورقة شجر. في كل خلية منها مصانع خضراء صغيرة.",
+            "en": "A leaf. Every cell in it holds small green factories."
+          },
+          "membrane": {
+            "ar": "هنا يتحول الضوء إلى طاقة.",
+            "en": "Here, light becomes energy."
+          }
+        },
+        "steps": [
+          {
+            "id": "tilt",
+            "instruction": {
+              "ar": "أدِر الورقة نحو الشمس",
+              "en": "Turn the leaf toward the sun"
+            },
+            "done": {
+              "ar": "كلما واجهت الشمس أكثر، دخلها ضوء أكثر.",
+              "en": "The more it faces the sun, the more light comes in."
+            }
+          },
+          {
+            "id": "split",
+            "instruction": {
+              "ar": "اضغط مطولاً لتجمع الضوء",
+              "en": "Press and hold to gather light"
+            },
+            "done": {
+              "ar": "أربعة فوتونات تشطر الماء: يخرج أكسجين، وتبقى الطاقة.",
+              "en": "Four photons split water: oxygen leaves, the energy stays."
+            }
+          },
+          {
+            "id": "guide",
+            "instruction": {
+              "ar": "قُد الإلكترون على طول السلسلة",
+              "en": "Lead the electron along the chain"
+            },
+            "done": {
+              "ar": "كل قفزة تضخ البروتونات عبر الغشاء.",
+              "en": "Every hop pumps protons across the membrane."
+            }
+          },
+          {
+            "id": "rotor",
+            "instruction": {
+              "ar": "أدِر المحرك بالسرعة التي يسمح بها الضغط",
+              "en": "Turn the rotor at the pace the pressure allows"
+            },
+            "done": {
+              "ar": "ثلاث جزيئات طاقة في كل دورة.",
+              "en": "Three energy molecules every turn."
+            }
+          }
+        ],
+        "climb": {
+          "ar": "الطاقة في طعامك بدأت ضوءاً، والضوء من نجم، وكربون جسدك صُنع في نجم قبله.",
+          "en": "The energy in your food began as light, the light came from a star, and your body's carbon was made in a star before it."
+        },
+        "chain_end": {
+          "ar": "كل سبب يحتاج إلى سبب قبله. فهل تبدأ السلسلة من لا شيء؟",
+          "en": "Every cause needs one before it. Could the chain begin from nothing?"
+        },
         "success": {
-          "ar": "لكل حلقة حلقةٌ قبلها… إلى أين تنتهي؟",
-          "en": "Every link has a link before it… where does it end?"
+          "ar": "من الضوء إلى الطعام: كل حلقة تحتاج إلى ما قبلها.",
+          "en": "From light to food: every link needs the one before it."
         },
         "sign": {
-          "ar": "آية في الكون: كل ما يحدث له سبب",
-          "en": "A sign in creation: everything that comes to be has a cause"
+          "ar": "آية في الكون: لكل شيء سبب",
+          "en": "A sign in creation: everything has a cause"
         },
         "verse": "52:35",
+        "verse_food": "80:24-32",
         "reflection": {
           "ar": "هل يمكن لشيء أن يخلق نفسه؟ وهل يأتي شيء من لا شيء؟",
           "en": "Can anything create itself? Can something come from nothing?"
@@ -411,6 +553,53 @@
             "sources": [
               "52:35"
             ],
+            "refs": [],
+            "offer_human": false,
+            "review_status": "pending_sharia_review"
+          },
+          {
+            "id": "sabab-atp",
+            "question": {
+              "ar": "ما هو محرك ATP؟",
+              "en": "What is ATP synthase?"
+            },
+            "answer": {
+              "ar": "آلة جزيئية في أغشية الخلايا. تتدفق البروتونات عبرها فتدير دوّارها، وكل دورة كاملة تصنع ثلاث جزيئات ATP، عملة الطاقة في الخلية. والإنسان البالغ يستهلك ويجدد في يومه وهو مرتاح كمية من ATP تعادل نحو نصف وزن جسمه.",
+              "en": "A molecular machine in cell membranes. Protons flowing through it turn its rotor, and every full turn makes three ATP molecules, the cell's energy currency. At rest, an adult turns over about half their body weight in ATP each day."
+            },
+            "sources": [],
+            "refs": [
+              {
+                "label": {
+                  "ar": "جائزة نوبل للكيمياء ١٩٩٧",
+                  "en": "Nobel Prize in Chemistry 1997"
+                },
+                "url": "https://www.nobelprize.org/prizes/chemistry/1997/press-release/"
+              }
+            ],
+            "offer_human": false,
+            "review_status": "pending_sharia_review"
+          },
+          {
+            "id": "sabab-sky",
+            "question": {
+              "ar": "لماذا السماء زرقاء؟",
+              "en": "Why is the sky blue?"
+            },
+            "answer": {
+              "ar": "ضوء الشمس يحمل كل الألوان. وجزيئات الهواء تبعثر الأطوال الموجية القصيرة أكثر بكثير من الطويلة، إذ يتناسب التشتت عكسياً مع القوة الرابعة لطول الموجة. فيصلنا الأزرق من كل أنحاء السماء.",
+              "en": "Sunlight carries every colour. Air molecules scatter short wavelengths far more than long ones: scattering goes with one over the wavelength to the fourth power. So blue reaches us from every part of the sky."
+            },
+            "sources": [],
+            "refs": [
+              {
+                "label": {
+                  "ar": "تشتت رايلي",
+                  "en": "Rayleigh scattering"
+                },
+                "url": "https://en.wikipedia.org/wiki/Rayleigh_scattering"
+              }
+            ],
             "offer_human": false,
             "review_status": "pending_sharia_review"
           },
@@ -428,6 +617,7 @@
               "112:1-4",
               "57:3"
             ],
+            "refs": [],
             "offer_human": true,
             "review_status": "pending_sharia_review"
           },
@@ -444,39 +634,76 @@
             "sources": [
               "52:35"
             ],
+            "refs": [],
             "offer_human": true,
             "review_status": "pending_sharia_review"
           }
         ]
       },
       {
-        "id": "oneness",
+        "id": "fitrah",
         "number": 3,
         "title": {
-          "ar": "الواحد",
-          "en": "The One"
+          "ar": "الفطرة",
+          "en": "Fitrah"
         },
         "intro": {
-          "ar": "قانونان يتنازعان المشهد: الشمس تُشدّ في اتجاهين، والليل والنهار يتصادمان.",
-          "en": "Two laws fight over the scene: the sun is pulled two ways, and night and day collide."
+          "ar": "والآن إلى الداخل. هذا نورك أنت.",
+          "en": "Now inward. This is your own light."
         },
         "instruction": {
-          "ar": "أزِل التعارض ليعود الانسجام",
-          "en": "Remove the conflict to restore harmony"
+          "ar": "اسحب كل حلقة حتى يتوقف التذبذب",
+          "en": "Drag each ring until the wavering stops"
         },
-        "hints": [
+        "inner_tone": {
+          "ar": "فيك نغمة كانت هنا منذ البداية.",
+          "en": "There is a tone in you that has been here from the start."
+        },
+        "layers": [
           {
-            "ar": "مشهد واحد لا يحكمه قانونان متعارضان.",
-            "en": "One world cannot be run by two conflicting laws."
+            "ar": "السمع",
+            "en": "Hearing"
+          },
+          {
+            "ar": "البصر",
+            "en": "Sight"
+          },
+          {
+            "ar": "الفؤاد",
+            "en": "Heart"
           }
         ],
+        "hints": [
+          {
+            "ar": "استمع: كلما اقتربت، أبطأ التذبذب.",
+            "en": "Listen: the closer you get, the slower the wavering."
+          }
+        ],
+        "second": {
+          "appear": {
+            "ar": "مصدر ثانٍ يدّعي أنه الأصل.",
+            "en": "A second source claims to be the origin."
+          },
+          "try": {
+            "ar": "حاول أن تنسجم معهما معاً.",
+            "en": "Try to be in tune with both."
+          },
+          "fail": {
+            "ar": "مع مصدرين مختلفين لا يستقر شيء.",
+            "en": "With two different sources, nothing settles."
+          },
+          "release": {
+            "ar": "اترك المصدر الزائف",
+            "en": "Let the false source go"
+          }
+        },
         "success": {
-          "ar": "عاد الانسجام إلى كل شيء.",
-          "en": "Harmony returns to everything."
+          "ar": "مصدر واحد، فانسجم كل شيء.",
+          "en": "One source, and everything is in harmony."
         },
         "sign": {
-          "ar": "آية في الكون: انسجام الكون كله",
-          "en": "A sign in creation: the harmony of everything"
+          "ar": "آية في الكون وفي نفسك: الانسجام",
+          "en": "A sign in creation and in you: harmony"
         },
         "verse": "21:22",
         "answer_verse": {
@@ -490,8 +717,25 @@
           "ar": "لو كان للكون أكثر من إله، هل سيبقى منسجماً؟",
           "en": "If the universe had more than one god, would it stay in harmony?"
         },
-        "design_rule": "Never represent God with any shape, light or symbol. Show only the effects: conflict, then harmony.",
+        "design_rule": "Never represent God with any shape, light, sound or symbol. The inner tone stands for the player's own nature; the game shows only effects: conflict, then harmony.",
         "dalil_suggestions": [
+          {
+            "id": "fitrah-1",
+            "question": {
+              "ar": "ما معنى الفطرة؟",
+              "en": "What does fitrah mean?"
+            },
+            "answer": {
+              "ar": "الفطرة هي الطبيعة التي خُلق عليها كل إنسان. ويقول القرآن إنها الفطرة التي فطر الله الناس عليها، وإنه لا تبديل لخلق الله.",
+              "en": "Fitrah is the nature every person is created with. The Qur'an calls it the nature upon which God created people, and says there is no changing God's creation."
+            },
+            "sources": [
+              "30:30"
+            ],
+            "refs": [],
+            "offer_human": false,
+            "review_status": "pending_sharia_review"
+          },
           {
             "id": "oneness-1",
             "question": {
@@ -505,6 +749,7 @@
             "sources": [
               "112:1-4"
             ],
+            "refs": [],
             "offer_human": false,
             "review_status": "pending_sharia_review"
           },
@@ -521,6 +766,7 @@
             "sources": [
               "112:1-4"
             ],
+            "refs": [],
             "offer_human": false,
             "review_status": "pending_sharia_review"
           },
@@ -538,6 +784,7 @@
               "29:46",
               "112:1-4"
             ],
+            "refs": [],
             "offer_human": true,
             "review_status": "pending_sharia_review"
           }
@@ -611,8 +858,8 @@
           "en": "False. In the Qur'an, God is \"Lord of the worlds\": Lord of all people and all creation."
         },
         "w1-q3": {
-          "ar": "إحكام المدارات تتحدث عنه سورة الملك، وانسجام الكون تتحدث عنه سورة الأنبياء.",
-          "en": "The precision of the orbits is in Surat al-Mulk; the harmony of the universe is in Surat al-Anbiya."
+          "ar": "ميزان السماء تتحدث عنه سورة الرحمن، وانسجام الكون تتحدث عنه سورة الأنبياء.",
+          "en": "The balance of the heavens is in Surat ar-Rahman; the harmony of the universe is in Surat al-Anbiya."
         }
       },
       "result": {
@@ -769,6 +1016,22 @@
     "view_verse": {
       "ar": "اقرأ",
       "en": "Read"
+    },
+    "assist_on": {
+      "ar": "تشغيل وضع المساعدة",
+      "en": "Turn assist mode on"
+    },
+    "assist_off": {
+      "ar": "إيقاف وضع المساعدة",
+      "en": "Turn assist mode off"
+    },
+    "assist_label": {
+      "ar": "مساعدة",
+      "en": "Assist"
+    },
+    "keep_verse": {
+      "ar": "احتفظ بالآية",
+      "en": "Keep this verse"
     },
     "pick_verse": {
       "ar": "اختر آية لتشاركها",

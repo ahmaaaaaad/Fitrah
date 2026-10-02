@@ -10,6 +10,9 @@ import { QUALITY } from '../core/scene.js';
 // horizon.align() mirrors it for left-to-right layouts.
 export const HORIZON = new THREE.Vector3(-75.9, 9.7, 138.3);
 export const ORB_HOME = new THREE.Vector3(-12.5, 3.2, 15.5); // where the orb watches the system
+/** Gravitational parameter of the sun in game units: the inner orbit (R 6.5) takes about 8 s. */
+export const GM = 169;
+export const SUN_RADIUS = 2.5;
 
 const GLOW = glowTexture();
 const GLOW_AQUA = glowTexture([[0, 'rgba(255,255,255,1)'], [0.1, 'rgba(230,255,252,0.9)'], [0.3, 'rgba(120,240,225,0.3)'], [0.6, 'rgba(95,227,208,0.07)'], [1, 'rgba(0,0,0,0)']]);
@@ -159,7 +162,7 @@ void main(){
 }`;
 
 const ORBIT_FRAG = /* glsl */`
-uniform float uR, uOpacity, uGlow, uDash, uTime, uPulse; uniform vec3 uColor;
+uniform float uR, uOpacity, uGlow, uDash, uTime, uPulse, uBand, uBandAlpha; uniform vec3 uColor;
 varying vec2 vP;
 void main(){
   float r = length(vP); float d = abs(r - uR);
@@ -168,7 +171,8 @@ void main(){
   float ang = atan(vP.y, vP.x);
   float dash = mix(1.0, step(0.5, fract(ang * 9.549 * 2.0 + uTime * 0.15)), uDash);
   float pulse = 1.0 + uPulse * 0.55 * sin(uTime * 7.0);
-  float a = (core * dash + glow) * uOpacity * pulse;
+  float band = smoothstep(uBand, uBand - 0.35, d) * (0.6 + 0.4 * smoothstep(uBand - 0.5, uBand, d)) * uBandAlpha;
+  float a = (core * dash + glow) * uOpacity * pulse + band;
   gl_FragColor = vec4(uColor, a);
 }`;
 
@@ -214,6 +218,16 @@ export function createCosmos({ scene, renderer }) {
     const group = new THREE.Group();
     const tex = planetTexture(def.kind, def.palette, 100 + i * 17, def.kind === 'gas' ? 1024 : 512);
     const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.82, metalness: 0, envMapIntensity: 0.35 });
+    // uLife: 0 barren rock .. 1 the living planet; uFreeze: frost when it drifts away
+    const lifeU = { uLife: { value: 1 }, uFreeze: { value: 0 } };
+    mat.onBeforeCompile = (sh) => {
+      Object.assign(sh.uniforms, lifeU);
+      sh.fragmentShader = 'uniform float uLife; uniform float uFreeze;\n' + sh.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>
+        float lumP = dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114));
+        vec3 barren = vec3(0.36, 0.3, 0.27) * (0.5 + 1.1 * lumP);
+        diffuseColor.rgb = mix(barren, diffuseColor.rgb, uLife);
+        diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.78, 0.88, 1.0) * (0.55 + 0.7 * lumP), uFreeze);`);
+    };
     const mesh = new THREE.Mesh(new THREE.SphereGeometry(def.size, 64, 48), mat);
     mesh.rotation.z = (i % 2 ? 1 : -1) * 0.35;
     group.add(mesh);
@@ -228,7 +242,7 @@ export function createCosmos({ scene, renderer }) {
       for (let k = 0; k < pos.count; k++) { v3.fromBufferAttribute(pos, k); uv.setXY(k, (v3.length() - def.size * 1.45) / (def.size * 1.05), 0.5); }
       const ring = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ map: ringTex, transparent: true, side: THREE.DoubleSide, depthWrite: false, color: 0xc9b89a }));
       ring.rotation.x = Math.PI / 2.35; ring.rotation.y = 0.18;
-      group.add(ring);
+      group.add(ring); group.userData.ring = ring;
     }
     // generous invisible hit target for touch
     const hit = new THREE.Mesh(new THREE.SphereGeometry(Math.max(def.size * 2.4, 1.5), 12, 8), new THREE.MeshBasicMaterial({ visible: false }));
@@ -239,9 +253,10 @@ export function createCosmos({ scene, renderer }) {
     // orbit ring
     const ou = {
       uR: { value: def.R }, uOpacity: { value: 0.3 }, uGlow: { value: 0.0 }, uDash: { value: 1 }, uTime: { value: 0 }, uPulse: { value: 0 },
+      uBand: { value: def.R * 0.22 }, uBandAlpha: { value: 0 },
       uColor: { value: new THREE.Color(def.ring) },
     };
-    const og = new THREE.RingGeometry(def.R - 0.9, def.R + 0.9, 512, 1);
+    const og = new THREE.RingGeometry(def.R * 0.74 - 0.3, def.R * 1.26 + 0.3, 512, 1);
     const orbit = new THREE.Mesh(og, new THREE.ShaderMaterial({
       uniforms: ou, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
       vertexShader: 'varying vec2 vP; void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
@@ -250,7 +265,8 @@ export function createCosmos({ scene, renderer }) {
     orbit.rotation.x = -Math.PI / 2;
     root.add(orbit);
 
-    return { ...def, index: i, group, mesh, atm, atmU, hit, orbit, orbitU: ou, mode: 'orbit', w: 2.1 / Math.pow(def.R, 1.15), phase: def.ph };
+    return { ...def, index: i, group, mesh, atm, atmU, hit, orbit, orbitU: ou, lifeU, atmBase: 1.25, mode: 'orbit', w: Math.sqrt(GM / Math.pow(def.R, 3)), phase: def.ph,
+      band: [def.R * 0.78, def.R * 1.22], pos: new THREE.Vector3(), vel: new THREE.Vector3() };
   });
 
   const tmpA = new THREE.Vector3(), tmpB = new THREE.Vector3();
@@ -267,6 +283,34 @@ export function createCosmos({ scene, renderer }) {
     return out.set(p.R * Math.cos(a), 0, p.R * Math.sin(a));
   }
   function setOrbitPhaseFromAngle(i, angle, t) { const p = planets[i]; p.phase = angle - t * p.w * p.dir; }
+
+  // Newtonian gravity of the sun, integrated with velocity Verlet (symplectic: orbits stay closed).
+  const acc = (pos, out) => { const r2 = pos.lengthSq(), r = Math.sqrt(r2); return out.copy(pos).multiplyScalar(-GM / (r2 * r)); };
+  const a0 = new THREE.Vector3(), a1 = new THREE.Vector3();
+  function verlet(pos, vel, h) {
+    acc(pos, a0); vel.addScaledVector(a0, h / 2); pos.addScaledVector(vel, h); acc(pos, a1); vel.addScaledVector(a1, h / 2);
+  }
+  function stepBody(pos, vel, dt, sub = 8) { const h = dt / sub; for (let k = 0; k < sub; k++) verlet(pos, vel, h); }
+  /** Orbital elements of a state (planar): energy, eccentricity, periapsis, apoapsis, period. */
+  function elements(pos, vel) {
+    const r = pos.length(), v2 = vel.lengthSq();
+    const eps = v2 / 2 - GM / r;
+    const hz = pos.z * vel.x - pos.x * vel.z; // angular momentum about y
+    const h2 = hz * hz;
+    const e = Math.sqrt(Math.max(0, 1 + (2 * eps * h2) / (GM * GM)));
+    const rp = h2 / (GM * (1 + e));
+    const ra = e < 1 ? h2 / (GM * (1 - e)) : Infinity;
+    const a = eps < 0 ? -GM / (2 * eps) : Infinity;
+    const T = eps < 0 ? 2 * Math.PI * Math.sqrt(a * a * a / GM) : Infinity;
+    return { eps, e, rp, ra, a, T, hz };
+  }
+  /** Put a planet on its circular orbit at angle phi, moving in its own direction. */
+  function circular(i, phi) {
+    const p = planets[i], vc = Math.sqrt(GM / p.R);
+    p.pos.set(p.R * Math.cos(phi), 0, p.R * Math.sin(phi));
+    p.vel.set(-Math.sin(phi), 0, Math.cos(phi)).multiplyScalar(vc * p.dir);
+    p.mode = 'physics';
+  }
 
   // ------------------------------------------------------------------ the orb (player)
   const orb = (() => {
@@ -395,6 +439,10 @@ export function createCosmos({ scene, renderer }) {
     planets.forEach((p, i) => {
       if (p.mode === 'orbit') orderPos(i, t, p.group.position);
       else if (p.mode === 'chaos') chaosPos(i, t, p.group.position);
+      else if (p.mode === 'physics') { stepBody(p.pos, p.vel, dt); p.group.position.copy(p.pos); }
+      else if (p.mode === 'hold') p.group.position.copy(p.pos);
+      p.atmU.uStrength.value = p.atmBase * (0.12 + 0.88 * p.lifeU.uLife.value);
+      if (p.group.userData.ring) p.group.userData.ring.material.opacity = 0.15 + 0.85 * p.lifeU.uLife.value;
       p.mesh.rotation.y += dt * (0.25 + i * 0.05);
       sunDir.copy(p.group.position).negate().normalize();
       p.atmU.uSunDir.value.copy(sunDir);
@@ -414,7 +462,8 @@ export function createCosmos({ scene, renderer }) {
   }
 
   return {
-    root, sky, sun, sunMat, sunLight, coronaIn, coronaOut, planets, orb, dalil, dustHub,
+    root, sky, sun, sunGroup, sunMat, sunLight, coronaIn, coronaOut, streak, planets, orb, dalil, dustHub,
+    GM, stepBody, elements, circular, acc,
     burstGold, burstAqua, chaosPos, orderPos, setOrbitPhaseFromAngle, update,
     addUpdater(fn) { updaters.push(fn); return () => updaters.splice(updaters.indexOf(fn), 1); },
     GLOW, GLOW_AQUA,

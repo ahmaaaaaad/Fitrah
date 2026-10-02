@@ -209,6 +209,158 @@
       "review_status": "pending_sharia_review"
     },
     {
+      "key": "41:53",
+      "surah": 41,
+      "surah_name_ar": "فصلت",
+      "surah_name_en": "Fussilat",
+      "ayahs": [
+        53
+      ],
+      "ayah_texts": [
+        {
+          "n": 53,
+          "ar": "سَنُرِيهِمۡ ءَايَٰتِنَا فِي ٱلۡأٓفَاقِ وَفِيٓ أَنفُسِهِمۡ حَتَّىٰ يَتَبَيَّنَ لَهُمۡ أَنَّهُ ٱلۡحَقُّۗ أَوَلَمۡ يَكۡفِ بِرَبِّكَ أَنَّهُۥ عَلَىٰ كُلِّ شَيۡءٖ شَهِيدٌ",
+          "en": "We will show them Our signs in the horizons and within themselves until it becomes clear to them that it is the truth. But is it not sufficient concerning your Lord that He is, over all things, a Witness"
+        }
+      ],
+      "text_uthmani": "سَنُرِيهِمۡ ءَايَٰتِنَا فِي ٱلۡأٓفَاقِ وَفِيٓ أَنفُسِهِمۡ حَتَّىٰ يَتَبَيَّنَ لَهُمۡ أَنَّهُ ٱلۡحَقُّۗ أَوَلَمۡ يَكۡفِ بِرَبِّكَ أَنَّهُۥ عَلَىٰ كُلِّ شَيۡءٖ شَهِيدٌ",
+      "translation_en": "We will show them Our signs in the horizons and within themselves until it becomes clear to them that it is the truth. But is it not sufficient concerning your Lord that He is, over all things, a Witness",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "world1.frame_horizons_and_selves"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "54:49",
+      "surah": 54,
+      "surah_name_ar": "القمر",
+      "surah_name_en": "Al-Qamar",
+      "ayahs": [
+        49
+      ],
+      "ayah_texts": [
+        {
+          "n": 49,
+          "ar": "إِنَّا كُلَّ شَيۡءٍ خَلَقۡنَٰهُ بِقَدَرٖ",
+          "en": "Indeed, all things We created with predestination"
+        }
+      ],
+      "text_uthmani": "إِنَّا كُلَّ شَيۡءٍ خَلَقۡنَٰهُ بِقَدَرٖ",
+      "translation_en": "Indeed, all things We created with predestination",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "world1.mizan_qadar"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "55:7-9",
+      "surah": 55,
+      "surah_name_ar": "الرحمن",
+      "surah_name_en": "Ar-Rahman",
+      "ayahs": [
+        7,
+        8,
+        9
+      ],
+      "ayah_texts": [
+        {
+          "n": 7,
+          "ar": "وَٱلسَّمَآءَ رَفَعَهَا وَوَضَعَ ٱلۡمِيزَانَ",
+          "en": "And the heaven He raised and imposed the balance"
+        },
+        {
+          "n": 8,
+          "ar": "أَلَّا تَطۡغَوۡاْ فِي ٱلۡمِيزَانِ",
+          "en": "That you not transgress within the balance"
+        },
+        {
+          "n": 9,
+          "ar": "وَأَقِيمُواْ ٱلۡوَزۡنَ بِٱلۡقِسۡطِ وَلَا تُخۡسِرُواْ ٱلۡمِيزَانَ",
+          "en": "And establish weight in justice and do not make deficient the balance"
+        }
+      ],
+      "text_uthmani": "وَٱلسَّمَآءَ رَفَعَهَا وَوَضَعَ ٱلۡمِيزَانَ أَلَّا تَطۡغَوۡاْ فِي ٱلۡمِيزَانِ وَأَقِيمُواْ ٱلۡوَزۡنَ بِٱلۡقِسۡطِ وَلَا تُخۡسِرُواْ ٱلۡمِيزَانَ",
+      "translation_en": "And the heaven He raised and imposed the balance That you not transgress within the balance And establish weight in justice and do not make deficient the balance",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "world1.mizan_orbits"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "80:24-32",
+      "surah": 80,
+      "surah_name_ar": "عبس",
+      "surah_name_en": "'Abasa",
+      "ayahs": [
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32
+      ],
+      "ayah_texts": [
+        {
+          "n": 24,
+          "ar": "فَلۡيَنظُرِ ٱلۡإِنسَٰنُ إِلَىٰ طَعَامِهِۦٓ",
+          "en": "Then let mankind look at his food"
+        },
+        {
+          "n": 25,
+          "ar": "أَنَّا صَبَبۡنَا ٱلۡمَآءَ صَبّٗا",
+          "en": "How We poured down water in torrents"
+        },
+        {
+          "n": 26,
+          "ar": "ثُمَّ شَقَقۡنَا ٱلۡأَرۡضَ شَقّٗا",
+          "en": "Then We broke open the earth, splitting [it with sprouts]"
+        },
+        {
+          "n": 27,
+          "ar": "فَأَنۢبَتۡنَا فِيهَا حَبّٗا",
+          "en": "And caused to grow within it grain"
+        },
+        {
+          "n": 28,
+          "ar": "وَعِنَبٗا وَقَضۡبٗا",
+          "en": "And grapes and herbage"
+        },
+        {
+          "n": 29,
+          "ar": "وَزَيۡتُونٗا وَنَخۡلٗا",
+          "en": "And olive and palm trees"
+        },
+        {
+          "n": 30,
+          "ar": "وَحَدَآئِقَ غُلۡبٗا",
+          "en": "And gardens of dense shrubbery"
+        },
+        {
+          "n": 31,
+          "ar": "وَفَٰكِهَةٗ وَأَبّٗا",
+          "en": "And fruit and grass"
+        },
+        {
+          "n": 32,
+          "ar": "مَّتَٰعٗا لَّكُمۡ وَلِأَنۡعَٰمِكُمۡ",
+          "en": "[As] enjoyment for you and your grazing livestock"
+        }
+      ],
+      "text_uthmani": "فَلۡيَنظُرِ ٱلۡإِنسَٰنُ إِلَىٰ طَعَامِهِۦٓ أَنَّا صَبَبۡنَا ٱلۡمَآءَ صَبّٗا ثُمَّ شَقَقۡنَا ٱلۡأَرۡضَ شَقّٗا فَأَنۢبَتۡنَا فِيهَا حَبّٗا وَعِنَبٗا وَقَضۡبٗا وَزَيۡتُونٗا وَنَخۡلٗا وَحَدَآئِقَ غُلۡبٗا وَفَٰكِهَةٗ وَأَبّٗا مَّتَٰعٗا لَّكُمۡ وَلِأَنۡعَٰمِكُمۡ",
+      "translation_en": "Then let mankind look at his food How We poured down water in torrents Then We broke open the earth, splitting [it with sprouts] And caused to grow within it grain And grapes and herbage And olive and palm trees And gardens of dense shrubbery And fruit and grass [As] enjoyment for you and your grazing livestock",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "world1.sabab_food"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
       "key": "23:115",
       "surah": 23,
       "surah_name_ar": "المؤمنون",

@@ -21,12 +21,17 @@ The challenge rules allow entering with prior work if its state is documented; o
   - The interface (`client/src/ui/`): HUD, verse cards in Amiri Quran with ayah marks, the verse journal, Dalil's panel and the share-card image. Dalil answers only the reviewed fallback answers, always cites its source, and declines and refers for rulings, distress, requests to alter the text, and disrespect.
   - Arabic and English with full right-to-left/left-to-right layout. Fonts are bundled, so nothing loads from a font CDN. Ambient sound is generated with Web Audio. Progress stays on the device.
   - Headless play-through tests: the full journey from the first screen to the ending, real pointer drags for stations 1 and 3, and a phone-size layout check.
+- **Fitrah 2.0 modules** (`client/src/modules/`), rebuilt 2–3 October from the design document "Fitrah 2.0 Design Document" (a Claude doc):
+  - **Mizan** (`mizan.js`): inside an old star, the player turns the Hoyle-resonance ring out of the carbon window (7.3–7.9 MeV) on both sides and back; the star sheds its carbon as dust. Then each protoplanet is launched like an arrow under Newtonian gravity (velocity Verlet), with a predicted path, a gravity-well grid, fall/escape/lock states, barren-to-living planets and a Kepler-derived chord.
+  - **Sabab** (`sabab.js`): one descent from the living planet through a Rayleigh-scattering sky to a backlit leaf the player turns to the sun, into the thylakoid membrane: photosystem II splits water (four photons per O₂), the player leads electrons along the chain (each run pumps protons), and turns ATP synthase (three ATP per turn); then back up the same chain.
+  - **Fitrah** (`fitrah.js`): inside the player's light, three layers (hearing, sight, heart) are tuned to the inner tone with audible beats and Kuramoto phase-locking; a second, competing source makes settling impossible until the player lets it go.
+  - These replace the three 1.0 stations (`client/src/stations/`, removed). Guidance is now gesture glyphs, with text in assist mode or after a stall; Dalil shows science sources beside verse sources.
+  - Five verse passages added to `data/quran/verses.json` by the generator: 41:53, 54:49, 55:7–9, 80:24–32 (plus the existing ones). All new pairings are pending sharia and science review.
 - **Dalil test set draft** (`eval/questions.json`, 50 questions) and scoring procedure.
 - Design document, idea deck, and a pre-rendered concept video (not part of the product).
 
 ## Not built yet (planned for 4–6 October)
 - Recitation playback on the verse card (the player is hidden until licensed audio is added).
 - Live Dalil: classification, retrieval over the approved sources, constrained answering and validation. The current build uses only the fallback answers.
-- The side station "Within yourself" (51:21).
 - Test-set runner and reliability report; user testing with 5–10 people.
 - Sharia review sign-off of all text, then deployment, the video and the final presentation.

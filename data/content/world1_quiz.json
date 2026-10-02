@@ -7,35 +7,76 @@
     {
       "id": "w1-q1",
       "type": "multiple_choice",
-      "prompt": { "ar": "ما معنى التوحيد في الإسلام؟", "en": "What does tawhid mean in Islam?" },
+      "prompt": {
+        "ar": "ما معنى التوحيد في الإسلام؟",
+        "en": "What does tawhid mean in Islam?"
+      },
       "options": [
-        { "id": "a", "ar": "أن الله واحد، لا شريك له ولا يشبهه شيء", "en": "God is One, with no partner and nothing like Him" },
-        { "id": "b", "ar": "أن لكل أمة إلهاً خاصاً بها", "en": "Each nation has its own god" },
-        { "id": "c", "ar": "أن الكون هو الإله", "en": "The universe itself is God" },
-        { "id": "d", "ar": "أن لله شركاء يساعدونه", "en": "God has partners who help Him" }
+        {
+          "id": "a",
+          "ar": "أن الله واحد، لا شريك له ولا يشبهه شيء",
+          "en": "God is One, with no partner and nothing like Him"
+        },
+        {
+          "id": "b",
+          "ar": "أن لكل أمة إلهاً خاصاً بها",
+          "en": "Each nation has its own god"
+        },
+        {
+          "id": "c",
+          "ar": "أن الكون هو الإله",
+          "en": "The universe itself is God"
+        },
+        {
+          "id": "d",
+          "ar": "أن لله شركاء يساعدونه",
+          "en": "God has partners who help Him"
+        }
       ],
       "correct": "a",
-      "sources": ["112:1-4"],
-      "replay_station": "station3_oneness"
+      "sources": [
+        "112:1-4"
+      ],
+      "replay_station": "fitrah"
     },
     {
       "id": "w1-q2",
       "type": "true_false",
-      "prompt": { "ar": "صح أم خطأ: الله في الإسلام إله خاص بالعرب.", "en": "True or false: in Islam, Allah is a god for Arabs only." },
+      "prompt": {
+        "ar": "صح أم خطأ: الله في الإسلام إله خاص بالعرب.",
+        "en": "True or false: in Islam, Allah is a god for Arabs only."
+      },
       "correct": false,
-      "sources": ["1:2"],
+      "sources": [
+        "1:2"
+      ],
       "explanation_key": "rabb_al_alamin",
-      "replay_station": "station3_oneness"
+      "replay_station": "fitrah"
     },
     {
       "id": "w1-q3",
       "type": "match",
-      "prompt": { "ar": "طابِق كل ظاهرة بالآية التي تتحدث عنها", "en": "Match each sign with the verse about it" },
+      "prompt": {
+        "ar": "طابِق كل ظاهرة بالآية التي تتحدث عنها",
+        "en": "Match each sign with the verse about it"
+      },
       "pairs": [
-        { "sign": { "ar": "إحكام المدارات", "en": "The precision of the orbits" }, "verse": "67:3" },
-        { "sign": { "ar": "انسجام الكون كله", "en": "The harmony of the whole universe" }, "verse": "21:22" }
+        {
+          "sign": {
+            "ar": "ميزان السماء",
+            "en": "The balance of the heavens"
+          },
+          "verse": "55:7-9"
+        },
+        {
+          "sign": {
+            "ar": "انسجام الكون كله",
+            "en": "The harmony of the whole universe"
+          },
+          "verse": "21:22"
+        }
       ],
-      "replay_station": "station1_order"
+      "replay_station": "mizan"
     }
   ]
 }

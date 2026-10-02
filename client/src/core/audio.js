@@ -74,6 +74,25 @@ export const audio = {
   shimmer() { this._burst({ dur: 1.3, from: 5000, to: 9000, q: 1.5, gain: 0.16, type: 'white', attack: 0.15 }); },
   warp() { this._burst({ dur: 2.4, from: 150, to: 3000, q: 0.9, gain: 0.45, attack: 0.6 }); },
   wrong() { this._burst({ dur: 0.5, from: 500, to: 220, q: 4, gain: 0.25, attack: 0.1 }); },
+  /**
+   * A sustained tone (orbit notes, the star's hum, the rings of the self).
+   * Returns controls; a silent stand-in when audio has not started.
+   */
+  tone(freq, { gain = 0.05, type = 'sine', attack = 1.2, pan = 0 } = {}) {
+    if (!ctx) return { setFreq() {}, setGain() {}, stop() {} };
+    const o = ctx.createOscillator(); o.type = type; o.frequency.value = freq;
+    const g = ctx.createGain(); g.gain.value = 0;
+    let node = o.connect(g);
+    if (ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = pan; node = node.connect(p); }
+    node.connect(master);
+    o.start();
+    g.gain.setTargetAtTime(gain, ctx.currentTime, attack / 3);
+    return {
+      setFreq(f, tc = 0.06) { o.frequency.setTargetAtTime(f, ctx.currentTime, tc); },
+      setGain(v, tc = 0.2) { g.gain.setTargetAtTime(v, ctx.currentTime, tc); },
+      stop(release = 1.2) { g.gain.setTargetAtTime(0, ctx.currentTime, release / 3); o.stop(ctx.currentTime + release * 2); },
+    };
+  },
   /** Recitation files are not bundled yet; the verse card hides its player until they are. */
   hasRecitation() { return false; },
 };

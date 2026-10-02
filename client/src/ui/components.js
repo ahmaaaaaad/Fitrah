@@ -10,8 +10,9 @@ import * as store from '../core/store.js';
 const U = () => S.ui;
 
 // ================================================================== HUD
+const assistListeners = new Set();
 export const hud = (() => {
-  let top, pill, pillText, dots, journalBtn, badge, soundBtn, fab, onJournal = () => {}, onDalil = () => {};
+  let top, pill, pillText, dots, journalBtn, badge, soundBtn, assistBtn, fab, onJournal = () => {}, onDalil = () => {};
   function build() {
     pillText = h('span');
     dots = h('span', { class: 'dots' }, h('i'), h('i'), h('i'));
@@ -20,10 +21,17 @@ export const hud = (() => {
     journalBtn = h('button', { class: 'journal-btn', onClick: () => onJournal(), hidden: true },
       ICON.book('#e8c277'), h('span', { class: 'lbl' }, t(U().journal_button)), badge);
     soundBtn = h('button', { class: 'icon-btn', onClick: () => { audio.setMuted(!audio.muted); refreshSound(); }, hidden: true });
-    top = h('div', { class: 'hud-top' }, pill, h('div', { class: 'hud-actions' }, soundBtn, journalBtn));
+    assistBtn = h('button', { class: 'icon-btn assist-btn', onClick: () => { store.state.assist = !store.state.assist; store.save(); refreshAssist(); assistListeners.forEach((fn) => fn(store.state.assist)); }, hidden: true }, h('span', {}, 'Aa'));
+    top = h('div', { class: 'hud-top' }, pill, h('div', { class: 'hud-actions' }, assistBtn, soundBtn, journalBtn));
     fab = h('button', { class: 'dalil-fab', hidden: true, onClick: () => onDalil() }, ICON.spark(), h('span', {}, t(S.dalil.ask_button)));
     root().append(top, fab);
-    refreshSound();
+    refreshSound(); refreshAssist();
+  }
+  function refreshAssist() {
+    assistBtn.classList.toggle('on', !!store.state.assist);
+    assistBtn.setAttribute('aria-pressed', String(!!store.state.assist));
+    assistBtn.setAttribute('aria-label', t(store.state.assist ? U().assist_off : U().assist_on));
+    assistBtn.title = t(U().assist_label);
   }
   function refreshSound() {
     soundBtn.replaceChildren(audio.muted ? ICON.soundOff() : ICON.soundOn());
@@ -35,10 +43,11 @@ export const hud = (() => {
       journalBtn.querySelector('.lbl').textContent = t(U().journal_button);
       fab.querySelector('span').textContent = t(S.dalil.ask_button);
       badge.textContent = i18n.num(store.state.journal.length);
-      refreshSound();
+      refreshSound(); refreshAssist();
     },
     setHandlers({ journal, dalil }) { onJournal = journal; onDalil = dalil; },
-    showTop(on = true) { journalBtn.hidden = !on; soundBtn.hidden = !on; if (on) gsap.fromTo([journalBtn, soundBtn], { opacity: 0 }, { opacity: 1, duration: D(0.8) }); },
+    showTop(on = true) { journalBtn.hidden = !on; soundBtn.hidden = !on; assistBtn.hidden = !on; if (on) gsap.fromTo([journalBtn, soundBtn, assistBtn], { opacity: 0 }, { opacity: 1, duration: D(0.8) }); },
+    onAssist(fn) { assistListeners.add(fn); return () => assistListeners.delete(fn); },
     setStation(n, title) {
       if (!n) { pill.hidden = true; return; }
       pill.hidden = false;
@@ -56,6 +65,72 @@ export const hud = (() => {
     journalRect() { return journalBtn.getBoundingClientRect(); },
   };
 })();
+
+// ================================================================== guidance
+const GLYPHS = {
+  rotate: '<svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><circle cx="32" cy="32" r="22" fill="none" stroke="rgba(255,236,190,0.35)" stroke-width="2"/><g class="spin"><path d="M32 10a22 22 0 0 1 20 13" fill="none" stroke="#ffe3a8" stroke-width="3" stroke-linecap="round"/><path d="M53 15l-1 9-8-3" fill="none" stroke="#ffe3a8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g><circle cx="32" cy="32" r="4" fill="#ffe3a8"/></svg>',
+  pull: '<svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><circle cx="20" cy="32" r="7" fill="#ffe3a8"/><g class="pullback"><circle cx="46" cy="32" r="5" fill="none" stroke="#ffe3a8" stroke-width="2.5"/><path d="M27 32h13" stroke="#ffe3a8" stroke-width="2.5" stroke-dasharray="3 4"/></g><path d="M14 32H4M8 27l-5 5 5 5" fill="none" stroke="rgba(255,236,190,0.6)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  hold: '<svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><circle class="ripple" cx="32" cy="32" r="10" fill="none" stroke="#ffe3a8" stroke-width="2.5"/><circle class="ripple r2" cx="32" cy="32" r="10" fill="none" stroke="#ffe3a8" stroke-width="2.5"/><circle cx="32" cy="32" r="7" fill="#ffe3a8"/></svg>',
+  path: '<svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><path d="M6 44C18 20 30 52 42 28S58 18 60 22" fill="none" stroke="rgba(255,236,190,0.4)" stroke-width="2.5" stroke-dasharray="4 4"/><circle class="travel" r="5" fill="#ffe3a8"><animateMotion dur="2.4s" repeatCount="indefinite" path="M6 44C18 20 30 52 42 28S58 18 60 22"/></circle></svg>',
+  tune: '<svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true"><path d="M32 6v52" stroke="rgba(255,236,190,0.35)" stroke-width="2"/><path d="M24 14l8-8 8 8M24 50l8 8 8-8" fill="none" stroke="#ffe3a8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle class="bob" cx="32" cy="32" r="6" fill="#ffe3a8"/></svg>',
+};
+
+/** An animated gesture icon that follows a point on screen. No words. */
+export function glyph(kind, anchorFn) {
+  const el = h('div', { class: `glyph glyph-${kind}`, html: GLYPHS[kind] || GLYPHS.hold });
+  root().append(el);
+  gsap.fromTo(el, { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: D(0.6), ease: 'back.out(2)' });
+  let alive = true, lx = NaN, ly = NaN;
+  const place = () => {
+    if (!alive) return;
+    const a = anchorFn?.();
+    if (a) {
+      const x = Math.round(a.x), y = Math.round(a.y);
+      if (Math.abs(x - lx) + Math.abs(y - ly) > 1) { el.style.left = `${x}px`; el.style.top = `${y}px`; lx = x; ly = y; }
+    }
+    requestAnimationFrame(place);
+  };
+  place();
+  return { el, done: () => { alive = false; return hide(el, { y: 0 }); } };
+}
+
+/**
+ * Guides one interaction without text: a gesture glyph first; the instruction
+ * line in assist mode or after a stall; a Dalil hint after a second stall.
+ * Call progress() whenever the player does something useful.
+ */
+export function coach({ glyph: g, text, hints = [], stall = 14 } = {}) {
+  let gl = g ? glyph(g[0], g[1]) : null;
+  let instr = null, hintCap = null, last = performance.now(), stage = 0, hintIdx = 0, alive = true;
+  const showInstr = () => { if (!instr && text) instr = instruction(text); };
+  if (store.state.assist) showInstr();
+  const off = hud.onAssist((on) => { if (on) showInstr(); else if (stage === 0) { instr?.done(); instr = null; } });
+  const timer = setInterval(() => {
+    if (!alive) return;
+    const idle = (performance.now() - last) / 1000;
+    if (stage === 0 && idle > stall) {
+      stage = 1; showInstr();
+      if (!gl && g) gl = glyph(g[0], g[1]);
+      store.log('stall', { text: text?.en });
+    } else if (stage === 1 && idle > stall * 2 && hints.length) {
+      stage = 2;
+      hintCap?.done?.();
+      hintCap = caption(hints[Math.min(hintIdx++, hints.length - 1)]);
+      hintCap.el.classList.add('dalil-line');
+      setTimeout(() => hintCap?.done?.(), 7000);
+    }
+  }, 500);
+  return {
+    progress() {
+      last = performance.now();
+      if (gl) { gl.done(); gl = null; }
+      if (stage === 2) stage = 1; // a later stall may hint again
+    },
+    setText(tx) { text = tx; if (instr) instr.set(tx); },
+    showGlyph() { if (!gl && g) gl = glyph(g[0], g[1]); },
+    done() { alive = false; clearInterval(timer); off(); gl?.done(); instr?.done(); hintCap?.done?.(); },
+  };
+}
 
 // ================================================================== simple pieces
 export function caption(text, holdSeconds = 0) {
@@ -364,7 +439,7 @@ function translationBlock(v) {
  * Shows a verse card. mode 'collect': the primary button adds it to the journal
  * and the card flies into the journal button. mode 'view': a close button.
  */
-export function verseCard(key, { heading, mode = 'collect' } = {}) {
+export function verseCard(key, { heading, mode = 'collect', from = null, to = null } = {}) {
   return new Promise((res) => {
     const v = verse(key);
     const scrim = h('div', { class: 'verse-scrim' });
@@ -387,7 +462,14 @@ export function verseCard(key, { heading, mode = 'collect' } = {}) {
       h('div', { class: 'row-end', style: { justifyContent: 'center' } }, primary));
     root().append(scrim, card);
     gsap.fromTo(scrim, { opacity: 0 }, { opacity: 1, duration: D(0.9) });
-    gsap.fromTo(card, { opacity: 0, y: 30, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: D(1.1), ease: 'power3.out' });
+    if (from) {
+      // the verse grows out of the place where its sign was found
+      const c0 = card.getBoundingClientRect();
+      gsap.fromTo(card, { opacity: 0, x: from.x - (c0.left + c0.width / 2), y: from.y - (c0.top + c0.height / 2), scale: 0.12 },
+        { opacity: 1, x: 0, y: 0, scale: 1, duration: D(1.3), ease: 'power3.out' });
+    } else {
+      gsap.fromTo(card, { opacity: 0, y: 30, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: D(1.1), ease: 'power3.out' });
+    }
     gsap.fromTo(card.querySelector('.ayat'), { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: D(1.8), delay: D(0.35) });
     audio.duck(true); setTimeout(() => audio.duck(false), 4000);
     primary.focus({ preventScroll: true });
@@ -398,7 +480,8 @@ export function verseCard(key, { heading, mode = 'collect' } = {}) {
     primary.addEventListener('click', () => {
       audio.shimmer();
       const r = hud.journalRect(), c = card.getBoundingClientRect();
-      const dx = r.left + r.width / 2 - (c.left + c.width / 2), dy = r.top + r.height / 2 - (c.top + c.height / 2);
+      const tx = to ? to.x : r.left + r.width / 2, ty = to ? to.y : r.top + r.height / 2;
+      const dx = tx - (c.left + c.width / 2), dy = ty - (c.top + c.height / 2);
       gsap.to(scrim, { opacity: 0, duration: D(0.8), onComplete: () => scrim.remove() });
       gsap.to(card, { x: `+=${dx}`, y: `+=${dy}`, scale: 0.05, opacity: 0, duration: D(1.0), ease: 'power3.in', onComplete: () => { card.remove(); res(); } });
     }, { once: true });
