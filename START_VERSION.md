@@ -9,7 +9,8 @@ The challenge rules allow entering with prior work if its state is documented; o
 - **World 1 quiz draft** (`data/content/world1_quiz.json`).
 - **World 1 content script draft** (`data/content/world1_script.json`, built by `tools/build_world1_script.py`): all player-facing text in Arabic and English for onboarding, Dalil's fixed lines, the Horizon, World 1 and the short ending, plus 9 pre-written Dalil answers. Added 2 October.
 - **Sharia review file** (`docs/review/world1-content-review.pdf`, built by `tools/review_pdf.py`). Added 2 October.
-- Verses 57:3 and 29:46 added to `data/quran/verses.json` for two Dalil answers. Added 2 October.
+- Verses 57:3 and 29:46 added to `data/quran/verses.json` for two Dalil answers, and every verse stored ayah by ayah (`ayah_texts`). The generator is `tools/extract_verses.py`. Added 2 October.
+- **Visual design** for World 1 (a design canvas, not code): visual language (colours, type, components, rules) and 13 screen designs: onboarding, intent, Horizon, station 1, sign, verse card, Dalil answering with a source, Dalil declining and referring, checkpoint, closing, ending, plus two mobile screens in English. Interface labels added to the script under `ui`. Added 2 October.
 - **Dalil test set draft** (`eval/questions.json`, 50 questions) and scoring procedure.
 - Design document, idea deck, and a pre-rendered concept video (not part of the product).
 

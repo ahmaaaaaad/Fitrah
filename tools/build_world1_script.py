@@ -238,6 +238,38 @@ script = {
     },
   },
 
+  # ------------------------------------------------------------------ interface labels (from the visual design)
+  "ui": {
+    "continue": t("متابعة", "Continue"),
+    "next": t("التالي", "Next"),
+    "go_on": t("تابع", "Continue"),
+    "hint": t("تلميح", "Hint"),
+    "drag_tooltip": t("اسحب إلى المدار المناسب", "Drag to the right orbit"),
+    "reveal_verse": t("اكشف الآية", "Reveal the verse"),
+    "reflect_label": t("تأمّل", "Reflect"),
+    "journal_button": t("دفتر الآيات", "Journal of signs"),
+    "verse_card": {
+      "label": t("آية قرآنية", "A verse of the Qur'an"),
+      "recitation": t("تلاوة", "Recitation"),
+      "add_to_journal": t("أضف إلى دفتري", "Add to my journal"),
+      "play_again": t("أعد التلاوة", "Play again"),
+      "translation_label": t("ترجمة المعنى", "Translation of meaning"),
+      "pause": t("إيقاف التلاوة مؤقتاً", "Pause recitation"),
+    },
+    "dalil_panel": {
+      "tagline": t("يجيب من مصادر موثقة فقط", "Answers from trusted sources only"),
+      "other_questions": t("أسئلة أخرى", "Other questions"),
+      "read_verse": t("اقرأ الآية", "Read the verse"),
+      "ask_another": t("سؤال آخر", "Ask something else"),
+      "abstained_badge": t("لم يُجب · يحتاج إلى مختص", "Not answered · needs a specialist"),
+      "voice": t("اسأل بصوتك", "Ask with your voice"),
+      "send": t("إرسال", "Send"),
+      "close": t("إغلاق", "Close"),
+    },
+    "checkpoint_progress": t("{n} من {total}", "{n} of {total}"),
+    "closing_label": t("جواب العالم الأول", "World One's answer"),
+  },
+
   # ------------------------------------------------------------------ ending (challenge version)
   "ending": {
     "lines": [t("حملتَ أول نور.", "You've carried the first light.")],

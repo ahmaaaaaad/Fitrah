@@ -621,6 +621,108 @@
       }
     }
   },
+  "ui": {
+    "continue": {
+      "ar": "متابعة",
+      "en": "Continue"
+    },
+    "next": {
+      "ar": "التالي",
+      "en": "Next"
+    },
+    "go_on": {
+      "ar": "تابع",
+      "en": "Continue"
+    },
+    "hint": {
+      "ar": "تلميح",
+      "en": "Hint"
+    },
+    "drag_tooltip": {
+      "ar": "اسحب إلى المدار المناسب",
+      "en": "Drag to the right orbit"
+    },
+    "reveal_verse": {
+      "ar": "اكشف الآية",
+      "en": "Reveal the verse"
+    },
+    "reflect_label": {
+      "ar": "تأمّل",
+      "en": "Reflect"
+    },
+    "journal_button": {
+      "ar": "دفتر الآيات",
+      "en": "Journal of signs"
+    },
+    "verse_card": {
+      "label": {
+        "ar": "آية قرآنية",
+        "en": "A verse of the Qur'an"
+      },
+      "recitation": {
+        "ar": "تلاوة",
+        "en": "Recitation"
+      },
+      "add_to_journal": {
+        "ar": "أضف إلى دفتري",
+        "en": "Add to my journal"
+      },
+      "play_again": {
+        "ar": "أعد التلاوة",
+        "en": "Play again"
+      },
+      "translation_label": {
+        "ar": "ترجمة المعنى",
+        "en": "Translation of meaning"
+      },
+      "pause": {
+        "ar": "إيقاف التلاوة مؤقتاً",
+        "en": "Pause recitation"
+      }
+    },
+    "dalil_panel": {
+      "tagline": {
+        "ar": "يجيب من مصادر موثقة فقط",
+        "en": "Answers from trusted sources only"
+      },
+      "other_questions": {
+        "ar": "أسئلة أخرى",
+        "en": "Other questions"
+      },
+      "read_verse": {
+        "ar": "اقرأ الآية",
+        "en": "Read the verse"
+      },
+      "ask_another": {
+        "ar": "سؤال آخر",
+        "en": "Ask something else"
+      },
+      "abstained_badge": {
+        "ar": "لم يُجب · يحتاج إلى مختص",
+        "en": "Not answered · needs a specialist"
+      },
+      "voice": {
+        "ar": "اسأل بصوتك",
+        "en": "Ask with your voice"
+      },
+      "send": {
+        "ar": "إرسال",
+        "en": "Send"
+      },
+      "close": {
+        "ar": "إغلاق",
+        "en": "Close"
+      }
+    },
+    "checkpoint_progress": {
+      "ar": "{n} من {total}",
+      "en": "{n} of {total}"
+    },
+    "closing_label": {
+      "ar": "جواب العالم الأول",
+      "en": "World One's answer"
+    }
+  },
   "ending": {
     "lines": [
       {

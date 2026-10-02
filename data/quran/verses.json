@@ -3,7 +3,7 @@
     "arabic_source": "Uthmani text, The Noble Qur'an Encyclopedia (quranenc.com), via npm quran-json@3.1.2",
     "english_source": "Saheeh International, via tanzil.net (npm quran-json@3.1.2)",
     "license": "CC BY-SA 4.0 (quran-json); original texts per their publishers' terms",
-    "rule": "Never edit text_uthmani by hand. Regenerate from source. Display full verses or clearly marked portions."
+    "rule": "Never edit text_uthmani or ayah_texts by hand. Regenerate from source. Display ayah by ayah (ayah_texts) with an end-of-ayah mark and number; show full verses or clearly marked portions."
   },
   "verses": [
     {
@@ -13,6 +13,13 @@
       "surah_name_en": "Ali 'Imran",
       "ayahs": [
         190
+      ],
+      "ayah_texts": [
+        {
+          "n": 190,
+          "ar": "إِنَّ فِي خَلۡقِ ٱلسَّمَٰوَٰتِ وَٱلۡأَرۡضِ وَٱخۡتِلَٰفِ ٱلَّيۡلِ وَٱلنَّهَارِ لَأٓيَٰتٖ لِّأُوْلِي ٱلۡأَلۡبَٰبِ",
+          "en": "Indeed, in the creation of the heavens and the earth and the alternation of the night and the day are signs for those of understanding"
+        }
       ],
       "text_uthmani": "إِنَّ فِي خَلۡقِ ٱلسَّمَٰوَٰتِ وَٱلۡأَرۡضِ وَٱخۡتِلَٰفِ ٱلَّيۡلِ وَٱلنَّهَارِ لَأٓيَٰتٖ لِّأُوْلِي ٱلۡأَلۡبَٰبِ",
       "translation_en": "Indeed, in the creation of the heavens and the earth and the alternation of the night and the day are signs for those of understanding",
@@ -30,6 +37,13 @@
       "ayahs": [
         3
       ],
+      "ayah_texts": [
+        {
+          "n": 3,
+          "ar": "ٱلَّذِي خَلَقَ سَبۡعَ سَمَٰوَٰتٖ طِبَاقٗاۖ مَّا تَرَىٰ فِي خَلۡقِ ٱلرَّحۡمَٰنِ مِن تَفَٰوُتٖۖ فَٱرۡجِعِ ٱلۡبَصَرَ هَلۡ تَرَىٰ مِن فُطُورٖ",
+          "en": "[And] who created seven heavens in layers. You do not see in the creation of the Most Merciful any inconsistency. So return [your] vision [to the sky]; do you see any breaks"
+        }
+      ],
       "text_uthmani": "ٱلَّذِي خَلَقَ سَبۡعَ سَمَٰوَٰتٖ طِبَاقٗاۖ مَّا تَرَىٰ فِي خَلۡقِ ٱلرَّحۡمَٰنِ مِن تَفَٰوُتٖۖ فَٱرۡجِعِ ٱلۡبَصَرَ هَلۡ تَرَىٰ مِن فُطُورٖ",
       "translation_en": "[And] who created seven heavens in layers. You do not see in the creation of the Most Merciful any inconsistency. So return [your] vision [to the sky]; do you see any breaks",
       "translation_en_author": "Saheeh International",
@@ -46,6 +60,13 @@
       "ayahs": [
         35
       ],
+      "ayah_texts": [
+        {
+          "n": 35,
+          "ar": "أَمۡ خُلِقُواْ مِنۡ غَيۡرِ شَيۡءٍ أَمۡ هُمُ ٱلۡخَٰلِقُونَ",
+          "en": "Or were they created by nothing, or were they the creators [of themselves]"
+        }
+      ],
       "text_uthmani": "أَمۡ خُلِقُواْ مِنۡ غَيۡرِ شَيۡءٍ أَمۡ هُمُ ٱلۡخَٰلِقُونَ",
       "translation_en": "Or were they created by nothing, or were they the creators [of themselves]",
       "translation_en_author": "Saheeh International",
@@ -61,6 +82,13 @@
       "surah_name_en": "Al-Anbya",
       "ayahs": [
         22
+      ],
+      "ayah_texts": [
+        {
+          "n": 22,
+          "ar": "لَوۡ كَانَ فِيهِمَآ ءَالِهَةٌ إِلَّا ٱللَّهُ لَفَسَدَتَاۚ فَسُبۡحَٰنَ ٱللَّهِ رَبِّ ٱلۡعَرۡشِ عَمَّا يَصِفُونَ",
+          "en": "Had there been within the heavens and earth gods besides Allah, they both would have been ruined. So exalted is Allah, Lord of the Throne, above what they describe"
+        }
       ],
       "text_uthmani": "لَوۡ كَانَ فِيهِمَآ ءَالِهَةٌ إِلَّا ٱللَّهُ لَفَسَدَتَاۚ فَسُبۡحَٰنَ ٱللَّهِ رَبِّ ٱلۡعَرۡشِ عَمَّا يَصِفُونَ",
       "translation_en": "Had there been within the heavens and earth gods besides Allah, they both would have been ruined. So exalted is Allah, Lord of the Throne, above what they describe",
@@ -81,6 +109,28 @@
         3,
         4
       ],
+      "ayah_texts": [
+        {
+          "n": 1,
+          "ar": "قُلۡ هُوَ ٱللَّهُ أَحَدٌ",
+          "en": "Say, \"He is Allah, [who is] One"
+        },
+        {
+          "n": 2,
+          "ar": "ٱللَّهُ ٱلصَّمَدُ",
+          "en": "Allah, the Eternal Refuge"
+        },
+        {
+          "n": 3,
+          "ar": "لَمۡ يَلِدۡ وَلَمۡ يُولَدۡ",
+          "en": "He neither begets nor is born"
+        },
+        {
+          "n": 4,
+          "ar": "وَلَمۡ يَكُن لَّهُۥ كُفُوًا أَحَدُۢ",
+          "en": "Nor is there to Him any equivalent"
+        }
+      ],
       "text_uthmani": "قُلۡ هُوَ ٱللَّهُ أَحَدٌ ٱللَّهُ ٱلصَّمَدُ لَمۡ يَلِدۡ وَلَمۡ يُولَدۡ وَلَمۡ يَكُن لَّهُۥ كُفُوًا أَحَدُۢ",
       "translation_en": "Say, \"He is Allah, [who is] One Allah, the Eternal Refuge He neither begets nor is born Nor is there to Him any equivalent",
       "translation_en_author": "Saheeh International",
@@ -96,6 +146,13 @@
       "surah_name_en": "Adh-Dhariyat",
       "ayahs": [
         21
+      ],
+      "ayah_texts": [
+        {
+          "n": 21,
+          "ar": "وَفِيٓ أَنفُسِكُمۡۚ أَفَلَا تُبۡصِرُونَ",
+          "en": "And in yourselves. Then will you not see"
+        }
       ],
       "text_uthmani": "وَفِيٓ أَنفُسِكُمۡۚ أَفَلَا تُبۡصِرُونَ",
       "translation_en": "And in yourselves. Then will you not see",
@@ -113,6 +170,13 @@
       "ayahs": [
         30
       ],
+      "ayah_texts": [
+        {
+          "n": 30,
+          "ar": "فَأَقِمۡ وَجۡهَكَ لِلدِّينِ حَنِيفٗاۚ فِطۡرَتَ ٱللَّهِ ٱلَّتِي فَطَرَ ٱلنَّاسَ عَلَيۡهَاۚ لَا تَبۡدِيلَ لِخَلۡقِ ٱللَّهِۚ ذَٰلِكَ ٱلدِّينُ ٱلۡقَيِّمُ وَلَٰكِنَّ أَكۡثَرَ ٱلنَّاسِ لَا يَعۡلَمُونَ",
+          "en": "So direct your face toward the religion, inclining to truth. [Adhere to] the fitrah of Allah upon which He has created [all] people. No change should there be in the creation of Allah. That is the correct religion, but most of the people do not know"
+        }
+      ],
       "text_uthmani": "فَأَقِمۡ وَجۡهَكَ لِلدِّينِ حَنِيفٗاۚ فِطۡرَتَ ٱللَّهِ ٱلَّتِي فَطَرَ ٱلنَّاسَ عَلَيۡهَاۚ لَا تَبۡدِيلَ لِخَلۡقِ ٱللَّهِۚ ذَٰلِكَ ٱلدِّينُ ٱلۡقَيِّمُ وَلَٰكِنَّ أَكۡثَرَ ٱلنَّاسِ لَا يَعۡلَمُونَ",
       "translation_en": "So direct your face toward the religion, inclining to truth. [Adhere to] the fitrah of Allah upon which He has created [all] people. No change should there be in the creation of Allah. That is the correct religion, but most of the people do not know",
       "translation_en_author": "Saheeh International",
@@ -128,6 +192,13 @@
       "surah_name_en": "Al-Fatihah",
       "ayahs": [
         2
+      ],
+      "ayah_texts": [
+        {
+          "n": 2,
+          "ar": "ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ",
+          "en": "[All] praise is [due] to Allah, Lord of the worlds"
+        }
       ],
       "text_uthmani": "ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ",
       "translation_en": "[All] praise is [due] to Allah, Lord of the worlds",
@@ -145,6 +216,13 @@
       "ayahs": [
         115
       ],
+      "ayah_texts": [
+        {
+          "n": 115,
+          "ar": "أَفَحَسِبۡتُمۡ أَنَّمَا خَلَقۡنَٰكُمۡ عَبَثٗا وَأَنَّكُمۡ إِلَيۡنَا لَا تُرۡجَعُونَ",
+          "en": "Then did you think that We created you uselessly and that to Us you would not be returned"
+        }
+      ],
       "text_uthmani": "أَفَحَسِبۡتُمۡ أَنَّمَا خَلَقۡنَٰكُمۡ عَبَثٗا وَأَنَّكُمۡ إِلَيۡنَا لَا تُرۡجَعُونَ",
       "translation_en": "Then did you think that We created you uselessly and that to Us you would not be returned",
       "translation_en_author": "Saheeh International",
@@ -160,6 +238,13 @@
       "surah_name_en": "Al-Baqarah",
       "ayahs": [
         30
+      ],
+      "ayah_texts": [
+        {
+          "n": 30,
+          "ar": "وَإِذۡ قَالَ رَبُّكَ لِلۡمَلَـٰٓئِكَةِ إِنِّي جَاعِلٞ فِي ٱلۡأَرۡضِ خَلِيفَةٗۖ قَالُوٓاْ أَتَجۡعَلُ فِيهَا مَن يُفۡسِدُ فِيهَا وَيَسۡفِكُ ٱلدِّمَآءَ وَنَحۡنُ نُسَبِّحُ بِحَمۡدِكَ وَنُقَدِّسُ لَكَۖ قَالَ إِنِّيٓ أَعۡلَمُ مَا لَا تَعۡلَمُونَ",
+          "en": "And [mention, O Muhammad], when your Lord said to the angels, \"Indeed, I will make upon the earth a successive authority.\" They said, \"Will You place upon it one who causes corruption therein and sheds blood, while we declare Your praise and sanctify You?\" Allah said, \"Indeed, I know that which you do not know"
+        }
       ],
       "text_uthmani": "وَإِذۡ قَالَ رَبُّكَ لِلۡمَلَـٰٓئِكَةِ إِنِّي جَاعِلٞ فِي ٱلۡأَرۡضِ خَلِيفَةٗۖ قَالُوٓاْ أَتَجۡعَلُ فِيهَا مَن يُفۡسِدُ فِيهَا وَيَسۡفِكُ ٱلدِّمَآءَ وَنَحۡنُ نُسَبِّحُ بِحَمۡدِكَ وَنُقَدِّسُ لَكَۖ قَالَ إِنِّيٓ أَعۡلَمُ مَا لَا تَعۡلَمُونَ",
       "translation_en": "And [mention, O Muhammad], when your Lord said to the angels, \"Indeed, I will make upon the earth a successive authority.\" They said, \"Will You place upon it one who causes corruption therein and sheds blood, while we declare Your praise and sanctify You?\" Allah said, \"Indeed, I know that which you do not know",
@@ -177,6 +262,13 @@
       "ayahs": [
         13
       ],
+      "ayah_texts": [
+        {
+          "n": 13,
+          "ar": "وَسَخَّرَ لَكُم مَّا فِي ٱلسَّمَٰوَٰتِ وَمَا فِي ٱلۡأَرۡضِ جَمِيعٗا مِّنۡهُۚ إِنَّ فِي ذَٰلِكَ لَأٓيَٰتٖ لِّقَوۡمٖ يَتَفَكَّرُونَ",
+          "en": "And He has subjected to you whatever is in the heavens and whatever is on the earth - all from Him. Indeed in that are signs for a people who give thought"
+        }
+      ],
       "text_uthmani": "وَسَخَّرَ لَكُم مَّا فِي ٱلسَّمَٰوَٰتِ وَمَا فِي ٱلۡأَرۡضِ جَمِيعٗا مِّنۡهُۚ إِنَّ فِي ذَٰلِكَ لَأٓيَٰتٖ لِّقَوۡمٖ يَتَفَكَّرُونَ",
       "translation_en": "And He has subjected to you whatever is in the heavens and whatever is on the earth - all from Him. Indeed in that are signs for a people who give thought",
       "translation_en_author": "Saheeh International",
@@ -192,6 +284,13 @@
       "surah_name_en": "Al-Mulk",
       "ayahs": [
         2
+      ],
+      "ayah_texts": [
+        {
+          "n": 2,
+          "ar": "ٱلَّذِي خَلَقَ ٱلۡمَوۡتَ وَٱلۡحَيَوٰةَ لِيَبۡلُوَكُمۡ أَيُّكُمۡ أَحۡسَنُ عَمَلٗاۚ وَهُوَ ٱلۡعَزِيزُ ٱلۡغَفُورُ",
+          "en": "[He] who created death and life to test you [as to] which of you is best in deed - and He is the Exalted in Might, the Forgiving"
+        }
       ],
       "text_uthmani": "ٱلَّذِي خَلَقَ ٱلۡمَوۡتَ وَٱلۡحَيَوٰةَ لِيَبۡلُوَكُمۡ أَيُّكُمۡ أَحۡسَنُ عَمَلٗاۚ وَهُوَ ٱلۡعَزِيزُ ٱلۡغَفُورُ",
       "translation_en": "[He] who created death and life to test you [as to] which of you is best in deed - and He is the Exalted in Might, the Forgiving",
@@ -209,6 +308,13 @@
       "ayahs": [
         56
       ],
+      "ayah_texts": [
+        {
+          "n": 56,
+          "ar": "وَمَا خَلَقۡتُ ٱلۡجِنَّ وَٱلۡإِنسَ إِلَّا لِيَعۡبُدُونِ",
+          "en": "And I did not create the jinn and mankind except to worship Me"
+        }
+      ],
       "text_uthmani": "وَمَا خَلَقۡتُ ٱلۡجِنَّ وَٱلۡإِنسَ إِلَّا لِيَعۡبُدُونِ",
       "translation_en": "And I did not create the jinn and mankind except to worship Me",
       "translation_en_author": "Saheeh International",
@@ -224,6 +330,13 @@
       "surah_name_en": "Al-An'am",
       "ayahs": [
         162
+      ],
+      "ayah_texts": [
+        {
+          "n": 162,
+          "ar": "قُلۡ إِنَّ صَلَاتِي وَنُسُكِي وَمَحۡيَايَ وَمَمَاتِي لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ",
+          "en": "Say, \"Indeed, my prayer, my rites of sacrifice, my living and my dying are for Allah, Lord of the worlds"
+        }
       ],
       "text_uthmani": "قُلۡ إِنَّ صَلَاتِي وَنُسُكِي وَمَحۡيَايَ وَمَمَاتِي لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ",
       "translation_en": "Say, \"Indeed, my prayer, my rites of sacrifice, my living and my dying are for Allah, Lord of the worlds",
@@ -241,6 +354,13 @@
       "ayahs": [
         103
       ],
+      "ayah_texts": [
+        {
+          "n": 103,
+          "ar": "فَإِذَا قَضَيۡتُمُ ٱلصَّلَوٰةَ فَٱذۡكُرُواْ ٱللَّهَ قِيَٰمٗا وَقُعُودٗا وَعَلَىٰ جُنُوبِكُمۡۚ فَإِذَا ٱطۡمَأۡنَنتُمۡ فَأَقِيمُواْ ٱلصَّلَوٰةَۚ إِنَّ ٱلصَّلَوٰةَ كَانَتۡ عَلَى ٱلۡمُؤۡمِنِينَ كِتَٰبٗا مَّوۡقُوتٗا",
+          "en": "And when you have completed the prayer, remember Allah standing, sitting, or [lying] on your sides. But when you become secure, re-establish [regular] prayer. Indeed, prayer has been decreed upon the believers a decree of specified times"
+        }
+      ],
       "text_uthmani": "فَإِذَا قَضَيۡتُمُ ٱلصَّلَوٰةَ فَٱذۡكُرُواْ ٱللَّهَ قِيَٰمٗا وَقُعُودٗا وَعَلَىٰ جُنُوبِكُمۡۚ فَإِذَا ٱطۡمَأۡنَنتُمۡ فَأَقِيمُواْ ٱلصَّلَوٰةَۚ إِنَّ ٱلصَّلَوٰةَ كَانَتۡ عَلَى ٱلۡمُؤۡمِنِينَ كِتَٰبٗا مَّوۡقُوتٗا",
       "translation_en": "And when you have completed the prayer, remember Allah standing, sitting, or [lying] on your sides. But when you become secure, re-establish [regular] prayer. Indeed, prayer has been decreed upon the believers a decree of specified times",
       "translation_en_author": "Saheeh International",
@@ -256,6 +376,13 @@
       "surah_name_en": "At-Tawbah",
       "ayahs": [
         103
+      ],
+      "ayah_texts": [
+        {
+          "n": 103,
+          "ar": "خُذۡ مِنۡ أَمۡوَٰلِهِمۡ صَدَقَةٗ تُطَهِّرُهُمۡ وَتُزَكِّيهِم بِهَا وَصَلِّ عَلَيۡهِمۡۖ إِنَّ صَلَوٰتَكَ سَكَنٞ لَّهُمۡۗ وَٱللَّهُ سَمِيعٌ عَلِيمٌ",
+          "en": "Take, [O, Muhammad], from their wealth a charity by which you purify them and cause them increase, and invoke [Allah 's blessings] upon them. Indeed, your invocations are reassurance for them. And Allah is Hearing and Knowing"
+        }
       ],
       "text_uthmani": "خُذۡ مِنۡ أَمۡوَٰلِهِمۡ صَدَقَةٗ تُطَهِّرُهُمۡ وَتُزَكِّيهِم بِهَا وَصَلِّ عَلَيۡهِمۡۖ إِنَّ صَلَوٰتَكَ سَكَنٞ لَّهُمۡۗ وَٱللَّهُ سَمِيعٌ عَلِيمٌ",
       "translation_en": "Take, [O, Muhammad], from their wealth a charity by which you purify them and cause them increase, and invoke [Allah 's blessings] upon them. Indeed, your invocations are reassurance for them. And Allah is Hearing and Knowing",
@@ -273,6 +400,13 @@
       "ayahs": [
         183
       ],
+      "ayah_texts": [
+        {
+          "n": 183,
+          "ar": "يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُواْ كُتِبَ عَلَيۡكُمُ ٱلصِّيَامُ كَمَا كُتِبَ عَلَى ٱلَّذِينَ مِن قَبۡلِكُمۡ لَعَلَّكُمۡ تَتَّقُونَ",
+          "en": "O you who have believed, decreed upon you is fasting as it was decreed upon those before you that you may become righteous"
+        }
+      ],
       "text_uthmani": "يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُواْ كُتِبَ عَلَيۡكُمُ ٱلصِّيَامُ كَمَا كُتِبَ عَلَى ٱلَّذِينَ مِن قَبۡلِكُمۡ لَعَلَّكُمۡ تَتَّقُونَ",
       "translation_en": "O you who have believed, decreed upon you is fasting as it was decreed upon those before you that you may become righteous",
       "translation_en_author": "Saheeh International",
@@ -288,6 +422,13 @@
       "surah_name_en": "Al-Hujurat",
       "ayahs": [
         13
+      ],
+      "ayah_texts": [
+        {
+          "n": 13,
+          "ar": "يَـٰٓأَيُّهَا ٱلنَّاسُ إِنَّا خَلَقۡنَٰكُم مِّن ذَكَرٖ وَأُنثَىٰ وَجَعَلۡنَٰكُمۡ شُعُوبٗا وَقَبَآئِلَ لِتَعَارَفُوٓاْۚ إِنَّ أَكۡرَمَكُمۡ عِندَ ٱللَّهِ أَتۡقَىٰكُمۡۚ إِنَّ ٱللَّهَ عَلِيمٌ خَبِيرٞ",
+          "en": "O mankind, indeed We have created you from male and female and made you peoples and tribes that you may know one another. Indeed, the most noble of you in the sight of Allah is the most righteous of you. Indeed, Allah is Knowing and Acquainted"
+        }
       ],
       "text_uthmani": "يَـٰٓأَيُّهَا ٱلنَّاسُ إِنَّا خَلَقۡنَٰكُم مِّن ذَكَرٖ وَأُنثَىٰ وَجَعَلۡنَٰكُمۡ شُعُوبٗا وَقَبَآئِلَ لِتَعَارَفُوٓاْۚ إِنَّ أَكۡرَمَكُمۡ عِندَ ٱللَّهِ أَتۡقَىٰكُمۡۚ إِنَّ ٱللَّهَ عَلِيمٌ خَبِيرٞ",
       "translation_en": "O mankind, indeed We have created you from male and female and made you peoples and tribes that you may know one another. Indeed, the most noble of you in the sight of Allah is the most righteous of you. Indeed, Allah is Knowing and Acquainted",
@@ -305,6 +446,13 @@
       "ayahs": [
         4
       ],
+      "ayah_texts": [
+        {
+          "n": 4,
+          "ar": "وَإِنَّكَ لَعَلَىٰ خُلُقٍ عَظِيمٖ",
+          "en": "And indeed, you are of a great moral character"
+        }
+      ],
       "text_uthmani": "وَإِنَّكَ لَعَلَىٰ خُلُقٍ عَظِيمٖ",
       "translation_en": "And indeed, you are of a great moral character",
       "translation_en_author": "Saheeh International",
@@ -320,6 +468,13 @@
       "surah_name_en": "Al-Baqarah",
       "ayahs": [
         256
+      ],
+      "ayah_texts": [
+        {
+          "n": 256,
+          "ar": "لَآ إِكۡرَاهَ فِي ٱلدِّينِۖ قَد تَّبَيَّنَ ٱلرُّشۡدُ مِنَ ٱلۡغَيِّۚ فَمَن يَكۡفُرۡ بِٱلطَّـٰغُوتِ وَيُؤۡمِنۢ بِٱللَّهِ فَقَدِ ٱسۡتَمۡسَكَ بِٱلۡعُرۡوَةِ ٱلۡوُثۡقَىٰ لَا ٱنفِصَامَ لَهَاۗ وَٱللَّهُ سَمِيعٌ عَلِيمٌ",
+          "en": "There shall be no compulsion in [acceptance of] the religion. The right course has become clear from the wrong. So whoever disbelieves in Taghut and believes in Allah has grasped the most trustworthy handhold with no break in it. And Allah is Hearing and Knowing"
+        }
       ],
       "text_uthmani": "لَآ إِكۡرَاهَ فِي ٱلدِّينِۖ قَد تَّبَيَّنَ ٱلرُّشۡدُ مِنَ ٱلۡغَيِّۚ فَمَن يَكۡفُرۡ بِٱلطَّـٰغُوتِ وَيُؤۡمِنۢ بِٱللَّهِ فَقَدِ ٱسۡتَمۡسَكَ بِٱلۡعُرۡوَةِ ٱلۡوُثۡقَىٰ لَا ٱنفِصَامَ لَهَاۗ وَٱللَّهُ سَمِيعٌ عَلِيمٌ",
       "translation_en": "There shall be no compulsion in [acceptance of] the religion. The right course has become clear from the wrong. So whoever disbelieves in Taghut and believes in Allah has grasped the most trustworthy handhold with no break in it. And Allah is Hearing and Knowing",
@@ -337,6 +492,13 @@
       "ayahs": [
         185
       ],
+      "ayah_texts": [
+        {
+          "n": 185,
+          "ar": "كُلُّ نَفۡسٖ ذَآئِقَةُ ٱلۡمَوۡتِۗ وَإِنَّمَا تُوَفَّوۡنَ أُجُورَكُمۡ يَوۡمَ ٱلۡقِيَٰمَةِۖ فَمَن زُحۡزِحَ عَنِ ٱلنَّارِ وَأُدۡخِلَ ٱلۡجَنَّةَ فَقَدۡ فَازَۗ وَمَا ٱلۡحَيَوٰةُ ٱلدُّنۡيَآ إِلَّا مَتَٰعُ ٱلۡغُرُورِ",
+          "en": "Every soul will taste death, and you will only be given your [full] compensation on the Day of Resurrection. So he who is drawn away from the Fire and admitted to Paradise has attained [his desire]. And what is the life of this world except the enjoyment of delusion"
+        }
+      ],
       "text_uthmani": "كُلُّ نَفۡسٖ ذَآئِقَةُ ٱلۡمَوۡتِۗ وَإِنَّمَا تُوَفَّوۡنَ أُجُورَكُمۡ يَوۡمَ ٱلۡقِيَٰمَةِۖ فَمَن زُحۡزِحَ عَنِ ٱلنَّارِ وَأُدۡخِلَ ٱلۡجَنَّةَ فَقَدۡ فَازَۗ وَمَا ٱلۡحَيَوٰةُ ٱلدُّنۡيَآ إِلَّا مَتَٰعُ ٱلۡغُرُورِ",
       "translation_en": "Every soul will taste death, and you will only be given your [full] compensation on the Day of Resurrection. So he who is drawn away from the Fire and admitted to Paradise has attained [his desire]. And what is the life of this world except the enjoyment of delusion",
       "translation_en_author": "Saheeh International",
@@ -352,6 +514,13 @@
       "surah_name_en": "Fussilat",
       "ayahs": [
         39
+      ],
+      "ayah_texts": [
+        {
+          "n": 39,
+          "ar": "وَمِنۡ ءَايَٰتِهِۦٓ أَنَّكَ تَرَى ٱلۡأَرۡضَ خَٰشِعَةٗ فَإِذَآ أَنزَلۡنَا عَلَيۡهَا ٱلۡمَآءَ ٱهۡتَزَّتۡ وَرَبَتۡۚ إِنَّ ٱلَّذِيٓ أَحۡيَاهَا لَمُحۡيِ ٱلۡمَوۡتَىٰٓۚ إِنَّهُۥ عَلَىٰ كُلِّ شَيۡءٖ قَدِيرٌ",
+          "en": "And of His signs is that you see the earth stilled, but when We send down upon it rain, it quivers and grows. Indeed, He who has given it life is the Giver of Life to the dead. Indeed, He is over all things competent"
+        }
       ],
       "text_uthmani": "وَمِنۡ ءَايَٰتِهِۦٓ أَنَّكَ تَرَى ٱلۡأَرۡضَ خَٰشِعَةٗ فَإِذَآ أَنزَلۡنَا عَلَيۡهَا ٱلۡمَآءَ ٱهۡتَزَّتۡ وَرَبَتۡۚ إِنَّ ٱلَّذِيٓ أَحۡيَاهَا لَمُحۡيِ ٱلۡمَوۡتَىٰٓۚ إِنَّهُۥ عَلَىٰ كُلِّ شَيۡءٖ قَدِيرٌ",
       "translation_en": "And of His signs is that you see the earth stilled, but when We send down upon it rain, it quivers and grows. Indeed, He who has given it life is the Giver of Life to the dead. Indeed, He is over all things competent",
@@ -370,6 +539,18 @@
         78,
         79
       ],
+      "ayah_texts": [
+        {
+          "n": 78,
+          "ar": "وَضَرَبَ لَنَا مَثَلٗا وَنَسِيَ خَلۡقَهُۥۖ قَالَ مَن يُحۡيِ ٱلۡعِظَٰمَ وَهِيَ رَمِيمٞ",
+          "en": "And he presents for Us an example and forgets his [own] creation. He says, \"Who will give life to bones while they are disintegrated"
+        },
+        {
+          "n": 79,
+          "ar": "قُلۡ يُحۡيِيهَا ٱلَّذِيٓ أَنشَأَهَآ أَوَّلَ مَرَّةٖۖ وَهُوَ بِكُلِّ خَلۡقٍ عَلِيمٌ",
+          "en": "Say, \"He will give them life who produced them the first time; and He is, of all creation, Knowing"
+        }
+      ],
       "text_uthmani": "وَضَرَبَ لَنَا مَثَلٗا وَنَسِيَ خَلۡقَهُۥۖ قَالَ مَن يُحۡيِ ٱلۡعِظَٰمَ وَهِيَ رَمِيمٞ قُلۡ يُحۡيِيهَا ٱلَّذِيٓ أَنشَأَهَآ أَوَّلَ مَرَّةٖۖ وَهُوَ بِكُلِّ خَلۡقٍ عَلِيمٌ",
       "translation_en": "And he presents for Us an example and forgets his [own] creation. He says, \"Who will give life to bones while they are disintegrated Say, \"He will give them life who produced them the first time; and He is, of all creation, Knowing",
       "translation_en_author": "Saheeh International",
@@ -387,6 +568,18 @@
         7,
         8
       ],
+      "ayah_texts": [
+        {
+          "n": 7,
+          "ar": "فَمَن يَعۡمَلۡ مِثۡقَالَ ذَرَّةٍ خَيۡرٗا يَرَهُۥ",
+          "en": "So whoever does an atom's weight of good will see it"
+        },
+        {
+          "n": 8,
+          "ar": "وَمَن يَعۡمَلۡ مِثۡقَالَ ذَرَّةٖ شَرّٗا يَرَهُۥ",
+          "en": "And whoever does an atom's weight of evil will see it"
+        }
+      ],
       "text_uthmani": "فَمَن يَعۡمَلۡ مِثۡقَالَ ذَرَّةٍ خَيۡرٗا يَرَهُۥ وَمَن يَعۡمَلۡ مِثۡقَالَ ذَرَّةٖ شَرّٗا يَرَهُۥ",
       "translation_en": "So whoever does an atom's weight of good will see it And whoever does an atom's weight of evil will see it",
       "translation_en_author": "Saheeh International",
@@ -402,6 +595,13 @@
       "surah_name_en": "Az-Zumar",
       "ayahs": [
         53
+      ],
+      "ayah_texts": [
+        {
+          "n": 53,
+          "ar": "۞قُلۡ يَٰعِبَادِيَ ٱلَّذِينَ أَسۡرَفُواْ عَلَىٰٓ أَنفُسِهِمۡ لَا تَقۡنَطُواْ مِن رَّحۡمَةِ ٱللَّهِۚ إِنَّ ٱللَّهَ يَغۡفِرُ ٱلذُّنُوبَ جَمِيعًاۚ إِنَّهُۥ هُوَ ٱلۡغَفُورُ ٱلرَّحِيمُ",
+          "en": "Say, \"O My servants who have transgressed against themselves [by sinning], do not despair of the mercy of Allah. Indeed, Allah forgives all sins. Indeed, it is He who is the Forgiving, the Merciful"
+        }
       ],
       "text_uthmani": "۞قُلۡ يَٰعِبَادِيَ ٱلَّذِينَ أَسۡرَفُواْ عَلَىٰٓ أَنفُسِهِمۡ لَا تَقۡنَطُواْ مِن رَّحۡمَةِ ٱللَّهِۚ إِنَّ ٱللَّهَ يَغۡفِرُ ٱلذُّنُوبَ جَمِيعًاۚ إِنَّهُۥ هُوَ ٱلۡغَفُورُ ٱلرَّحِيمُ",
       "translation_en": "Say, \"O My servants who have transgressed against themselves [by sinning], do not despair of the mercy of Allah. Indeed, Allah forgives all sins. Indeed, it is He who is the Forgiving, the Merciful",
@@ -419,6 +619,13 @@
       "ayahs": [
         3
       ],
+      "ayah_texts": [
+        {
+          "n": 3,
+          "ar": "هُوَ ٱلۡأَوَّلُ وَٱلۡأٓخِرُ وَٱلظَّـٰهِرُ وَٱلۡبَاطِنُۖ وَهُوَ بِكُلِّ شَيۡءٍ عَلِيمٌ",
+          "en": "He is the First and the Last, the Ascendant and the Intimate, and He is, of all things, Knowing"
+        }
+      ],
       "text_uthmani": "هُوَ ٱلۡأَوَّلُ وَٱلۡأٓخِرُ وَٱلظَّـٰهِرُ وَٱلۡبَاطِنُۖ وَهُوَ بِكُلِّ شَيۡءٍ عَلِيمٌ",
       "translation_en": "He is the First and the Last, the Ascendant and the Intimate, and He is, of all things, Knowing",
       "translation_en_author": "Saheeh International",
@@ -434,6 +641,13 @@
       "surah_name_en": "Al-'Ankabut",
       "ayahs": [
         46
+      ],
+      "ayah_texts": [
+        {
+          "n": 46,
+          "ar": "۞وَلَا تُجَٰدِلُوٓاْ أَهۡلَ ٱلۡكِتَٰبِ إِلَّا بِٱلَّتِي هِيَ أَحۡسَنُ إِلَّا ٱلَّذِينَ ظَلَمُواْ مِنۡهُمۡۖ وَقُولُوٓاْ ءَامَنَّا بِٱلَّذِيٓ أُنزِلَ إِلَيۡنَا وَأُنزِلَ إِلَيۡكُمۡ وَإِلَٰهُنَا وَإِلَٰهُكُمۡ وَٰحِدٞ وَنَحۡنُ لَهُۥ مُسۡلِمُونَ",
+          "en": "And do not argue with the People of the Scripture except in a way that is best, except for those who commit injustice among them, and say, \"We believe in that which has been revealed to us and revealed to you. And our God and your God is one; and we are Muslims [in submission] to Him"
+        }
       ],
       "text_uthmani": "۞وَلَا تُجَٰدِلُوٓاْ أَهۡلَ ٱلۡكِتَٰبِ إِلَّا بِٱلَّتِي هِيَ أَحۡسَنُ إِلَّا ٱلَّذِينَ ظَلَمُواْ مِنۡهُمۡۖ وَقُولُوٓاْ ءَامَنَّا بِٱلَّذِيٓ أُنزِلَ إِلَيۡنَا وَأُنزِلَ إِلَيۡكُمۡ وَإِلَٰهُنَا وَإِلَٰهُكُمۡ وَٰحِدٞ وَنَحۡنُ لَهُۥ مُسۡلِمُونَ",
       "translation_en": "And do not argue with the People of the Scripture except in a way that is best, except for those who commit injustice among them, and say, \"We believe in that which has been revealed to us and revealed to you. And our God and your God is one; and we are Muslims [in submission] to Him",
@@ -451,6 +665,13 @@
       "ayahs": [
         108
       ],
+      "ayah_texts": [
+        {
+          "n": 108,
+          "ar": "وَلَا تَسُبُّواْ ٱلَّذِينَ يَدۡعُونَ مِن دُونِ ٱللَّهِ فَيَسُبُّواْ ٱللَّهَ عَدۡوَۢا بِغَيۡرِ عِلۡمٖۗ كَذَٰلِكَ زَيَّنَّا لِكُلِّ أُمَّةٍ عَمَلَهُمۡ ثُمَّ إِلَىٰ رَبِّهِم مَّرۡجِعُهُمۡ فَيُنَبِّئُهُم بِمَا كَانُواْ يَعۡمَلُونَ",
+          "en": "And do not insult those they invoke other than Allah, lest they insult Allah in enmity without knowledge. Thus We have made pleasing to every community their deeds. Then to their Lord is their return, and He will inform them about what they used to do"
+        }
+      ],
       "text_uthmani": "وَلَا تَسُبُّواْ ٱلَّذِينَ يَدۡعُونَ مِن دُونِ ٱللَّهِ فَيَسُبُّواْ ٱللَّهَ عَدۡوَۢا بِغَيۡرِ عِلۡمٖۗ كَذَٰلِكَ زَيَّنَّا لِكُلِّ أُمَّةٍ عَمَلَهُمۡ ثُمَّ إِلَىٰ رَبِّهِم مَّرۡجِعُهُمۡ فَيُنَبِّئُهُم بِمَا كَانُواْ يَعۡمَلُونَ",
       "translation_en": "And do not insult those they invoke other than Allah, lest they insult Allah in enmity without knowledge. Thus We have made pleasing to every community their deeds. Then to their Lord is their return, and He will inform them about what they used to do",
       "translation_en_author": "Saheeh International",
@@ -466,6 +687,13 @@
       "surah_name_en": "An-Nahl",
       "ayahs": [
         125
+      ],
+      "ayah_texts": [
+        {
+          "n": 125,
+          "ar": "ٱدۡعُ إِلَىٰ سَبِيلِ رَبِّكَ بِٱلۡحِكۡمَةِ وَٱلۡمَوۡعِظَةِ ٱلۡحَسَنَةِۖ وَجَٰدِلۡهُم بِٱلَّتِي هِيَ أَحۡسَنُۚ إِنَّ رَبَّكَ هُوَ أَعۡلَمُ بِمَن ضَلَّ عَن سَبِيلِهِۦ وَهُوَ أَعۡلَمُ بِٱلۡمُهۡتَدِينَ",
+          "en": "Invite to the way of your Lord with wisdom and good instruction, and argue with them in a way that is best. Indeed, your Lord is most knowing of who has strayed from His way, and He is most knowing of who is [rightly] guided"
+        }
       ],
       "text_uthmani": "ٱدۡعُ إِلَىٰ سَبِيلِ رَبِّكَ بِٱلۡحِكۡمَةِ وَٱلۡمَوۡعِظَةِ ٱلۡحَسَنَةِۖ وَجَٰدِلۡهُم بِٱلَّتِي هِيَ أَحۡسَنُۚ إِنَّ رَبَّكَ هُوَ أَعۡلَمُ بِمَن ضَلَّ عَن سَبِيلِهِۦ وَهُوَ أَعۡلَمُ بِٱلۡمُهۡتَدِينَ",
       "translation_en": "Invite to the way of your Lord with wisdom and good instruction, and argue with them in a way that is best. Indeed, your Lord is most knowing of who has strayed from His way, and He is most knowing of who is [rightly] guided",
