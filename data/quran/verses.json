@@ -3,6 +3,7 @@
     "arabic_source": "Uthmani text, The Noble Qur'an Encyclopedia (quranenc.com), via npm quran-json@3.1.2",
     "english_source": "Saheeh International, via tanzil.net (npm quran-json@3.1.2)",
     "license": "CC BY-SA 4.0 (quran-json); original texts per their publishers' terms",
+    "integrity": "ayah_texts[].sha256 is the SHA-256 of the UTF-8 Arabic text as it comes from the source; clients re-hash before display.",
     "rule": "Never edit text_uthmani or ayah_texts by hand. Regenerate from source. Display ayah by ayah (ayah_texts) with an end-of-ayah mark and number; show full verses or clearly marked portions."
   },
   "verses": [
@@ -18,6 +19,7 @@
         {
           "n": 190,
           "ar": "إِنَّ فِي خَلۡقِ ٱلسَّمَٰوَٰتِ وَٱلۡأَرۡضِ وَٱخۡتِلَٰفِ ٱلَّيۡلِ وَٱلنَّهَارِ لَأٓيَٰتٖ لِّأُوْلِي ٱلۡأَلۡبَٰبِ",
+          "sha256": "1088687c54c7218cf684e622465e97d8a3d956004fa77765247f8c83e7e7f18e",
           "en": "Indeed, in the creation of the heavens and the earth and the alternation of the night and the day are signs for those of understanding"
         }
       ],
@@ -41,6 +43,7 @@
         {
           "n": 3,
           "ar": "ٱلَّذِي خَلَقَ سَبۡعَ سَمَٰوَٰتٖ طِبَاقٗاۖ مَّا تَرَىٰ فِي خَلۡقِ ٱلرَّحۡمَٰنِ مِن تَفَٰوُتٖۖ فَٱرۡجِعِ ٱلۡبَصَرَ هَلۡ تَرَىٰ مِن فُطُورٖ",
+          "sha256": "fbcf48fe24468963b5bdb0a5e729e4bbbc3fa1feb8cc5558fbc0d1a3f09da2fc",
           "en": "[And] who created seven heavens in layers. You do not see in the creation of the Most Merciful any inconsistency. So return [your] vision [to the sky]; do you see any breaks"
         }
       ],
@@ -64,6 +67,7 @@
         {
           "n": 35,
           "ar": "أَمۡ خُلِقُواْ مِنۡ غَيۡرِ شَيۡءٍ أَمۡ هُمُ ٱلۡخَٰلِقُونَ",
+          "sha256": "2763a96a0a4d28eab621a57e1724e4d1382e3edba8088fc2b8a5bb7132ca0e29",
           "en": "Or were they created by nothing, or were they the creators [of themselves]"
         }
       ],
@@ -87,6 +91,7 @@
         {
           "n": 22,
           "ar": "لَوۡ كَانَ فِيهِمَآ ءَالِهَةٌ إِلَّا ٱللَّهُ لَفَسَدَتَاۚ فَسُبۡحَٰنَ ٱللَّهِ رَبِّ ٱلۡعَرۡشِ عَمَّا يَصِفُونَ",
+          "sha256": "9dd2ee1e6b72b9839fed94d93fb8bfc5bc501db34358cdece3c2946ba7786b67",
           "en": "Had there been within the heavens and earth gods besides Allah, they both would have been ruined. So exalted is Allah, Lord of the Throne, above what they describe"
         }
       ],
@@ -113,21 +118,25 @@
         {
           "n": 1,
           "ar": "قُلۡ هُوَ ٱللَّهُ أَحَدٌ",
+          "sha256": "f578745163a95bf378c710b541fe5a9cc385320dc27fb909157af318cdfe5b64",
           "en": "Say, \"He is Allah, [who is] One"
         },
         {
           "n": 2,
           "ar": "ٱللَّهُ ٱلصَّمَدُ",
+          "sha256": "a30b680c0f56ff9a29c1384eac94f728f9cfd0e8f1d3798a2e4916d91e57f57e",
           "en": "Allah, the Eternal Refuge"
         },
         {
           "n": 3,
           "ar": "لَمۡ يَلِدۡ وَلَمۡ يُولَدۡ",
+          "sha256": "fb51da03e0a9888508063f5be81b416da6d0b7149f2c75a3e771f06499925289",
           "en": "He neither begets nor is born"
         },
         {
           "n": 4,
           "ar": "وَلَمۡ يَكُن لَّهُۥ كُفُوًا أَحَدُۢ",
+          "sha256": "2880126fcc56756ef85c57c0d7376b517d8c50dbe31e704002bb915b15ba13a1",
           "en": "Nor is there to Him any equivalent"
         }
       ],
@@ -151,6 +160,7 @@
         {
           "n": 21,
           "ar": "وَفِيٓ أَنفُسِكُمۡۚ أَفَلَا تُبۡصِرُونَ",
+          "sha256": "b3df88f407abd4a72999f73264b8de49df38fba28e7ec0d87475a58f8308ea9d",
           "en": "And in yourselves. Then will you not see"
         }
       ],
@@ -174,6 +184,7 @@
         {
           "n": 30,
           "ar": "فَأَقِمۡ وَجۡهَكَ لِلدِّينِ حَنِيفٗاۚ فِطۡرَتَ ٱللَّهِ ٱلَّتِي فَطَرَ ٱلنَّاسَ عَلَيۡهَاۚ لَا تَبۡدِيلَ لِخَلۡقِ ٱللَّهِۚ ذَٰلِكَ ٱلدِّينُ ٱلۡقَيِّمُ وَلَٰكِنَّ أَكۡثَرَ ٱلنَّاسِ لَا يَعۡلَمُونَ",
+          "sha256": "13c7943c3785246209d068618e0f8a84e4121c2d9ceecfd8dda59437283a62dd",
           "en": "So direct your face toward the religion, inclining to truth. [Adhere to] the fitrah of Allah upon which He has created [all] people. No change should there be in the creation of Allah. That is the correct religion, but most of the people do not know"
         }
       ],
@@ -197,6 +208,7 @@
         {
           "n": 2,
           "ar": "ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ",
+          "sha256": "ef2e84a7a99f9340845888a735cf6950853f9e1a13cff30f4c1e7648e56ee51b",
           "en": "[All] praise is [due] to Allah, Lord of the worlds"
         }
       ],
@@ -220,6 +232,7 @@
         {
           "n": 53,
           "ar": "سَنُرِيهِمۡ ءَايَٰتِنَا فِي ٱلۡأٓفَاقِ وَفِيٓ أَنفُسِهِمۡ حَتَّىٰ يَتَبَيَّنَ لَهُمۡ أَنَّهُ ٱلۡحَقُّۗ أَوَلَمۡ يَكۡفِ بِرَبِّكَ أَنَّهُۥ عَلَىٰ كُلِّ شَيۡءٖ شَهِيدٌ",
+          "sha256": "c3197c0f12aa566542d34e36d8c8d92a32af662a31abb34e40986a0e07e6a78b",
           "en": "We will show them Our signs in the horizons and within themselves until it becomes clear to them that it is the truth. But is it not sufficient concerning your Lord that He is, over all things, a Witness"
         }
       ],
@@ -243,6 +256,7 @@
         {
           "n": 49,
           "ar": "إِنَّا كُلَّ شَيۡءٍ خَلَقۡنَٰهُ بِقَدَرٖ",
+          "sha256": "c37be5f0b31e54df1f25d28a7b2970437a72e9a8b7953b2badd015311c077e0a",
           "en": "Indeed, all things We created with predestination"
         }
       ],
@@ -268,16 +282,19 @@
         {
           "n": 7,
           "ar": "وَٱلسَّمَآءَ رَفَعَهَا وَوَضَعَ ٱلۡمِيزَانَ",
+          "sha256": "cc3c27c7fa8f1bbdbabe46ded2f2feda8d82c7de23800a947b4065dbfa646589",
           "en": "And the heaven He raised and imposed the balance"
         },
         {
           "n": 8,
           "ar": "أَلَّا تَطۡغَوۡاْ فِي ٱلۡمِيزَانِ",
+          "sha256": "94034a68216c10611f7457a3bf3b6d9b3d0369aa88e9d987fdd1d270868c58f0",
           "en": "That you not transgress within the balance"
         },
         {
           "n": 9,
           "ar": "وَأَقِيمُواْ ٱلۡوَزۡنَ بِٱلۡقِسۡطِ وَلَا تُخۡسِرُواْ ٱلۡمِيزَانَ",
+          "sha256": "f05ca24b99a49482243a3986e7fb8f58e7a377db5f024593d3935bf66f8ae609",
           "en": "And establish weight in justice and do not make deficient the balance"
         }
       ],
@@ -309,46 +326,55 @@
         {
           "n": 24,
           "ar": "فَلۡيَنظُرِ ٱلۡإِنسَٰنُ إِلَىٰ طَعَامِهِۦٓ",
+          "sha256": "8ce0a5581215e76b7f1a6c732b56f940e023784919872096b729d7c2aa7f21eb",
           "en": "Then let mankind look at his food"
         },
         {
           "n": 25,
           "ar": "أَنَّا صَبَبۡنَا ٱلۡمَآءَ صَبّٗا",
+          "sha256": "b369a31663f514d8cd59942dedabda46cf2169a402e4e6edcf542ad4db1b64ee",
           "en": "How We poured down water in torrents"
         },
         {
           "n": 26,
           "ar": "ثُمَّ شَقَقۡنَا ٱلۡأَرۡضَ شَقّٗا",
+          "sha256": "eb98a76516c62e6510f15940af3fc8a75a9072fe90d6adc2c84c30272f48f997",
           "en": "Then We broke open the earth, splitting [it with sprouts]"
         },
         {
           "n": 27,
           "ar": "فَأَنۢبَتۡنَا فِيهَا حَبّٗا",
+          "sha256": "03d5d824d55dfedc8d1a294e5f0dc30aba49c140f5c15b7160f4378a1779de29",
           "en": "And caused to grow within it grain"
         },
         {
           "n": 28,
           "ar": "وَعِنَبٗا وَقَضۡبٗا",
+          "sha256": "b35c90c9f25af907a783acc751593a7235e0907fe606b98a48c735a1b42bb281",
           "en": "And grapes and herbage"
         },
         {
           "n": 29,
           "ar": "وَزَيۡتُونٗا وَنَخۡلٗا",
+          "sha256": "a3f98f6fe8b021933c71ba97ca73465624bd8801d3eaf7278d7e649afc6ebe9e",
           "en": "And olive and palm trees"
         },
         {
           "n": 30,
           "ar": "وَحَدَآئِقَ غُلۡبٗا",
+          "sha256": "efac268ecb1e4a746a8acefe6788e9f74888354e57902e1f61bf4daf1f0d68b4",
           "en": "And gardens of dense shrubbery"
         },
         {
           "n": 31,
           "ar": "وَفَٰكِهَةٗ وَأَبّٗا",
+          "sha256": "269cd3746cf0e0b945b0accbfae0123862833da803cb8f80e251aff8d64cff1f",
           "en": "And fruit and grass"
         },
         {
           "n": 32,
           "ar": "مَّتَٰعٗا لَّكُمۡ وَلِأَنۡعَٰمِكُمۡ",
+          "sha256": "6704c738f5303492b1f47c5ec4c1ad7d4b49d5e59a0cc889a965dcf790b89d19",
           "en": "[As] enjoyment for you and your grazing livestock"
         }
       ],
@@ -372,6 +398,7 @@
         {
           "n": 115,
           "ar": "أَفَحَسِبۡتُمۡ أَنَّمَا خَلَقۡنَٰكُمۡ عَبَثٗا وَأَنَّكُمۡ إِلَيۡنَا لَا تُرۡجَعُونَ",
+          "sha256": "d777ad0a456443f76e97b7bb5d40cbe3c31222daa81f3b1256031a723500dc8c",
           "en": "Then did you think that We created you uselessly and that to Us you would not be returned"
         }
       ],
@@ -395,6 +422,7 @@
         {
           "n": 30,
           "ar": "وَإِذۡ قَالَ رَبُّكَ لِلۡمَلَـٰٓئِكَةِ إِنِّي جَاعِلٞ فِي ٱلۡأَرۡضِ خَلِيفَةٗۖ قَالُوٓاْ أَتَجۡعَلُ فِيهَا مَن يُفۡسِدُ فِيهَا وَيَسۡفِكُ ٱلدِّمَآءَ وَنَحۡنُ نُسَبِّحُ بِحَمۡدِكَ وَنُقَدِّسُ لَكَۖ قَالَ إِنِّيٓ أَعۡلَمُ مَا لَا تَعۡلَمُونَ",
+          "sha256": "0fa0a1a3979a59f74d2679a180991d9a0580d3718728f230bc8211159d3b1f89",
           "en": "And [mention, O Muhammad], when your Lord said to the angels, \"Indeed, I will make upon the earth a successive authority.\" They said, \"Will You place upon it one who causes corruption therein and sheds blood, while we declare Your praise and sanctify You?\" Allah said, \"Indeed, I know that which you do not know"
         }
       ],
@@ -418,6 +446,7 @@
         {
           "n": 13,
           "ar": "وَسَخَّرَ لَكُم مَّا فِي ٱلسَّمَٰوَٰتِ وَمَا فِي ٱلۡأَرۡضِ جَمِيعٗا مِّنۡهُۚ إِنَّ فِي ذَٰلِكَ لَأٓيَٰتٖ لِّقَوۡمٖ يَتَفَكَّرُونَ",
+          "sha256": "9a7906c4af0554dd995cdda4cae6321e8d006b5121138744e6839dac067f34e7",
           "en": "And He has subjected to you whatever is in the heavens and whatever is on the earth - all from Him. Indeed in that are signs for a people who give thought"
         }
       ],
@@ -441,6 +470,7 @@
         {
           "n": 2,
           "ar": "ٱلَّذِي خَلَقَ ٱلۡمَوۡتَ وَٱلۡحَيَوٰةَ لِيَبۡلُوَكُمۡ أَيُّكُمۡ أَحۡسَنُ عَمَلٗاۚ وَهُوَ ٱلۡعَزِيزُ ٱلۡغَفُورُ",
+          "sha256": "36258210264fefe61e022971c4aef23f36c19912c0484c059d3a8787da92d595",
           "en": "[He] who created death and life to test you [as to] which of you is best in deed - and He is the Exalted in Might, the Forgiving"
         }
       ],
@@ -464,6 +494,7 @@
         {
           "n": 56,
           "ar": "وَمَا خَلَقۡتُ ٱلۡجِنَّ وَٱلۡإِنسَ إِلَّا لِيَعۡبُدُونِ",
+          "sha256": "9090b46953b6743159081b30e60f660404a6890fd1e3dee9893549829f3e8837",
           "en": "And I did not create the jinn and mankind except to worship Me"
         }
       ],
@@ -487,6 +518,7 @@
         {
           "n": 162,
           "ar": "قُلۡ إِنَّ صَلَاتِي وَنُسُكِي وَمَحۡيَايَ وَمَمَاتِي لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ",
+          "sha256": "25d02567fbb754016d4dba28cbaa46919a7cd923c5d20e055a800a07df8c26ce",
           "en": "Say, \"Indeed, my prayer, my rites of sacrifice, my living and my dying are for Allah, Lord of the worlds"
         }
       ],
@@ -510,6 +542,7 @@
         {
           "n": 103,
           "ar": "فَإِذَا قَضَيۡتُمُ ٱلصَّلَوٰةَ فَٱذۡكُرُواْ ٱللَّهَ قِيَٰمٗا وَقُعُودٗا وَعَلَىٰ جُنُوبِكُمۡۚ فَإِذَا ٱطۡمَأۡنَنتُمۡ فَأَقِيمُواْ ٱلصَّلَوٰةَۚ إِنَّ ٱلصَّلَوٰةَ كَانَتۡ عَلَى ٱلۡمُؤۡمِنِينَ كِتَٰبٗا مَّوۡقُوتٗا",
+          "sha256": "8c55c16346f6444ba341dbfc9d0f4d2bc736c15d23fe28e4bba7fa24444d3d1e",
           "en": "And when you have completed the prayer, remember Allah standing, sitting, or [lying] on your sides. But when you become secure, re-establish [regular] prayer. Indeed, prayer has been decreed upon the believers a decree of specified times"
         }
       ],
@@ -533,6 +566,7 @@
         {
           "n": 103,
           "ar": "خُذۡ مِنۡ أَمۡوَٰلِهِمۡ صَدَقَةٗ تُطَهِّرُهُمۡ وَتُزَكِّيهِم بِهَا وَصَلِّ عَلَيۡهِمۡۖ إِنَّ صَلَوٰتَكَ سَكَنٞ لَّهُمۡۗ وَٱللَّهُ سَمِيعٌ عَلِيمٌ",
+          "sha256": "80ee2fa2351224462d86ace457b2aa905e5cc2a3b9652677f0599da379f662e4",
           "en": "Take, [O, Muhammad], from their wealth a charity by which you purify them and cause them increase, and invoke [Allah 's blessings] upon them. Indeed, your invocations are reassurance for them. And Allah is Hearing and Knowing"
         }
       ],
@@ -556,6 +590,7 @@
         {
           "n": 183,
           "ar": "يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُواْ كُتِبَ عَلَيۡكُمُ ٱلصِّيَامُ كَمَا كُتِبَ عَلَى ٱلَّذِينَ مِن قَبۡلِكُمۡ لَعَلَّكُمۡ تَتَّقُونَ",
+          "sha256": "4ea26c11ecdf08747489891870a88173c1995286cb58d378cd3cd968c0cc9623",
           "en": "O you who have believed, decreed upon you is fasting as it was decreed upon those before you that you may become righteous"
         }
       ],
@@ -579,6 +614,7 @@
         {
           "n": 13,
           "ar": "يَـٰٓأَيُّهَا ٱلنَّاسُ إِنَّا خَلَقۡنَٰكُم مِّن ذَكَرٖ وَأُنثَىٰ وَجَعَلۡنَٰكُمۡ شُعُوبٗا وَقَبَآئِلَ لِتَعَارَفُوٓاْۚ إِنَّ أَكۡرَمَكُمۡ عِندَ ٱللَّهِ أَتۡقَىٰكُمۡۚ إِنَّ ٱللَّهَ عَلِيمٌ خَبِيرٞ",
+          "sha256": "42322d24402ba13fe301e1ae5247f8819d7ae47d2ec1cd36d12199d8f08f1bcc",
           "en": "O mankind, indeed We have created you from male and female and made you peoples and tribes that you may know one another. Indeed, the most noble of you in the sight of Allah is the most righteous of you. Indeed, Allah is Knowing and Acquainted"
         }
       ],
@@ -602,6 +638,7 @@
         {
           "n": 4,
           "ar": "وَإِنَّكَ لَعَلَىٰ خُلُقٍ عَظِيمٖ",
+          "sha256": "778cf932f01fc8f3d199f30e2d0c3b57f7c6f711d4d40315bf831b952a7b53d4",
           "en": "And indeed, you are of a great moral character"
         }
       ],
@@ -625,6 +662,7 @@
         {
           "n": 256,
           "ar": "لَآ إِكۡرَاهَ فِي ٱلدِّينِۖ قَد تَّبَيَّنَ ٱلرُّشۡدُ مِنَ ٱلۡغَيِّۚ فَمَن يَكۡفُرۡ بِٱلطَّـٰغُوتِ وَيُؤۡمِنۢ بِٱللَّهِ فَقَدِ ٱسۡتَمۡسَكَ بِٱلۡعُرۡوَةِ ٱلۡوُثۡقَىٰ لَا ٱنفِصَامَ لَهَاۗ وَٱللَّهُ سَمِيعٌ عَلِيمٌ",
+          "sha256": "d3a17bb64e01c083685cfcc271004f530a8db8cd655f0c5fae0b2706d92132dd",
           "en": "There shall be no compulsion in [acceptance of] the religion. The right course has become clear from the wrong. So whoever disbelieves in Taghut and believes in Allah has grasped the most trustworthy handhold with no break in it. And Allah is Hearing and Knowing"
         }
       ],
@@ -648,6 +686,7 @@
         {
           "n": 185,
           "ar": "كُلُّ نَفۡسٖ ذَآئِقَةُ ٱلۡمَوۡتِۗ وَإِنَّمَا تُوَفَّوۡنَ أُجُورَكُمۡ يَوۡمَ ٱلۡقِيَٰمَةِۖ فَمَن زُحۡزِحَ عَنِ ٱلنَّارِ وَأُدۡخِلَ ٱلۡجَنَّةَ فَقَدۡ فَازَۗ وَمَا ٱلۡحَيَوٰةُ ٱلدُّنۡيَآ إِلَّا مَتَٰعُ ٱلۡغُرُورِ",
+          "sha256": "481a9a23fa305a7a142b2330a78bfe0fdbb63abb61f65c7f14b563fd53628b2a",
           "en": "Every soul will taste death, and you will only be given your [full] compensation on the Day of Resurrection. So he who is drawn away from the Fire and admitted to Paradise has attained [his desire]. And what is the life of this world except the enjoyment of delusion"
         }
       ],
@@ -671,6 +710,7 @@
         {
           "n": 39,
           "ar": "وَمِنۡ ءَايَٰتِهِۦٓ أَنَّكَ تَرَى ٱلۡأَرۡضَ خَٰشِعَةٗ فَإِذَآ أَنزَلۡنَا عَلَيۡهَا ٱلۡمَآءَ ٱهۡتَزَّتۡ وَرَبَتۡۚ إِنَّ ٱلَّذِيٓ أَحۡيَاهَا لَمُحۡيِ ٱلۡمَوۡتَىٰٓۚ إِنَّهُۥ عَلَىٰ كُلِّ شَيۡءٖ قَدِيرٌ",
+          "sha256": "6cde0cbf1ef40c18fdd2120799c591295914182b052aff12c63a2c64667f2b7c",
           "en": "And of His signs is that you see the earth stilled, but when We send down upon it rain, it quivers and grows. Indeed, He who has given it life is the Giver of Life to the dead. Indeed, He is over all things competent"
         }
       ],
@@ -695,11 +735,13 @@
         {
           "n": 78,
           "ar": "وَضَرَبَ لَنَا مَثَلٗا وَنَسِيَ خَلۡقَهُۥۖ قَالَ مَن يُحۡيِ ٱلۡعِظَٰمَ وَهِيَ رَمِيمٞ",
+          "sha256": "d5da62b2fc74251a8936a0f079d8fa4c31ca1df4303506260c22a6b76ee206d2",
           "en": "And he presents for Us an example and forgets his [own] creation. He says, \"Who will give life to bones while they are disintegrated"
         },
         {
           "n": 79,
           "ar": "قُلۡ يُحۡيِيهَا ٱلَّذِيٓ أَنشَأَهَآ أَوَّلَ مَرَّةٖۖ وَهُوَ بِكُلِّ خَلۡقٍ عَلِيمٌ",
+          "sha256": "ab65dc11dd34fa7c06c79ba9611637cb0303679cac9ccb7ce1aee13c56df9c58",
           "en": "Say, \"He will give them life who produced them the first time; and He is, of all creation, Knowing"
         }
       ],
@@ -724,11 +766,13 @@
         {
           "n": 7,
           "ar": "فَمَن يَعۡمَلۡ مِثۡقَالَ ذَرَّةٍ خَيۡرٗا يَرَهُۥ",
+          "sha256": "f605713c8ccc4023b7f744dd13b80d1cc5147758c4e6516c5cef075ed59cf13b",
           "en": "So whoever does an atom's weight of good will see it"
         },
         {
           "n": 8,
           "ar": "وَمَن يَعۡمَلۡ مِثۡقَالَ ذَرَّةٖ شَرّٗا يَرَهُۥ",
+          "sha256": "379e4dd4aaa0c8e0d6b392ab779a1bb074ee683bfdefda3ae328c9a393724bb1",
           "en": "And whoever does an atom's weight of evil will see it"
         }
       ],
@@ -752,6 +796,7 @@
         {
           "n": 53,
           "ar": "۞قُلۡ يَٰعِبَادِيَ ٱلَّذِينَ أَسۡرَفُواْ عَلَىٰٓ أَنفُسِهِمۡ لَا تَقۡنَطُواْ مِن رَّحۡمَةِ ٱللَّهِۚ إِنَّ ٱللَّهَ يَغۡفِرُ ٱلذُّنُوبَ جَمِيعًاۚ إِنَّهُۥ هُوَ ٱلۡغَفُورُ ٱلرَّحِيمُ",
+          "sha256": "e4111c595a32b98ba30fecef903adf7ce05096f611cfed06c15af560108c322f",
           "en": "Say, \"O My servants who have transgressed against themselves [by sinning], do not despair of the mercy of Allah. Indeed, Allah forgives all sins. Indeed, it is He who is the Forgiving, the Merciful"
         }
       ],
@@ -775,6 +820,7 @@
         {
           "n": 3,
           "ar": "هُوَ ٱلۡأَوَّلُ وَٱلۡأٓخِرُ وَٱلظَّـٰهِرُ وَٱلۡبَاطِنُۖ وَهُوَ بِكُلِّ شَيۡءٍ عَلِيمٌ",
+          "sha256": "c568f57ee3905d1216f8a1f1d142588879f74583735c06c81b355e25cc2c31ce",
           "en": "He is the First and the Last, the Ascendant and the Intimate, and He is, of all things, Knowing"
         }
       ],
@@ -798,6 +844,7 @@
         {
           "n": 46,
           "ar": "۞وَلَا تُجَٰدِلُوٓاْ أَهۡلَ ٱلۡكِتَٰبِ إِلَّا بِٱلَّتِي هِيَ أَحۡسَنُ إِلَّا ٱلَّذِينَ ظَلَمُواْ مِنۡهُمۡۖ وَقُولُوٓاْ ءَامَنَّا بِٱلَّذِيٓ أُنزِلَ إِلَيۡنَا وَأُنزِلَ إِلَيۡكُمۡ وَإِلَٰهُنَا وَإِلَٰهُكُمۡ وَٰحِدٞ وَنَحۡنُ لَهُۥ مُسۡلِمُونَ",
+          "sha256": "cf0ef667b737f7524d70989c0e12b3ba0b8fcfe15478c8306c0d078e100dc5a6",
           "en": "And do not argue with the People of the Scripture except in a way that is best, except for those who commit injustice among them, and say, \"We believe in that which has been revealed to us and revealed to you. And our God and your God is one; and we are Muslims [in submission] to Him"
         }
       ],
@@ -821,6 +868,7 @@
         {
           "n": 108,
           "ar": "وَلَا تَسُبُّواْ ٱلَّذِينَ يَدۡعُونَ مِن دُونِ ٱللَّهِ فَيَسُبُّواْ ٱللَّهَ عَدۡوَۢا بِغَيۡرِ عِلۡمٖۗ كَذَٰلِكَ زَيَّنَّا لِكُلِّ أُمَّةٍ عَمَلَهُمۡ ثُمَّ إِلَىٰ رَبِّهِم مَّرۡجِعُهُمۡ فَيُنَبِّئُهُم بِمَا كَانُواْ يَعۡمَلُونَ",
+          "sha256": "aa753946836d2274d6ce0c19046454c79578782111335d4c07d42bcd2cefd684",
           "en": "And do not insult those they invoke other than Allah, lest they insult Allah in enmity without knowledge. Thus We have made pleasing to every community their deeds. Then to their Lord is their return, and He will inform them about what they used to do"
         }
       ],
@@ -844,6 +892,7 @@
         {
           "n": 125,
           "ar": "ٱدۡعُ إِلَىٰ سَبِيلِ رَبِّكَ بِٱلۡحِكۡمَةِ وَٱلۡمَوۡعِظَةِ ٱلۡحَسَنَةِۖ وَجَٰدِلۡهُم بِٱلَّتِي هِيَ أَحۡسَنُۚ إِنَّ رَبَّكَ هُوَ أَعۡلَمُ بِمَن ضَلَّ عَن سَبِيلِهِۦ وَهُوَ أَعۡلَمُ بِٱلۡمُهۡتَدِينَ",
+          "sha256": "202d2fb8f75a9cc6fc40857ab27459b22629448e4c6d6db5c447e2ea7a7f373d",
           "en": "Invite to the way of your Lord with wisdom and good instruction, and argue with them in a way that is best. Indeed, your Lord is most knowing of who has strayed from His way, and He is most knowing of who is [rightly] guided"
         }
       ],
@@ -852,6 +901,92 @@
       "translation_en_author": "Saheeh International",
       "used_in": [
         "dalil.rule_wisdom"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "56:68-70",
+      "surah": 56,
+      "surah_name_ar": "الواقعة",
+      "surah_name_en": "Al-Waqi'ah",
+      "ayahs": [
+        68,
+        69,
+        70
+      ],
+      "ayah_texts": [
+        {
+          "n": 68,
+          "ar": "أَفَرَءَيۡتُمُ ٱلۡمَآءَ ٱلَّذِي تَشۡرَبُونَ",
+          "sha256": "09b8b505e499bf0854199a0e656a4e6798051136e90ce59cf05849940780cd66",
+          "en": "And have you seen the water that you drink"
+        },
+        {
+          "n": 69,
+          "ar": "ءَأَنتُمۡ أَنزَلۡتُمُوهُ مِنَ ٱلۡمُزۡنِ أَمۡ نَحۡنُ ٱلۡمُنزِلُونَ",
+          "sha256": "c4bb4e20e5d31d27a881794da4b04416d7752fe4dc93a0a698a6e00a596cc94d",
+          "en": "Is it you who brought it down from the clouds, or is it We who bring it down"
+        },
+        {
+          "n": 70,
+          "ar": "لَوۡ نَشَآءُ جَعَلۡنَٰهُ أُجَاجٗا فَلَوۡلَا تَشۡكُرُونَ",
+          "sha256": "1049c8f77ab4894ee9be9d3e1895518524efa0ea3934a9fa83fdf2fbde4e4252",
+          "en": "If We willed, We could make it bitter, so why are you not grateful"
+        }
+      ],
+      "text_uthmani": "أَفَرَءَيۡتُمُ ٱلۡمَآءَ ٱلَّذِي تَشۡرَبُونَ ءَأَنتُمۡ أَنزَلۡتُمُوهُ مِنَ ٱلۡمُزۡنِ أَمۡ نَحۡنُ ٱلۡمُنزِلُونَ لَوۡ نَشَآءُ جَعَلۡنَٰهُ أُجَاجٗا فَلَوۡلَا تَشۡكُرُونَ",
+      "translation_en": "And have you seen the water that you drink Is it you who brought it down from the clouds, or is it We who bring it down If We willed, We could make it bitter, so why are you not grateful",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "revival.revelation_water"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "57:17",
+      "surah": 57,
+      "surah_name_ar": "الحديد",
+      "surah_name_en": "Al-Hadid",
+      "ayahs": [
+        17
+      ],
+      "ayah_texts": [
+        {
+          "n": 17,
+          "ar": "ٱعۡلَمُوٓاْ أَنَّ ٱللَّهَ يُحۡيِ ٱلۡأَرۡضَ بَعۡدَ مَوۡتِهَاۚ قَدۡ بَيَّنَّا لَكُمُ ٱلۡأٓيَٰتِ لَعَلَّكُمۡ تَعۡقِلُونَ",
+          "sha256": "d497aaa26593e561e0db425b711302887d9ec8d71d33c06391e502b2c31be6f4",
+          "en": "Know that Allah gives life to the earth after its lifelessness. We have made clear to you the signs; perhaps you will understand"
+        }
+      ],
+      "text_uthmani": "ٱعۡلَمُوٓاْ أَنَّ ٱللَّهَ يُحۡيِ ٱلۡأَرۡضَ بَعۡدَ مَوۡتِهَاۚ قَدۡ بَيَّنَّا لَكُمُ ٱلۡأٓيَٰتِ لَعَلَّكُمۡ تَعۡقِلُونَ",
+      "translation_en": "Know that Allah gives life to the earth after its lifelessness. We have made clear to you the signs; perhaps you will understand",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "revival.revelation_final_provisional"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "30:50",
+      "surah": 30,
+      "surah_name_ar": "الروم",
+      "surah_name_en": "Ar-Rum",
+      "ayahs": [
+        50
+      ],
+      "ayah_texts": [
+        {
+          "n": 50,
+          "ar": "فَٱنظُرۡ إِلَىٰٓ ءَاثَٰرِ رَحۡمَتِ ٱللَّهِ كَيۡفَ يُحۡيِ ٱلۡأَرۡضَ بَعۡدَ مَوۡتِهَآۚ إِنَّ ذَٰلِكَ لَمُحۡيِ ٱلۡمَوۡتَىٰۖ وَهُوَ عَلَىٰ كُلِّ شَيۡءٖ قَدِيرٞ",
+          "sha256": "a6593778d3e8b38a5229c3ac7fd445e8b607658d4c34dc71b9bfa56302bb1d9e",
+          "en": "So observe the effects of the mercy of Allah - how He gives life to the earth after its lifelessness. Indeed, that [same one] will give life to the dead, and He is over all things competent"
+        }
+      ],
+      "text_uthmani": "فَٱنظُرۡ إِلَىٰٓ ءَاثَٰرِ رَحۡمَتِ ٱللَّهِ كَيۡفَ يُحۡيِ ٱلۡأَرۡضَ بَعۡدَ مَوۡتِهَآۚ إِنَّ ذَٰلِكَ لَمُحۡيِ ٱلۡمَوۡتَىٰۖ وَهُوَ عَلَىٰ كُلِّ شَيۡءٖ قَدِيرٞ",
+      "translation_en": "So observe the effects of the mercy of Allah - how He gives life to the earth after its lifelessness. Indeed, that [same one] will give life to the dead, and He is over all things competent",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "revival.revelation_final_alternative"
       ],
       "review_status": "pending_sharia_review"
     }

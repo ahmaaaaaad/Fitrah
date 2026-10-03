@@ -40,6 +40,10 @@ USES=[
  (29,[46],"world1.dalil_same_god","وَإِلَٰهُنَا وَإِلَٰهُكُمْ وَاحِدٌ"),
  (6,[108],"dalil.rule_respect","وَلَا تَسُبُّوا الَّذِينَ يَدْعُونَ مِن دُونِ اللَّهِ"),
  (16,[125],"dalil.rule_wisdom","ادْعُ إِلَىٰ سَبِيلِ رَبِّكَ بِالْحِكْمَةِ وَالْمَوْعِظَةِ الْحَسَنَةِ"),
+ # The Revival prototype. Selections are provisional until Sharia review (57:17 candidate, 30:50 alternative).
+ (56,[68,69,70],"revival.revelation_water","أَفَرَأَيْتُمُ الْمَاءَ الَّذِي تَشْرَبُونَ"),
+ (57,[17],"revival.revelation_final_provisional","اعْلَمُوا أَنَّ اللَّهَ يُحْيِي الْأَرْضَ بَعْدَ مَوْتِهَا"),
+ (30,[50],"revival.revelation_final_alternative","فَانظُرْ إِلَىٰ آثَارِ رَحْمَتِ اللَّهِ كَيْفَ يُحْيِي الْأَرْضَ بَعْدَ مَوْتِهَا"),
 ]
 def skel(s):
     s=unicodedata.normalize('NFKD',s)
@@ -58,7 +62,7 @@ for su,ays,use,frag in USES:
     ok = None if frag is None else (skel2(frag) in skel2(ar_text))
     report.append((su,ays,use,ok))
     verses.append({"key":f"{su}:{ays[0]}"+(f"-{ays[-1]}" if len(ays)>1 else ""),"surah":su,"surah_name_ar":ch['name'],"surah_name_en":en['transliteration'],
-      "ayahs":ays,"ayah_texts":[{"n":v["id"],"ar":v["text"],"en":[e for e in en["verses"] if e["id"]==v["id"]][0]["translation"]} for v in ch["verses"] if v["id"] in ays],"text_uthmani":ar_text,"translation_en":en_text,"translation_en_author":"Saheeh International","used_in":use,
+      "ayahs":ays,"ayah_texts":[{"n":v["id"],"ar":v["text"],"sha256":hashlib.sha256(v["text"].encode("utf-8")).hexdigest(),"en":[e for e in en["verses"] if e["id"]==v["id"]][0]["translation"]} for v in ch["verses"] if v["id"] in ays],"text_uthmani":ar_text,"translation_en":en_text,"translation_en_author":"Saheeh International","used_in":use,
       "review_status":"pending_sharia_review"})
 # merge duplicate keys (same verse used twice)
 merged={}
@@ -67,7 +71,7 @@ for v in verses:
     else: v['used_in']=[v['used_in']]; merged[v['key']]=v
 out={"_meta":{"arabic_source":"Uthmani text, The Noble Qur'an Encyclopedia (quranenc.com), via npm quran-json@3.1.2",
   "english_source":"Saheeh International, via tanzil.net (npm quran-json@3.1.2)","license":"CC BY-SA 4.0 (quran-json); original texts per their publishers' terms",
-  "rule":"Never edit text_uthmani or ayah_texts by hand. Regenerate from source. Display ayah by ayah (ayah_texts) with an end-of-ayah mark and number; show full verses or clearly marked portions."},
+  "integrity":"ayah_texts[].sha256 is the SHA-256 of the UTF-8 Arabic text as it comes from the source; clients re-hash before display.","rule":"Never edit text_uthmani or ayah_texts by hand. Regenerate from source. Display ayah by ayah (ayah_texts) with an end-of-ayah mark and number; show full verses or clearly marked portions."},
   "verses":list(merged.values())}
 json.dump(out,open('data/quran/verses.json','w'),ensure_ascii=False,indent=2)
 for r in report: print(r)

@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
-    "preview": "vite preview --host"
+    "preview": "vite preview --host",
+    "dev:revival": "vite --host --config vite.revival.config.js --open /revival.html",
+    "build:revival": "vite build --config vite.revival.config.js"
   },
   "dependencies": {
     "@fontsource/amiri-quran": "^5.3.0",
