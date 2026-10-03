@@ -11,7 +11,7 @@ varying float vAlong; varying float vAcross; varying vec3 vW;
 void main(){ vAlong = aAlong; vAcross = aAcross; vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`;
 const fs = /* glsl */`
 ${NOISE}${FIELD}${LIGHT}
-uniform float uTime, uFill, uLength, uStill, uGlow; uniform vec3 uZenith, uHorizon;
+uniform float uTime, uFrom, uFront, uLength, uStill, uGlow; uniform vec3 uZenith, uHorizon;
 varying float vAlong; varying float vAcross; varying vec3 vW;
 float ring(vec2 p, float t){
   vec2 i = floor(p), f = fract(p); float s = 0.0;
@@ -24,9 +24,10 @@ float ring(vec2 p, float t){
   return s;
 }
 void main(){
-  float front = uFill * uLength;
-  float filled = 1.0 - smoothstep(front - 8.0, front, vAlong);
-  float edge = 1.0 - smoothstep(0.55, 1.0, abs(vAcross));
+  // water runs from where it gathered (uFrom) down to its front; a trickle at the front, a stream behind
+  float filled = smoothstep(uFrom - 6.0, uFrom + 2.0, vAlong) * (1.0 - smoothstep(uFront - 2.0, uFront, vAlong));
+  float w = mix(0.32, 1.0, smoothstep(0.0, 30.0, uFront - vAlong));
+  float edge = 1.0 - smoothstep(0.55 * w, w, abs(vAcross));
   float a = filled * edge;
   if (a < 0.01) discard;
   float flowT = uTime * (1.0 - uStill * 0.85);
@@ -45,6 +46,7 @@ void main(){
   col += uSunCol * pow(max(dot(R, uSunDir), 0.0), 220.0) * 1.8 * fieldB(vW.xz).b;
   col += vec3(0.75, 0.8, 0.8) * smoothstep(0.62, 0.8, n2) * 0.08 * (1.0 - uStill); // flow streaks
   col += vec3(0.85, 0.9, 0.95) * rr * 0.25;
+  col += vec3(0.8, 0.86, 0.9) * (1.0 - smoothstep(0.0, 6.0, uFront - vAlong)) * 0.25; // the leading edge glints
   // light gathering on the surface during the revelation (never a reflection of the letters)
   col += vec3(1.0, 0.82, 0.5) * uGlow * (0.25 + 0.75 * smoothstep(0.3, 0.9, n1)) * 0.45;
   col = grade(col);
@@ -53,7 +55,7 @@ void main(){
 }`;
 
 export function createWater(scene) {
-  const pos = [], along = [], across = [], idx = [];
+  const pos = [], along = [], across = [], idx = [], centre = [];
   let L = 0, prev = null, rows = 0;
   for (let z = CHANNEL.zStart; z <= CHANNEL.zEnd; z += 1) {
     const x = channelX(z), y = waterY(z);
@@ -62,6 +64,7 @@ export function createWater(scene) {
     const dx = channelX(z + 0.5) - channelX(z - 0.5); // tangent (dx, 1) → normal (1, -dx)
     const nl = Math.hypot(1, dx), nx = 1 / nl, nz = -dx / nl;
     const hw = CHANNEL.halfWidth * (0.85 + 0.25 * Math.sin(z * 0.11)) * Math.min(1, (z - CHANNEL.zStart) / 12 + 0.35);
+    centre.push([x, y, z, L]);
     for (const s of [-1, 0, 1]) {
       pos.push(x + nx * hw * s, y, z + nz * hw * s); along.push(L); across.push(s);
     }
@@ -76,11 +79,17 @@ export function createWater(scene) {
   g.setAttribute('aAlong', new THREE.Float32BufferAttribute(along, 1));
   g.setAttribute('aAcross', new THREE.Float32BufferAttribute(across, 1));
   g.setIndex(idx);
-  const uniforms = { ...U, uFill: { value: 0 }, uLength: { value: L }, uStill: { value: 0 }, uGlow: { value: 0 } };
+  const uniforms = { ...U, uFrom: { value: 0 }, uFront: { value: 0 }, uLength: { value: L }, uStill: { value: 0 }, uGlow: { value: 0 } };
   const mesh = new THREE.Mesh(g, new THREE.ShaderMaterial({ uniforms, vertexShader: vs, fragmentShader: fs, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
   mesh.renderOrder = 2; mesh.frustumCulled = false;
   scene.add(mesh);
   /** Distance along the stream of the point nearest depth z (for the fill front). */
   const alongAt = (z) => along[Math.max(0, Math.min(rows - 1, Math.round(z - CHANNEL.zStart))) * 3];
-  return { mesh, uniforms, length: L, alongAt };
+  /** Point on the water's centre line at a distance along the stream. */
+  function pointAt(a, out = new THREE.Vector3()) {
+    let i = 0; while (i < centre.length - 2 && centre[i + 1][3] < a) i++;
+    const p = centre[i], q = centre[i + 1], t = Math.max(0, Math.min(1, (a - p[3]) / Math.max(1e-3, q[3] - p[3])));
+    return out.set(p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t, p[2] + (q[2] - p[2]) * t);
+  }
+  return { mesh, uniforms, length: L, alongAt, pointAt };
 }

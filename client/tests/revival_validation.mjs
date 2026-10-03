@@ -6,12 +6,13 @@ import { join, resolve } from 'node:path';
 const dir = mkdtempSync(join(tmpdir(), 'dalil-'));
 const src = resolve('src/revival/dalil');
 const verses = resolve('../data/quran/verses.json');
-writeFileSync(join(dir, 'lines.mjs'), readFileSync(join(src, 'lines.js'), 'utf8'));
+writeFileSync(join(dir, 'events.mjs'), readFileSync(resolve('src/revival/events.js'), 'utf8'));
+writeFileSync(join(dir, 'lines.mjs'), readFileSync(join(src, 'lines.js'), 'utf8').replace("from '../events.js'", "from './events.mjs'"));
 writeFileSync(join(dir, 'prompt.mjs'), readFileSync(join(src, 'prompt.js'), 'utf8')
   .replace("import verses from '../../../../data/quran/verses.json';", `import verses from '${verses}' with { type: 'json' };`)
-  .replace("from './lines.js'", "from './lines.mjs'"));
+  .replace("from './lines.js'", "from './lines.mjs'").replace("from '../events.js'", "from './events.mjs'"));
 const { validate, quotesVerse } = await import(join(dir, 'prompt.mjs'));
-const { ANSWERS, COMMENT, GUIDE, REFLECT } = await import(join(dir, 'lines.mjs'));
+const { ANSWERS, LINES, EXPLAIN } = await import(join(dir, 'lines.mjs'));
 const cases = [
   [{ answer: 'أَفَرَأَيْتُمُ الْمَاءَ الَّذِي تَشْرَبُونَ', citations: ['56:68-70'], confidence: 0.9 }, 'vocalized-arabic'],
   [{ answer: 'افرأيتم الماء الذي تشربون', citations: ['56:68-70'], confidence: 0.9 }, 'quotes-verse'],
@@ -20,10 +21,20 @@ const cases = [
   [{ answer: 'تدعونا الآية إلى التأمل في الماء الذي نشربه وأن نشكر.', citations: ['56:68-70'], confidence: 0.8 }, null],
   [{ answer: 'ok', citations: ['2:255'], confidence: 0.9 }, 'citation'],
   [{ answer: 'ok', citations: [], confidence: 0.3 }, 'low-confidence'],
+  [{ answer: 'ok', type: 'QURAN_ARABIC', citations: [], confidence: 0.9 }, 'content-type'],
+  [{ answer: 'You brought the rain to this valley.', type: 'NARRATIVE_DIALOGUE', citations: [], confidence: 0.9 }, 'agency'],
+  [{ answer: 'You made it rain, and you opened the sky.', type: 'NARRATIVE_DIALOGUE', citations: [], confidence: 0.9 }, 'agency'],
+  [{ answer: 'We revived the earth together.', type: 'NARRATIVE_DIALOGUE', citations: [], confidence: 0.9 }, 'agency'],
+  [{ answer: 'أنت أحييت هذه الأرض.', type: 'NARRATIVE_DIALOGUE', citations: [], confidence: 0.9 }, 'agency'],
+  [{ answer: 'We did not bring the rain; we watched it arrive.', type: 'EDUCATIONAL_CONTEXT', citations: [], confidence: 0.9 }, null],
 ];
 let fail = 0;
 for (const [o, want] of cases) { const got = validate(o); if (got !== want) { fail++; console.log('FAIL', o.answer, 'got', got, 'want', want); } }
 for (const [k, a] of Object.entries(ANSWERS)) for (const l of ['ar', 'en']) if (quotesVerse(a[l])) { fail++; console.log('authored answer looks like a quotation:', k, l); }
-for (const g of [COMMENT, GUIDE, REFLECT]) for (const [k, a] of Object.entries(g)) if (quotesVerse(a.ar)) { fail++; console.log('authored line looks like a quotation:', k); }
+for (const g of [LINES, EXPLAIN]) for (const [k, a] of Object.entries(g)) for (const l of ['ar', 'en']) {
+  if (quotesVerse(a[l])) { fail++; console.log('authored line looks like a quotation:', k, l); }
+  const v = validate({ answer: a[l], type: a.type, citations: [], confidence: 1 });
+  if (v === 'agency') { fail++; console.log('authored line gives agency:', k, l); }
+}
 console.log(fail ? `${fail} failure(s)` : `all ${cases.length} cases and all authored lines pass`);
 process.exit(fail ? 1 : 0);

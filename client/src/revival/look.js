@@ -8,14 +8,15 @@ export const U = {
   uFieldA: { value: null }, uFieldB: { value: null }, uHalf: { value: CONFIG.half },
   uPrevailing: { value: new THREE.Vector2(-0.55, -0.15) }, uGust: { value: 0.6 }, uTime: { value: 0 },
   // The sun stands beyond the meadow, so shafts through gaps fall toward the player.
-  uSunDir: { value: new THREE.Vector3(0.32, 0.84, -0.42).normalize() },
+  uSunDir: { value: new THREE.Vector3(0.32, 0.84, 0.42).normalize() }, // south-east: ahead of the player, beyond the meadow
   uSunCol: { value: C('#bdb6ab') }, uSkyCol: { value: C('#7d848c') }, uGroundCol: { value: C('#5b544b') },
   uFogCol: { value: C('#9c958a') }, uFogDensity: { value: 0.006 },
   uBands: { value: 3 }, uSaturation: { value: 0.35 }, uLightPhase: { value: 0 },
   uZenith: { value: C('#5f6670') }, uHorizon: { value: C('#a39c90') }, uHaze: { value: 0.85 },
   // Dalil's light on the ground and grass: xyz position, w intensity
   uDalil: { value: new THREE.Vector4(0, -100, 0, 0) },
-  uDroop: { value: 0 },      // too much sun: flowers droop, edges dry
+  uDroop: { value: 0 },      // unused in the witness model (kept for the shaders that read it)
+  uBreak: { value: new THREE.Vector4(0, 0, 0, 0) }, // canopy break: x, z, radius, rim glow
 };
 
 // Keyframes of the colour script (section 16): drought, first rain, revival, flourishing, harmony.

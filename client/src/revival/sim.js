@@ -14,7 +14,7 @@ const cx = (i) => -HALF + (i + 0.5) * CELL;
 
 // ------------------------------------------------------------------ grids
 const F = () => new Float32Array(NN);
-const wx = F(), wz = F();          // the player's air (m/s), decays over 2.5 s
+const wx = F(), wz = F();          // local wind from the world's currents (m/s), decays over 2.5 s
 const am = F(), cd = F(), rt = F(); // air moisture, cloud density, ripening time (travels with the cloud)
 const sm = F(), veg = F(), rain = F(), sun = F();
 const opened = F();                 // seconds since a gap was drawn here (regrowth waits)
@@ -119,7 +119,7 @@ function pack() {
 }
 
 // ------------------------------------------------------------------ input operations (InteractionField)
-/** A wind splat: velocity (m/s) at (x, z), Gaussian radius r. energy > 1 tears clouds. */
+/** A wind splat: velocity (m/s) at (x, z), Gaussian radius r. Used by the world's current only. */
 export function splat(x, z, vx, vz, r, energy = 0, strength = 0.35) {
   const r2 = r * r, reach = Math.ceil((r * 2.2) / CELL);
   const ci = Math.round((x + HALF) / CELL - 0.5), cj = Math.round((z + HALF) / CELL - 0.5);
@@ -135,7 +135,7 @@ export function splat(x, z, vx, vz, r, energy = 0, strength = 0.35) {
       }
     }
 }
-/** Mechanic 2: thin the clouds along a stroke. */
+/** Thin the clouds around a point (the world's canopy separating). */
 export function openClouds(x, z, r, amount) {
   if (sim.frozen) return;
   const r2 = r * r, reach = Math.ceil((r * 2) / CELL);
@@ -149,6 +149,32 @@ export function openClouds(x, z, r, amount) {
     }
 }
 export const cloudAt = (x, z) => sample(cd, x, z);
+
+// ------------------------------------------------------------------ the world's own weather
+// WITNESS MODEL: the director drives these on the world's own time. Nothing the
+// player does calls them; the player's gestures change only what is seen.
+function eachInRadius(x, z, r, fn) {
+  const reach = Math.ceil((r * 2) / CELL), r2 = r * r;
+  const ci = Math.round((x + HALF) / CELL - 0.5), cj = Math.round((z + HALF) / CELL - 0.5);
+  for (let j = Math.max(0, cj - reach); j <= Math.min(N - 1, cj + reach); j++)
+    for (let i = Math.max(0, ci - reach); i <= Math.min(N - 1, ci + reach); i++) {
+      const dx = cx(i) - x, dz = cx(j) - z, g = Math.exp(-(dx * dx + dz * dz) / r2);
+      if (g > 0.02) fn(j * N + i, g);
+    }
+}
+/** Moist air arriving on the current: clouds gather here toward a target density. */
+export function worldGather(x, z, r, dt, rate = 0.12, target = 0.86) {
+  eachInRadius(x, z, r, (k, g) => {
+    am[k] = clamp01(am[k] + dt * rate * 0.8 * g * (1 - am[k]));
+    if (cd[k] < target) cd[k] = Math.min(target, cd[k] + dt * rate * g * (target - cd[k] + 0.05));
+  });
+}
+/** Water soaking into the ground (the banks of the first water, the meadow drinking). */
+export function worldWet(x, z, r, dt, rate = 0.25) { eachInRadius(x, z, r, (k, g) => { sm[k] = clamp01(sm[k] + dt * rate * g * (1 - sm[k])); }); }
+/** The world's wind along a path: dust and grass answer it. */
+export function worldWind(x, z, vx, vz, r, dt) { splat(x, z, vx, vz, r, 0, Math.min(0.5, dt * 3)); }
+/** The canopy separating by itself around a break. */
+export function worldThin(x, z, r, amount) { openClouds(x, z, r, amount); }
 
 // ------------------------------------------------------------------ the step
 let acc = 0;

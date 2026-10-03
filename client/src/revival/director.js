@@ -1,369 +1,529 @@
-// The director: derives the six environmental states from the simulation
-// (they only move forward), runs the beats of the slice, places the camera's
-// look, choreographs Dalil around the revelations, and offers fast-forward
-// hooks for tests and the review jump menu.
+// The narrative director. The world is the primary actor: it has its own wind,
+// rain, water and light, on its own time. The player notices, follows and
+// understands; Dalil guides, interprets and accompanies. Each beat is
+//   the world shows something -> Dalil or the scene draws attention -> a discovery
+//   gesture (trace / reveal / connect / align) -> what was there becomes visible
+//   -> Dalil explains or keeps silent -> sometimes a verse -> the world moves on.
 //
-//   gesture -> wind -> clouds ripen -> rain -> soil -> grass -> stream
-//   -> revelation 1 (56:68-70, over the stream) -> meadow rain -> flowers
-//   -> parting the clouds (light balance) -> harmony
-//   -> revelation 2 (PROVISIONAL: 57:17, alternative 30:50) -> peace
+//   arrival -> the current (TRACE) -> rain over the valley (REVEAL) -> the first
+//   water (TRACE) -> revelation 1, verse first (56:68-70) -> Dalil leads to the
+//   meadow -> a flower opens; the chain (CONNECT) -> the clouds thin (ALIGN) ->
+//   the light -> revelation 2, verse first (PROVISIONAL: 57:17, alt. 30:50) -> peace
 import * as THREE from 'three';
 import { CONFIG, PROVISIONAL, SPEED } from './config.js';
 import { U, updateLook } from './look.js';
-import { sim, setField, canopyAt, rainNear, openClouds, exposureNow } from './sim.js';
-import { heightAt, channelX, waterY, M } from './terrain.js';
+import { sim, setField, canopyAt, rainNear, exposureNow, worldGather, worldWet, worldWind, worldThin } from './sim.js';
+import { heightAt, channelX, waterY, raycastTerrain, M } from './terrain.js';
 import { revealVerse } from './verse.js';
+import { createTrace, createReveal, createConnect, createAlign, createAttention } from './interact.js';
+import { createHeroFlower } from './phenomena.js';
+import { bus, EV } from './events.js';
+import { LINES, EXPLAIN } from './dalil/lines.js';
+import { renderer } from '../core/scene.js';
 import { i18n } from '../core/i18n.js';
 
 export const STATES = [
   { ar: 'سكون', en: 'Dormant' }, { ar: 'أولى العلامات', en: 'First signs' }, { ar: 'الإحياء', en: 'Revival' },
-  { ar: 'الازدهار', en: 'Flourishing' }, { ar: 'الانسجام', en: 'Harmony' }, { ar: 'السكينة', en: 'Peace' },
+  { ar: 'الازدهار', en: 'Flourishing' }, { ar: 'النور', en: 'Light' }, { ar: 'السكينة', en: 'Peace' },
 ];
+const BEATS = ['arrival', 'current', 'rain', 'water', 'stream', 'meadow', 'light', 'final', 'peace'];
+const SCENES = {
+  arrival: 'The player has just arrived in a dry, cracked valley under a heavy grey sky. Dalil is beside them.',
+  current: 'A current of wind is carrying dust and moisture across the valley from the eastern slopes; the player is following it with their attention.',
+  rain: 'Clouds have gathered over the player and rain is falling on the cracked soil; the player is looking through the rain at the ground.',
+  water: 'Rainwater has gathered in the dry stream bed and is running downhill; the player is following it. Grass is beginning to sprout along its banks.',
+  stream: 'The first water has reached the stream. The verse about the water we drink (56:68-70) is being shown here.',
+  meadow: 'Rain has moved over the meadow below. Grass and orange wildflowers are opening. The player is following the chain from cloud to flower.',
+  light: 'A heavy canopy of cloud covers the meadow and has begun to thin by itself; the player is keeping their eyes on the thinning cloud as sunlight starts to come through.',
+  final: 'Sunlight has broken through onto the living meadow. The final verse is being shown.',
+  peace: 'The meadow is green, warm and still. The journey is complete; the player may ask about anything they saw.',
+};
 const smooth = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
+const CANCEL = Symbol('cancel');
 
-export function createDirector({ player, dalil, input, ui, audio, water, flora, motes, camera }) {
-  const D = {
-    phase: 'intro', envState: 0, t: 0, phaseT: 0,
-    rainSustained: 0, firstRainT: null, grassT: null, inBand: 0, verseActive: false,
-    revealed: [], lastProgressT: 0, best: {}, started: false, lightTouched: false,
-    look: new THREE.Vector3(), lookBlend: 0, rainCentroid: new THREE.Vector3(10, 0, 40),
-  };
+export function createDirector({ player, dalil, input, ui, audio, water, flora, motes, camera, phenomena, scene }) {
   const S = sim.stats;
-  const P0 = player.pointAt(0);
-  const gatherLook = new THREE.Vector3(8, 22, 22);
-  const meadowLook = new THREE.Vector3(M.x + 8, heightAt(M.x + 8, M.z - 8) + 9, M.z - 8); // meadow below, canopy above
+  const attention = createAttention();
+  const reveal = createReveal({ scene, attention });
+  const hero = createHeroFlower(scene, camera);
+  const D = {
+    beat: 'intro', envState: 0, t: 0, beatT: 0, started: false, verseActive: false, revealed: [],
+    interaction: 'none', look: null, rail: null, fov: 38, lookP: 0, lightOpen: 0, exposureKick: 0,
+    waterFront: 0, waterFrom: 0, waterFull: false, gather: null, currentWind: false, breakAt: null,
+  };
+  let gen = 0, connect = null;
 
-  function setPhase(p) { if (D.phase !== p) { D.phase = p; D.phaseT = 0; D.lastProgressT = D.t; } }
+  // ---------------------------------------------------------------- helpers
+  const sleep = (s, g) => new Promise((res, rej) => setTimeout(() => (g !== gen ? rej(CANCEL) : res()), (s * 1000) / SPEED));
+  const until = (fn, g, timeout = 1e9) => new Promise((res, rej) => {
+    const t0 = performance.now();
+    const tick = () => { if (g !== gen) return rej(CANCEL); if (fn() || (performance.now() - t0) / 1000 > timeout / SPEED) return res(); setTimeout(tick, 100); };
+    tick();
+  });
+  const alive = (g) => { if (g !== gen) throw CANCEL; };
+  /** Await a gesture, but give up if the sequence was replaced (a review jump). */
+  const race = (p, g) => Promise.race([p, until(() => false, g)]);
+  function setBeat(b) { D.beat = b; D.beatT = 0; dalil.brain.seq = b === 'stream' ? 'verse1' : b; }
   function enter(state) {
     if (state <= D.envState) return;
     D.envState = state;
     ui.live({ ar: `حالة الوادي: ${STATES[state].ar}`, en: `The valley: ${STATES[state].en}` });
   }
-  function progress(key, value, margin = 0.04) {
-    if (value > (D.best[key] ?? -1) + margin) { D.best[key] = value; D.lastProgressT = D.t; }
+  const railPoint = (i) => player.marks[i] ?? 0;
+  /** Arc length on the rail closest to a world point. */
+  function railS(p) {
+    let best = 0, bd = 1e9; const q = new THREE.Vector3();
+    for (let k = 0; k <= 200; k++) { player.pointAt((k / 200) * player.length, q); const d = (q.x - p.x) ** 2 + (q.z - p.z) ** 2; if (d < bd) { bd = d; best = k; } }
+    return (best / 200) * player.length;
+  }
+  const ground = (x, z, up = 0) => new THREE.Vector3(x, heightAt(x, z) + up, z);
+  const ahead = (d, up = 0) => { const p = player.state.position, h = player.state.heading; return ground(p.x + h.x * d, p.z + h.z * d, up); };
+  /** Stall watcher: one gentle observation if the player has not engaged for a while. */
+  function watchStall(line, g, test, after = 12) {
+    let said = false;
+    const t0 = D.t; // the frame clock, the same clock the input stamps gestures with
+    const tick = () => {
+      if (g !== gen || said) return;
+      if (test() && D.t - t0 > after / SPEED && D.t - Math.max(input.G.lastGestureT, t0) > after / SPEED) { said = true; dalil.say(line); return; }
+      setTimeout(tick, 400);
+    };
+    setTimeout(tick, 400);
   }
 
-  // ---------------------------------------------------------------- begin
-  function begin() {
-    D.started = true;
-    input.G.enabled = true;
-    setPhase('gather');
-    player.state.look = gatherLook.clone();
+  // ---------------------------------------------------------------- the beats
+  const arrivalLook = new THREE.Vector3(40, 10, -80); // toward the north-east slopes, where the current comes from
+  const rc = CONFIG.rainCenter;
+  const aFrom = () => water.alongAt(CONFIG.water.zFrom);
+  const aTo = () => water.alongAt(CONFIG.water.zTo);
+
+  async function arrival(g) {
+    setBeat('arrival'); D.interaction = 'none';
+    D.look = () => arrivalLook; D.fov = 40;
+    bus.emit(EV.ARRIVED);
+    await sleep(3.5, g);
   }
 
-  // ---------------------------------------------------------------- the rain's centre (where the eye should go)
-  function updateRainCentroid() {
-    const { rain, veg } = sim.arrays, N = sim.N, C = sim.CELL, H = sim.HALF;
-    let sx = 0, sz = 0, sw = 0;
-    const field = D.phase === 'revival' ? veg : rain;
-    for (let j = 0; j < N; j += 2) for (let i = 0; i < N; i += 2) {
-      const w = field[j * N + i];
-      if (w > 0.1) { sx += (-H + (i + 0.5) * C) * w; sz += (-H + (j + 0.5) * C) * w; sw += w; }
+  async function current(g) {
+    setBeat('current');
+    // the world: a current of wind crossing the valley, clouds slowly gathering where it goes
+    phenomena.state.current = 1; D.currentWind = true; D.gather = { x: rc.x, z: rc.z, r: rc.r, rate: 0.035 };
+    bus.emit(EV.CURRENT_APPEARED);
+    await sleep(1.6, g);
+    const c = phenomena.curve;
+    dalil.notice(c.getPointAt(0.2), { step: 1.5 });
+    dalil.say(LINES.current_notice);
+    let explained = false;
+    const trace = createTrace({
+      camera, curve: c, speed: 10 * SPEED, attention,
+      onAdvance: (u, head) => {
+        phenomena.state.head = u; phenomena.state.traced = u; phenomena.state.knot = head.clone();
+        if (u > 0.55 && !explained) { explained = true; dalil.say(LINES.current_where, { priority: 1 }); }
+        if (u > 0.02 && !bus.has(EV.PLAYER_NOTICED_CURRENT)) bus.emit(EV.PLAYER_NOTICED_CURRENT);
+      },
+    });
+    trace.s.u = 0.1; // attention meets the current where it first comes into view
+    phenomena.state.knot = c.getPointAt(0.1); phenomena.state.head = 0.1;
+    D.interaction = 'tracing the current of wind';
+    // the observation field follows where attention is on the current
+    const lookAt = new THREE.Vector3();
+    D.look = () => lookAt.copy(arrivalLook).lerp(trace.head, smooth(0, 0.06, trace.s.u));
+    input.setActive(trace);
+    watchStall(LINES.current_follow, g, () => !trace.s.everNear, 8);
+    watchStall(LINES.stall_trace, g, () => trace.s.u < 0.9, 26);
+    D.activeTrace = trace;
+    await race(trace.done, g);
+    D.activeTrace = null; input.setActive(null);
+    bus.emit(EV.PLAYER_TRACED_WIND);
+    phenomena.state.current = 0; phenomena.state.knot = null; D.currentWind = false;
+    // where the wind was going: the clouds over the valley, already heavy
+    D.look = () => ground(rc.x + 2, rc.z + 16, CONFIG.cloudHeight * 0.75);
+  }
+
+  async function rain(g) {
+    setBeat('rain');
+    D.gather = { x: rc.x, z: rc.z, r: rc.r, rate: 0.16 };
+    setField('rt', (x, z, v) => (Math.hypot(x - rc.x, z - rc.z) < rc.r ? Math.max(v, 7.5) : v)); // the cloud has been ripening while it gathered
+    const p = player.state.position;
+    await until(() => rainNear(p.x, p.z) > 0.2, g, 30);
+    bus.emit(EV.RAIN_BEGAN); bus.emit(EV.PLAYER_DISCOVERED_RAIN);
+    enter(1);
+    dalil.notice(ground(p.x, p.z, CONFIG.cloudHeight)); dalil.say(LINES.rain_listen);
+    await sleep(2.5, g);
+    // the gaze lowers to the ground in front; the rain veils it
+    const focus = ahead(6);
+    D.look = () => focus; D.fov = 34;
+    await sleep(1.2, g);
+    const done = reveal.begin();
+    input.setActive(reveal);
+    D.interaction = 'looking through the rain at the cracked soil';
+    dalil.say(LINES.rain_closer);
+    watchStall(LINES.stall_reveal, g, () => reveal.s.coverage < 0.12, 11);
+    const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+    const lensFocus = focus.clone();
+    D.look = () => {
+      // the observation field leans toward where the player is looking through the rain
+      if (reveal.s.pressed || reveal.s.assist) {
+        ndc.set((reveal.s.x / window.innerWidth) * 2 - 1, -(reveal.s.y / window.innerHeight) * 2 + 1);
+        ray.setFromCamera(ndc, camera);
+        const hit = raycastTerrain(ray.ray, 40);
+        if (hit && hit.distanceTo(player.state.position) < 25) lensFocus.lerp(hit, 0.08);
+        D.fov = 24;
+      } else D.fov = 32;
+      phenomena.state.splashFocus = lensFocus;
+      return lensFocus;
+    };
+    phenomena.state.splashOn = 1;
+    D.wetFocus = lensFocus;
+    await race(done, g);
+    D.wetFocus = null;
+    input.setActive(null); reveal.end();
+    bus.emit(EV.PLAYER_REVEALED_SOIL);
+    enter(2);
+    D.fov = 38;
+    // the weather moves on south over the valley, on its own
+    sim.meadowWeather = true;
+    dalil.say(LINES.soil_explain, { priority: 1 });
+    await dalil.quiet(); alive(g);
+    D.gather = null;
+  }
+
+  async function waterBeat(g) {
+    setBeat('water');
+    phenomena.state.splashOn = 0;
+    // the first water gathers in the dry stream bed and runs downhill by itself
+    D.waterFrom = aFrom(); D.waterFront = aFrom() + 4; D.waterRun = 2.4;
+    const pts = []; const q = new THREE.Vector3();
+    for (let a = aFrom() + 4; a <= aTo(); a += 2) { water.pointAt(a, q); pts.push(q.clone().add(new THREE.Vector3(0, 0.2, 0))); }
+    const curve = new THREE.CatmullRomCurve3(pts);
+    bus.emit(EV.WATER_MOVING);
+    await sleep(1.2, g);
+    dalil.notice(curve.getPointAt(0.05), { step: 2 });
+    dalil.say(LINES.water_moving);
+    let explained = false;
+    const span = aTo() - aFrom() - 4;
+    const trace = createTrace({
+      camera, curve, speed: 3.2 * SPEED, attention,
+      limit: () => Math.min(1, (D.waterFront - aFrom() - 4) / span),
+      onAdvance: (u, head) => {
+        phenomena.state.knot = head.clone();
+        if (u > 0.5 && !explained) { explained = true; dalil.say(LINES.water_explain, { priority: 1 }); }
+      },
+    });
+    input.setActive(trace); D.activeTrace = trace;
+    D.interaction = 'following the first water down the dry stream bed';
+    watchStall(LINES.stall_water, g, () => trace.s.u < 0.2, 12);
+    // walking is following: the player keeps a few metres behind where attention is
+    D.rail = () => Math.max(0, railS(trace.head) - 3);
+    const lk = new THREE.Vector3();
+    D.look = () => lk.copy(trace.head).lerp(ahead(10, 0.5), 0.12);
+    // Dalil walks along the water, a little ahead
+    let lastLead = 0;
+    D.onFrame = () => {
+      if (D.t - lastLead > 2.5 / SPEED) { lastLead = D.t; const tgt = curve.getPointAt(Math.min(1, trace.s.u + 0.12)); dalil.lead(new THREE.Vector3(tgt.x + 3.5, 0, tgt.z), tgt); }
+    };
+    await race(trace.done, g);
+    D.onFrame = null; input.setActive(null); phenomena.state.knot = null; D.activeTrace = null;
+    bus.emit(EV.PLAYER_TRACED_WATER); bus.emit(EV.PLAYER_REVEALED_STREAM);
+    dalil.follow();
+  }
+
+  async function stream(g) {
+    setBeat('stream');
+    D.rail = () => railPoint('stream');
+    await until(() => Math.abs(player.state.s - railPoint('stream')) < 1.5, g, 20);
+    // the environment goes quiet: rain thins to a trickle, the water stills, light gathers on it
+    sim.allowRain = false;
+    const z = CONFIG.rail[CONFIG.marks.stream][1] + 3;
+    const anchorW = new THREE.Vector3(channelX(z), waterY(z) + 2.4, z);
+    D.waterStill = 1;
+    await revelation(PROVISIONAL.verses.revival, anchorW, { eye: 1.2, fov: 38, motesDrop: -1.4, g, side: 1 });
+    D.waterStill = 0; sim.allowRain = true;
+    D.waterFull = true; // the rest of the stream fills from upstream as the rain keeps feeding it
+  }
+
+  async function meadow(g) {
+    setBeat('meadow');
+    // Dalil notices something below and leads; the player follows him
+    const edge = ground(CONFIG.rail[CONFIG.marks.meadow][0] + 3, CONFIG.rail[CONFIG.marks.meadow][1] + 2.5);
+    const meadowC = ground(M.x, M.z, 2);
+    dalil.notice(meadowC);
+    dalil.say(LINES.meadow_come);
+    await sleep(1.5, g);
+    D.interaction = 'following Dalil down to the meadow';
+    player.state.sMax = player.length;
+    const arrived = dalil.lead(edge, meadowC);
+    D.rail = () => Math.min(railPoint('meadow'), Math.max(0, railS(dalil.pos) - 4));
+    D.look = () => dalil.groundPos().add(new THREE.Vector3(0, 1.2, 0)).lerp(meadowC, 0.5);
+    await race(arrived, g);
+    D.rail = () => railPoint('meadow');
+    await until(() => Math.abs(player.state.s - railPoint('meadow')) < 1.5, g, 25);
+    // the meadow has been receiving rain; wait (with Dalil) for it to answer
+    const comp = meadowComposition();
+    const flowerAt = comp.flower;
+    hero.place(flowerAt);
+    D.look = () => flowerAt.clone().add(new THREE.Vector3(0, 0.6, 0)); D.fov = 34;
+    await until(() => S.vegMeadow > 0.5, g, 40);
+    enter(3); flora.uniforms.uFlowers.value = Math.max(flora.uniforms.uFlowers.value, 0.001);
+    D.flowersOn = true;
+    hero.bloom();
+    await sleep(2.2, g);
+    bus.emit(EV.PLAYER_DISCOVERED_FLOWER);
+    dalil.kneel(new THREE.Vector3(flowerAt.x + 0.6, 0, flowerAt.z - 0.4), 6);
+    dalil.say(LINES.flower_look);
+    await dalil.quiet(); alive(g);
+    // follow the relationship: cloud -> (rain) -> soil -> water -> flower, all in one frame
+    D.fov = 58;
+    const nodes = [{ id: 'cloud', world: comp.cloud }, { id: 'soil', world: comp.soil }, { id: 'water', world: comp.water }, { id: 'flower', world: hero.headPos() }];
+    D.look = () => comp.view;
+    await sleep(1.5, g);
+    connect = createConnect({ camera, nodes, attention, onLink: (i) => { bus.emit('LINK', { to: nodes[i].id }); dalil.point(nodes[i].world); } });
+    input.setActive(connect);
+    D.interaction = 'following the chain from the cloud to the flower';
+    dalil.say(LINES.chain_prompt);
+    watchStall(LINES.stall_connect, g, () => connect && connect.s.linked === 0, 12);
+    await race(connect.done, g);
+    input.setActive(null);
+    bus.emit(EV.PLAYER_CONNECTED_CHAIN);
+    dalil.say(LINES.chain_explain, { priority: 1 });
+    await dalil.quiet(); alive(g);
+    connect.remove(); connect = null;
+    dalil.follow();
+  }
+
+  async function light(g) {
+    setBeat('light');
+    sim.canopy = true; // the rain eases; the canopy holds
+    if (S.cdMeadow < 0.6) { D.gather = { x: M.x + sim.OFF.x * 0.5, z: M.z + sim.OFF.z * 0.5, r: M.r + 24, rate: 0.5, target: 0.8 }; await until(() => S.cdMeadow > 0.65, g, 8); D.gather = null; }
+    D.look = () => meadowLook; D.fov = 53;
+    await sleep(2.5, g);
+    // the cloud begins to thin by itself, drifting with the wind
+    const B1 = new THREE.Vector3(M.x + sim.OFF.x, CONFIG.cloudHeight, M.z + sim.OFF.z);
+    const B = B1.clone().add(new THREE.Vector3(10, 0, 8)); // farther first, so it starts low in the view
+    D.breakAt = B; phenomena.state.breakAt = B;
+    bus.emit(EV.CLOUDS_THINNING);
+    dalil.notice(B.clone());
+    await sleep(0.8, g);
+    dalil.lead(ahead(3.5).add(new THREE.Vector3(1.5, 0, 0)), B);
+    dalil.say(LINES.light_notice);
+    const align = createAlign({ camera, target: () => B, attention, need: 5 / SPEED });
+    input.setActive(align);
+    D.interaction = 'keeping their eyes on the thinning cloud';
+    watchStall(LINES.stall_align, g, () => align.progress() < 0.2, 12);
+    D.onFrame = (dt) => {
+      B.lerp(B1, 1 - Math.exp(-dt * 0.06)); // the break drifts with the wind
+      phenomena.state.breakBoost = 1 + align.progress() * 1.4;  // attention lets the player see the light gathering
+      U.uBreak.value.set(B.x, B.z, 3 + align.progress() * 3, 0.35 + align.progress() * 0.6);
+      if (!D.lightOpen) worldThin(B.x, B.z, 7, dt * 0.05);
+    };
+    await race(align.done, g);
+    input.setActive(null);
+    bus.emit(EV.PLAYER_ALIGNED_LIGHT);
+    // the clouds separate by themselves: the light sequence
+    D.lightOpen = 1; D.exposureKick = 1;
+    const dir = new THREE.Vector3(U.uPrevailing.value.x, 0, U.uPrevailing.value.y).normalize();
+    const t0 = D.t;
+    await new Promise((res, rej) => {
+      D.onFrame = (dt) => {
+        if (g !== gen) { D.onFrame = null; return rej(CANCEL); }
+        const k = Math.min(1, (D.t - t0) / (9 / SPEED));
+        const r = 8 + k * 12;
+        U.uBreak.value.set(B.x, B.z, r * 0.9, 1.0 - k * 0.6);
+        for (let i = -2; i <= 2; i++) worldThin(B.x + dir.x * i * r * 0.6, B.z + dir.z * i * r * 0.6, r, dt * 0.35 * SPEED);
+        if (exposureNow() >= CONFIG.lightTarget || k >= 1) { D.onFrame = null; res(); }
+      };
+    });
+    sim.frozen = true;
+    phenomena.state.breakAt = null; U.uBreak.value.w = 0;
+    enter(4);
+    bus.emit(EV.PLAYER_OBSERVED_LIGHT);
+    await sleep(4, g); // silence: the light needs no words
+  }
+
+  async function final(g) {
+    setBeat('final');
+    const anchorW = ground(M.x - 4, M.z - 4, 11);
+    await revelation(PROVISIONAL.verses.final, anchorW, { eye: 1.6, fov: 50, motesDrop: -2.5, g, side: -1 });
+    enter(5);
+    dalil.say(LINES.closing, { priority: 1, force: true });
+  }
+
+  async function peace(g) {
+    setBeat('peace');
+    D.look = () => meadowLook; D.fov = 53; D.interaction = 'resting in the meadow';
+    await sleep(6, g);
+    dalil.complete();
+    bus.emit(EV.JOURNEY_COMPLETE);
+    await sleep(4, g);
+    ui.endCard({ onReplay: () => location.reload() });
+  }
+  const meadowLook = ground(M.x + 6, M.z + 6, 9);
+  /** The meadow frame for the chain: cloud far above, soil and flower near, the stream to the right. */
+  function meadowComposition() {
+    const pm = player.pointAt(railPoint('meadow'));
+    const at = (deg, d, up) => { const a = (deg * Math.PI) / 180; return ground(pm.x + Math.cos(a) * d, pm.z + Math.sin(a) * d, up); };
+    let water = null, best = 1e9;
+    for (let z = pm.z + 8; z < pm.z + 34; z += 1) {
+      const x = channelX(z), ang = Math.atan2(z - pm.z, x - pm.x) * 180 / Math.PI;
+      if (Math.abs(ang - 90) < best) { best = Math.abs(ang - 90); water = new THREE.Vector3(x, waterY(z) + 0.1, z); }
     }
-    if (sw > 0.5) D.rainCentroid.lerp(new THREE.Vector3(sx / sw, 0, sz / sw), 0.2);
+    const cloud = at(56, 88, 0); cloud.y = CONFIG.cloudHeight - 2;
+    const eye = heightAt(pm.x, pm.z) + 1.6;
+    const view = at(66, 30, 0); view.y = eye + 1.5;
+    return { view, flower: at(52, 5.4, 0), soil: at(72, 6.5, 0.05), water, cloud };
   }
 
-  // ---------------------------------------------------------------- revelation choreography
-  async function revelation(key, { anchorWorld, markWorld, eye = 1.6, fov = 38, kind }) {
+  // ---------------------------------------------------------------- revelation (verse first; Dalil explains after reading)
+  async function revelation(key, anchorW, { eye, fov, motesDrop, g, side }) {
     D.verseActive = true;
-    // Dalil leaves the frame first; the camera locks 4 s before the text
-    dalil.toMark(markWorld, anchorWorld);
-    player.state.look = anchorWorld.clone();
-    player.state.eyeTarget = eye; player.state.fovTarget = fov;
-    player.state.lockedUntil = Infinity;
-    await wait(4 / SPEED);
-    dalil.presentVerse(anchorWorld);
-    player.state.fovTarget = fov * 0.98; // a 2% push over the whole reveal
+    const p = player.state.position;
+    const dx = anchorW.x - p.x, dz = anchorW.z - p.z, l = Math.hypot(dx, dz) || 1;
+    const mark = new THREE.Vector3(p.x - (dx / l) * 1.2 - (dz / l) * 2 * side, 0, p.z - (dz / l) * 1.2 + (dx / l) * 2 * side);
+    dalil.toMark(mark, anchorW);                // Dalil steps out of the frame first
+    D.look = () => anchorW; D.fov = fov;
+    player.state.eyeTarget = eye; player.state.lockedUntil = Infinity;
+    await sleep(4, g);                          // environmental silence before the text
+    dalil.presentVerse(anchorW);
+    D.fov = fov * 0.98;                         // a 2% push over the whole reveal
     audio.recite(key);
     const proj = new THREE.Vector3();
-    const anchor = () => {
-      proj.copy(anchorWorld).project(camera);
-      return { x: (proj.x * 0.5 + 0.5) * window.innerWidth, y: (-proj.y * 0.5 + 0.5) * window.innerHeight };
-    };
-    motes.uniforms.uAnchor.value.copy(anchorWorld).add(new THREE.Vector3(0, kind === 'water' ? -1.4 : -2.5, 0));
+    const anchor = () => { proj.copy(anchorW).project(camera); return { x: (proj.x * 0.5 + 0.5) * window.innerWidth, y: (-proj.y * 0.5 + 0.5) * window.innerHeight }; };
+    motes.uniforms.uAnchor.value.copy(anchorW).add(new THREE.Vector3(0, motesDrop, 0));
+    bus.emit(EV.PLAYER_REVEALED_VERSE, { key });
     const res = await revealVerse(key, {
-      anchor, readable: ui.readable,
-      hooks: { onWord: () => { motes.uniforms.uVerse.value = 1; } },
+      anchor, readable: ui.readable, explanation: EXPLAIN[key],
+      hooks: {
+        onWord: () => { motes.uniforms.uVerse.value = 1; },
+        onReadDone: () => { bus.emit(EV.PLAYER_FINISHED_READING_VERSE, { key }); dalil.explainVerse(); },
+      },
     });
     D.revealed.push(key);
-    player.state.lockedUntil = 0; player.state.eyeTarget = 1.6; player.state.fovTarget = 38;
-    D.verseActive = false;
-    motes.uniforms.uVerse.value = 0;
-    if (res.shown) {
-      // one authored reflection after the revelation, when the player moves on
-      setTimeout(() => dalil.reflect(kind), 1200 / SPEED);
-    }
+    player.state.lockedUntil = 0; player.state.eyeTarget = 1.6;
+    D.verseActive = false; motes.uniforms.uVerse.value = 0;
+    dalil.follow();
     return res;
   }
-  const wait = (s) => new Promise((r) => setTimeout(r, s * 1000));
 
-  // ---------------------------------------------------------------- per frame
+  // ---------------------------------------------------------------- run
+  const RUN = { arrival, current, rain, water: waterBeat, stream, meadow, light, final, peace };
+  async function run(from = 'arrival') {
+    const g = ++gen;
+    try {
+      for (const b of BEATS.slice(BEATS.indexOf(from))) { alive(g); await RUN[b](g); }
+    } catch (e) { if (e !== CANCEL) console.error(e); }
+  }
+  function begin() { D.started = true; input.G.enabled = true; run('arrival'); }
+
+  // ---------------------------------------------------------------- per frame: the world's continuous processes, the camera, audio
   function update(dt, t) {
-    D.t = t; D.phaseT += dt;
-    const G = input.G;
-    updateRainCentroid();
-
-    // wake Dalil on the first gesture, or after 45 s
-    if (D.started && dalil.state === 'DORMANT' && (G.firstGestureT !== null || D.phaseT > 45)) dalil.wake();
-
-    // environmental events → Dalil (most stay silent)
-    if (S.cdMax > 0.42 && !D.best.cloudSeen) { D.best.cloudSeen = 1; dalil.onEnv('firstCloud'); }
-    if (S.ripeness > 0.45 && S.rainMax < 0.05 && D.phase === 'gather') { D.ripeT = (D.ripeT || 0) + dt; if (D.ripeT > 4) dalil.onEnv('ripening'); }
-    if (S.rainMax > 0.15 && D.firstRainT === null) { D.firstRainT = t; dalil.onEnv('rainStart'); enter(1); ui.live({ ar: 'بدأ المطر', en: 'Rain begins' }); }
-    if (S.rainMax > 0.3) D.rainSustained += dt * SPEED;
-    if (S.amBasin >= 0.25 || S.cdMax >= 0.35) enter(1);
-
-    let lookP = 0;
-    switch (D.phase) {
-      case 'intro':
-        player.state.look = gatherLook.clone();
-        break;
-      case 'gather': {
-        progress('cd', S.cdMax); progress('rain', S.rainMax, 0.1); progress('sm', S.smBasinHi, 0.03);
-        lookP = Math.min(1, S.rainMax * 2) * 0.8;
-        if (D.firstRainT !== null) {
-          // eye follows the rain down to the ground
-          const c = D.rainCentroid, gy = heightAt(c.x, c.z);
-          const k = smooth(0, 6, t - D.firstRainT);
-          player.state.look.lerpVectors(gatherLook, new THREE.Vector3(c.x, gy + CONFIG.cloudHeight * 0.38, c.z), k * 0.85);
-        }
-        // hints for the gesture
-        if (G.firstGestureT === null && D.phaseT > 5) ui.hint(G.keyboard ? { ar: 'الأسهم تحرّك البؤرة · اضغط المسافة مطوّلًا لتسوق الهواء', en: 'Arrows move the focus · hold Space to sweep the air' } : matchMedia('(pointer: coarse)').matches ? { ar: 'اسحب بإصبعك عبر السماء', en: 'Drag across the sky with one finger' } : { ar: 'اضغط واسحب عبر السماء', en: 'Press and sweep across the sky' });
-        else if (G.strokes > 2 || D.firstRainT !== null) ui.hint(null);
-        if (G.scatters > 0.6 && !D.best.scatterHint) { D.best.scatterHint = 1; ui.flash({ ar: 'برفق — الإسراع يمزّق السحاب', en: 'Gently — too fast tears the clouds' }); }
-        if (S.smBasinHi >= 0.3 && D.rainSustained >= 20) { enter(2); setPhase('revival'); }
-        stall(G.scatters > 0.5 ? 'scatter' : S.ripeness > 0.4 ? 'wait' : 'gather', gatherLook);
-        break;
-      }
-      case 'revival': {
-        lookP = 1.4 + 0.6 * Math.min(1, S.vegBasinHi / 0.6);
-        progress('veg', S.vegBasinHi); progress('wf', sim.waterFlow, 0.03);
-        if (S.vegBasinHi > 0.15 && D.grassT === null) {
-          D.grassT = t;
-          const c = D.rainCentroid.clone(); c.y = heightAt(c.x, c.z);
-          dalil.onEnv('firstGrass', { at: c });
-        }
-        // look at the new growth, then along the way to the water
-        const c = D.rainCentroid;
-        if (D.phaseT < 5) player.state.look = new THREE.Vector3(c.x, heightAt(c.x, c.z) + 2.5, c.z);
-        if (sim.waterFill > 0.3 && !D.best.streamSeen) { D.best.streamSeen = 1; dalil.onEnv('stream'); }
-        // after a moment with the new growth, the rail opens: walk into the revival, down to the water
-        if (D.phaseT > 5 && player.state.sTarget < player.marks.stream) {
-          player.state.sMax = Math.max(player.state.sMax, player.marks.stream);
-          player.state.sTarget = player.marks.stream; player.state.look = null; player.state.lookPitch = -0.08;
-        }
-        const atStream = Math.abs(player.state.s - player.marks.stream) < 1.2;
-        if (atStream && !D.verseActive) {
-          const ahead = streamAnchor();
-          player.state.look = ahead.clone().add(new THREE.Vector3(0, -1.2, 0));
-          if (sim.waterFill >= 0.6) startStreamReveal();
-        }
-        stall(S.rainMax < 0.05 ? 'gather' : 'wait', D.rainCentroid);
-        break;
-      }
-      case 'streamReveal': lookP = 2; break;
-      case 'toMeadow': {
-        lookP = 2 + 0.6 * Math.min(1, S.vegMeadow / 0.55);
-        progress('vegM', S.vegMeadow, 0.03);
-        const atMeadow = Math.abs(player.state.s - player.marks.meadow) < 1.5;
-        if (atMeadow) { player.state.look = meadowLook.clone(); player.state.fovTarget = 53; }
-        if (S.vegMeadow >= 0.55) {
-          enter(3); setPhase('light');
-          flora.uniforms.uFlowers.value = 0.001; dalil.onEnv('flowers');
-          sim.canopy = true;
-        }
-        stall('walk', meadowLook);
-        break;
-      }
-      case 'light': {
-        const Sx = S.sunMeadow;
-        lookP = 3 + 0.8 * smooth(0.1, 0.65, Sx);
-        player.state.look = meadowLook.clone(); player.state.fovTarget = 53;
-        flora.uniforms.uFlowers.value = Math.min(1, flora.uniforms.uFlowers.value + dt * 0.25 * SPEED);
-        motes.uniforms.uPetals.value = Math.min(1, motes.uniforms.uPetals.value + dt * 0.3);
-        if (input.G.parts > 0) D.lightTouched = true;
-        if (D.phaseT > 4 && !D.lightTouched) ui.hint(G.keyboard ? { ar: 'وجّه البؤرة إلى سحابة واضغط Enter مطوّلًا', en: 'Point the focus at a cloud and hold Enter' } : { ar: 'اضغط داخل سحابة واسحب إلى الخارج', en: 'Press inside a cloud and draw outward' });
-        else if (D.lightTouched) ui.hint(null);
-        if (Sx > 0.2 && !D.best.shaft) { D.best.shaft = 1; dalil.onEnv('firstShaft', { at: poolNear() }); }
-        U.uDroop.value += (smooth(0.75, 0.92, Sx) - U.uDroop.value) * (1 - Math.exp(-dt * 1.5));
-        const inBand = Sx >= CONFIG.lightBand[0] && Sx <= CONFIG.lightBand[1];
-        D.inBand = inBand ? D.inBand + dt * SPEED : 0;
-        progress('sun', Math.min(Sx, 1.5 - Sx), 0.03);
-        if (D.inBand >= CONFIG.harmonyHold) { enter(4); setPhase('harmony'); sim.frozen = true; dalil.onEnv('harmony'); ui.hint(null); startFinalReveal(); }
-        else if (Sx > 0.78 && D.phaseT > 8) stall('bright', null, 6);
-        else stall('dim', meadowLook);
-        break;
-      }
-      case 'harmony': lookP = 4; break;
-      case 'peace': lookP = 4; break;
-      default: break;
+    D.t = t; D.beatT += dt;
+    D.onFrame?.(dt);
+    // world weather
+    if (D.gather) worldGather(D.gather.x, D.gather.z, D.gather.r, dt * SPEED, D.gather.rate, D.gather.target ?? 0.86);
+    if (D.currentWind) {
+      const c = phenomena.curve, q = new THREE.Vector3(), tg = new THREE.Vector3();
+      for (let i = 0; i < 6; i++) { const u = ((t * 0.08 + i / 6) % 1); c.getPointAt(u, q); c.getTangentAt(u, tg); worldWind(q.x, q.z, tg.x * 5, tg.z * 5, 10, dt); }
     }
-    // light: the colour script, the sun in the gaps, the motes of harmony
-    if (D.phase === 'harmony' || D.phase === 'peace') {
-      U.uLightPhase.value += (1 - U.uLightPhase.value) * (1 - Math.exp(-dt * 0.8));
-      motes.uniforms.uMotes.value = Math.min(1, motes.uniforms.uMotes.value + dt * 0.4);
-      U.uDroop.value *= Math.exp(-dt);
-    } else if (D.phase === 'light') {
-      U.uLightPhase.value += (smooth(0.12, 0.6, S.sunMeadow) * 0.85 - U.uLightPhase.value) * (1 - Math.exp(-dt * 1.2));
-      motes.uniforms.uMotes.value += (smooth(0.4, 0.7, S.sunMeadow) * 0.6 - motes.uniforms.uMotes.value) * dt;
+    if (D.wetFocus) worldWet(D.wetFocus.x, D.wetFocus.z, 7, dt * SPEED, reveal.s.pressed || reveal.s.assist ? 0.22 : 0.06);
+    // the first water runs on by itself; its banks drink
+    if (D.waterRun) {
+      D.waterFront = Math.min(aTo() + 2, D.waterFront + D.waterRun * dt * SPEED);
+      const q = water.pointAt(Math.max(D.waterFrom, D.waterFront - 3));
+      worldWet(q.x, q.z, 4, dt * SPEED, 0.5);
     }
-    if (D.phase === 'peace') { U.uGust.value += (0.25 - U.uGust.value) * dt * 0.3; }
-    updateLook(lookP, dt * Math.max(1, SPEED * 0.5));
-    // the stream fills from its source downhill: at waterFlow 0.6 it has reached the stream mark
-    const markAlong = water.alongAt(CONFIG.rail[CONFIG.marks.stream][1]) + 18;
-    const fillTarget = sim.waterFill < 0.6 ? (sim.waterFill / 0.6) * (markAlong / water.length) : markAlong / water.length + (sim.waterFill - 0.6) / 0.4 * (1 - markAlong / water.length);
-    water.uniforms.uFill.value += (Math.min(1, fillTarget) - water.uniforms.uFill.value) * (1 - Math.exp(-dt * 0.8));
+    if (D.waterFull) { D.waterFrom = Math.max(0, D.waterFrom - 6 * dt * SPEED); D.waterFront = Math.min(water.length, D.waterFront + 4 * dt * SPEED); }
+    water.uniforms.uFrom.value = D.waterFrom; water.uniforms.uFront.value = D.waterFront;
+    const still = D.waterStill ? 1 : 0;
+    water.uniforms.uStill.value += (still - water.uniforms.uStill.value) * (1 - Math.exp(-dt * 1.2));
+    water.uniforms.uGlow.value = water.uniforms.uStill.value;
+    if (D.flowersOn) {
+      flora.uniforms.uFlowers.value = Math.min(1, flora.uniforms.uFlowers.value + dt * 0.3 * SPEED);
+      motes.uniforms.uPetals.value = Math.min(1, motes.uniforms.uPetals.value + dt * 0.25);
+    }
+    if (D.beat === 'meadow' && S.vegMeadow < 0.5 && D.beatT > 6) worldWet(M.x, M.z, M.r, dt * SPEED, 0.05); // the meadow is drinking the rain that reached it
 
-    // audio mix
+    // camera: where attention is, and how far along the path
+    if (D.look) { const l = D.look(); if (l) player.state.look = l.clone ? l.clone() : l; }
+    if (D.rail) { const s = D.rail(); player.state.sMax = Math.max(player.state.sMax, s); player.state.sTarget = s; }
+    player.state.fovTarget = D.fov;
+    attention.update(dt);
+    reveal.update(dt);
+    if (input.G.active && input.G.active !== reveal) input.G.active.update?.(dt);
+
+    // light and colour script
+    const lookP = { intro: 0, arrival: 0, current: 0.35, rain: 1, water: 1.5 + 0.5 * smooth(0, 0.6, S.vegBasinHi), stream: 2, meadow: 2 + 0.9 * smooth(0.2, 0.6, S.vegMeadow), light: 3 + (D.lightOpen ? 1 : 0), final: 4, peace: 4 }[D.beat] ?? 0;
+    updateLook(lookP, dt * Math.max(1, SPEED * 0.5) * (D.lightOpen ? 1.6 : 1));
+    const lightTarget = D.lightOpen ? 1 : D.beat === 'light' ? 0.25 : 0;
+    U.uLightPhase.value += (lightTarget - U.uLightPhase.value) * (1 - Math.exp(-dt * 0.9));
+    motes.uniforms.uMotes.value += ((D.lightOpen ? 1 : 0) - motes.uniforms.uMotes.value) * (1 - Math.exp(-dt * 0.5));
+    // exposure: a breath of brightness as the light breaks through, then it settles
+    D.exposureKick *= Math.exp(-dt * 0.35);
+    renderer.toneMappingExposure = 0.95 + 0.16 * D.exposureKick * smooth(0, 0.3, D.exposureKick) + (D.lightOpen ? 0.05 : 0);
+    if (D.beat === 'peace') U.uGust.value += (0.25 - U.uGust.value) * dt * 0.3;
+
+    // audio: the environment, attended to
     const cam = player.state.position;
-    const nearStream = Math.max(0, 1 - Math.abs(cam.x - channelX(cam.z)) / 30) * water.uniforms.uFill.value;
+    const tr = D.activeTrace?.s;
+    const nearStream = Math.max(0, 1 - Math.abs(cam.x - channelX(cam.z)) / 25) * (D.waterFront > 0 ? 1 : 0);
     audio.update(dt, {
-      wind: Math.min(1, 0.2 + S.windEnergy / 3), gust: D.envState < 2 ? 0.8 : 0.3,
+      wind: Math.min(1, 0.2 + S.windEnergy / 3 + (tr?.near ? 0.35 : 0) + (D.currentWind ? 0.15 : 0)), gust: D.envState < 2 ? 0.8 : 0.3,
       rain: Math.min(1, rainNear(cam.x, cam.z) * 0.8 + S.rainMax * 0.25),
       stream: nearStream, rustle: Math.min(1, S.vegBasinHi + S.vegMeadow) * Math.min(1, 0.3 + S.windEnergy / 3),
       birds: D.envState >= 3 ? 1 : 0, duck: D.verseActive,
     });
+    hero.update(dt);
   }
 
-  // a stalled phase: one observation, only after 25 s without progress
-  function stall(kind, toward, after = CONFIG.dalil.stallSeconds) {
-    if (D.t - D.lastProgressT > after / Math.max(1, SPEED) && !D.verseActive) {
-      dalil.guide(kind, toward ? toward.clone() : null);
-      D.lastProgressT = D.t; // at most one observation per stall
-    }
-  }
-  function markBeside(anchorW, side) {
-    const p = player.state.position;
-    const dx = anchorW.x - p.x, dz = anchorW.z - p.z, l = Math.hypot(dx, dz) || 1;
-    const fx = dx / l, fz = dz / l;
-    return new THREE.Vector3(p.x - fx * 1.2 - fz * 2.0 * side, 0, p.z - fz * 1.2 + fx * 2.0 * side);
-  }
-  function streamAnchor() {
-    const z = CONFIG.rail[CONFIG.marks.stream][1] - 6;
-    return new THREE.Vector3(channelX(z), waterY(z) + 2.4, z);
-  }
-  function poolNear() {
-    const p = player.state.position, { sun } = sim.arrays, N = sim.N, C = sim.CELL, H = sim.HALF;
-    let best = null, bd = 1e9;
-    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
-      if (sun[j * N + i] < 0.7) continue;
-      const x = -H + (i + 0.5) * C, z = -H + (j + 0.5) * C;
-      if (Math.hypot(x - M.x, z - M.z) > M.r) continue;
-      const d = Math.hypot(x - p.x, z - p.z);
-      if (d < bd && d > 3) { bd = d; best = new THREE.Vector3(x, heightAt(x, z), z); }
-    }
-    return best && bd < 22 ? best : null;
+  // ---------------------------------------------------------------- context engine (what Dalil's AI receives)
+  function context() {
+    const S2 = sim.stats;
+    const state = [`${STATES[D.envState].en}.`, S2.rainMax > 0.1 ? 'Rain is falling.' : 'No rain now.', `Vegetation near the meadow ${Math.round(S2.vegMeadow * 100)}%.`, `Sunlight on the meadow ${Math.round(S2.sunMeadow * 100)}%.`].join(' ');
+    const lastVerse = D.verseActive ? { key: D.beat === 'final' ? PROVISIONAL.verses.final : PROVISIONAL.verses.revival, shown: true } : D.revealed.length ? { key: D.revealed[D.revealed.length - 1], shown: true } : null;
+    return { scene: SCENES[D.beat] || SCENES.arrival, state, interaction: D.interaction, verse: lastVerse, events: bus.recent(6).map((e) => e.type) };
   }
 
-  async function startStreamReveal() {
-    if (D.phase !== 'revival') return;
-    setPhase('streamReveal');
-    sim.allowRain = false; // the rain thins to a trickle
-    water.uniforms.uStill.value = 0;
-    const anchorW = streamAnchor();
-    const mark = markBeside(anchorW, 1); // beside and behind the final view: out of the frame
-    const still = { v: 0 };
-    const stillTick = setInterval(() => { still.v = Math.min(1, still.v + 0.05); water.uniforms.uStill.value = still.v; water.uniforms.uGlow.value = still.v; }, 100);
-    await revelation(PROVISIONAL.verses.revival, { anchorWorld: anchorW, markWorld: mark, eye: 1.2, fov: 38, kind: 'water' });
-    clearInterval(stillTick);
-    const fade = setInterval(() => { water.uniforms.uStill.value *= 0.9; water.uniforms.uGlow.value *= 0.9; if (water.uniforms.uGlow.value < 0.01) { water.uniforms.uStill.value = 0; water.uniforms.uGlow.value = 0; clearInterval(fade); } }, 100);
-    sim.allowRain = true;
-    // the weather moves over the meadow; the rail opens to it
-    sim.meadowWeather = true;
-    player.state.sMax = player.length; player.state.sTarget = player.marks.meadow;
-    player.state.look = null; player.state.lookPitch = 0.08;
-    setPhase('toMeadow');
-  }
-  async function startFinalReveal() {
-    const gy = heightAt(M.x, M.z);
-    const anchorW = new THREE.Vector3(M.x - 4, gy + 11, M.z + 6);
-    const mark = markBeside(anchorW, -1);
-    await wait(2 / SPEED);
-    await revelation(PROVISIONAL.verses.final, { anchorWorld: anchorW, markWorld: mark, eye: 1.6, fov: 50, kind: 'final' });
-    enter(5); setPhase('peace');
-    player.state.look = meadowLook.clone(); player.state.fovTarget = 53;
-    setTimeout(() => { dalil.complete(); }, 9000 / SPEED);
-    setTimeout(() => ui.endCard({ onReplay: () => location.reload() }), 12000 / SPEED);
-  }
-
-  // ---------------------------------------------------------------- fast-forward (tests and the review jump menu)
+  // ---------------------------------------------------------------- jump to a beat (tests and the review menu); forward only
   const disk = (cx, cz, r) => (x, z) => Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / (r * r));
-  function ff(target) {
-    if (D.verseActive) return false;
-    dalil.wake();
-    input.G.enabled = true; D.started = true;
-    const B = { x: 10, z: 40 };
-    const g = disk(B.x, B.z, 16);
-    if (['rain', 'revival', 'stream', 'meadow', 'light', 'harmony'].includes(target)) {
-      setField('am', (x, z, v) => Math.max(v, 0.6 * g(x, z)));
-      setField('cd', (x, z, v) => Math.max(v, 0.82 * g(x, z)));
-      setField('rt', (x, z, v) => (g(x, z) > 0.3 ? 20 : v));
-      if (D.firstRainT === null) D.firstRainT = D.t;
-      setPhase('gather');
+  function ff(beat) {
+    if (D.verseActive || !BEATS.includes(beat)) return false;
+    const target = BEATS.indexOf(beat);
+    gen++; // cancel whatever is running
+    input.setActive(null); reveal.end(); connect?.remove(); connect = null; D.onFrame = null; D.activeTrace = null;
+    phenomena.state.current = 0; phenomena.state.knot = null; phenomena.state.splashOn = 0; phenomena.state.breakAt = null;
+    D.started = true; input.G.enabled = true; D.currentWind = false; D.gather = null; D.wetFocus = null;
+    const atLeast = (b) => target >= BEATS.indexOf(b);
+    if (atLeast('rain')) {
+      setField('am', (x, z, v) => Math.max(v, 0.55 * disk(rc.x, rc.z, rc.r)(x, z)));
+      setField('cd', (x, z, v) => Math.max(v, 0.84 * disk(rc.x, rc.z, rc.r)(x, z)));
+      ['ARRIVED', 'CURRENT_APPEARED', 'PLAYER_TRACED_WIND'].forEach((e) => bus.has(e) || bus.emit(e, { skipped: true }));
     }
-    if (['revival', 'stream', 'meadow', 'light', 'harmony'].includes(target)) {
-      setField('sm', (x, z, v) => Math.max(v, 0.6 * disk(B.x, B.z, 24)(x, z)));
-      setField('veg', (x, z, v) => Math.max(v, 0.5 * disk(B.x, B.z, 22)(x, z)));
-      D.rainSustained = 25; sim.waterFlow = Math.max(sim.waterFlow, 0.34); sim.waterFill = Math.max(sim.waterFill, 0.34);
-      enter(2); setPhase('revival');
+    if (atLeast('water')) {
+      setField('sm', (x, z, v) => Math.max(v, 0.55 * disk(rc.x, rc.z, rc.r * 0.9)(x, z)));
+      setField('veg', (x, z, v) => Math.max(v, 0.35 * disk(rc.x, rc.z, rc.r * 0.8)(x, z)));
+      sim.meadowWeather = true; enter(2);
+      ['RAIN_BEGAN', 'PLAYER_REVEALED_SOIL'].forEach((e) => bus.has(e) || bus.emit(e, { skipped: true }));
     }
-    if (['stream', 'meadow', 'light', 'harmony'].includes(target)) {
-      sim.waterFlow = sim.waterFill = Math.max(sim.waterFill, 0.62);
-      player.snapTo(player.marks.stream - 0.2, streamAnchor());
+    if (atLeast('stream')) {
+      D.waterFrom = aFrom(); D.waterFront = aTo() + 2; D.waterRun = 0;
+      player.snapTo(railPoint('stream') - 2, null); player.state.look = null; player.update(1 / 60, D.t);
     }
-    if (['meadow', 'light', 'harmony'].includes(target)) {
+    if (atLeast('meadow')) {
       if (!D.revealed.includes(PROVISIONAL.verses.revival)) D.revealed.push(PROVISIONAL.verses.revival);
-      sim.waterFlow = sim.waterFill = 1; sim.meadowWeather = true;
+      D.waterFull = true; sim.allowRain = true;
       setField('sm', (x, z, v) => Math.max(v, 0.45 * disk(M.x, M.z, M.r)(x, z)));
-      setField('veg', (x, z, v) => Math.max(v, 0.3 * disk(M.x, M.z, M.r)(x, z)));
-      player.state.sMax = player.length;
-      player.snapTo(player.marks.meadow, meadowLook);
-      setPhase('toMeadow');
+      setField('veg', (x, z, v) => Math.max(v, 0.42 * disk(M.x, M.z, M.r)(x, z)));
+      setField('cd', (x, z, v) => Math.max(v, canopyAt(x, z) * 0.95));
     }
-    if (['light', 'harmony'].includes(target)) {
-      setField('sm', (x, z, v) => Math.max(v, 0.6 * disk(M.x, M.z, M.r * 1.3)(x, z)));
+    if (atLeast('light')) {
       setField('veg', (x, z, v) => Math.max(v, 0.85 * disk(M.x, M.z, M.r * 1.3)(x, z)));
       setField('cd', (x, z) => canopyAt(x, z));
-      sim.canopy = true;
-      setField('am', (x, z, v) => Math.max(v, 0.5 * canopyAt(x, z)));
-      enter(3);
+      enter(3); D.flowersOn = true;
+      player.state.sMax = player.length; player.snapTo(railPoint('meadow'), meadowLook); player.update(1 / 60, D.t);
+      hero.place(meadowComposition().flower); hero.bloom(true);
     }
-    if (target === 'harmony') {
-      // open the canopy toward the sun so the meadow sits inside the light band
-      const ox = M.x + sim.OFF.x, oz = M.z + sim.OFF.z;
-      // find the opening that puts the meadow in the middle of the light band
-      const base = Float32Array.from(sim.arrays.cd), trial = new Float32Array(base.length);
-      const N = sim.N, C = sim.CELL, H = sim.HALF;
-      const apply = (k, out) => { for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const x = -H + (i + 0.5) * C, z = -H + (j + 0.5) * C; out[j * N + i] = base[j * N + i] * (1 - k * Math.exp(-((x - ox) ** 2 + (z - oz) ** 2) / (34 * 34))); } };
-      let lo = 0, hi = 1;
-      for (let it = 0; it < 14; it++) { const m = (lo + hi) / 2; apply(m, trial); if (exposureNow(trial) < 0.65) lo = m; else hi = m; }
-      apply((lo + hi) / 2, trial);
-      setField('cd', (x, z, v) => trial[Math.round((z + H) / C - 0.5) * N + Math.round((x + H) / C - 0.5)] ?? v);
-      setField('opened', () => 0);
-      input.G.parts++;
-    }
+    dalil.placeStart(); dalil.follow();
+    run(beat);
     return true;
   }
 
-  function contextText() {
-    const parts = [`Environmental state: ${STATES[D.envState].en}.`];
-    if (D.phase === 'gather') parts.push(S.rainMax > 0.1 ? 'Rain is falling over the basin.' : S.ripeness > 0.3 ? 'A cloud is gathering and growing heavy; rain has not started.' : 'The air is dry; the player is learning to gather it.');
-    if (D.phase === 'revival') parts.push('Grass is emerging; the stream is forming.');
-    if (D.phase === 'toMeadow') parts.push('Rain is moving over the meadow.');
-    if (D.phase === 'light') parts.push(`The player is parting the clouds; sunlight on the meadow is ${Math.round(S.sunMeadow * 100)}% (balanced between 55% and 75%).`);
-    if (D.phase === 'peace' || D.phase === 'harmony') parts.push('The meadow is in balance, warm and alive.');
-    if (input.G.type) parts.push(`Player gesture: ${input.G.type} over the ${input.G.region}.`);
-    parts.push(`Revelations shown: ${D.revealed.length ? D.revealed.join(', ') : 'none'}.`);
-    return parts.join(' ');
-  }
-  function suggestPhase() {
-    if (D.phase === 'peace' || D.phase === 'harmony') return 'peace';
-    if (D.phase === 'light') return 'light';
-    if (D.revealed.length) return 'afterWater';
-    if (D.phase === 'revival') return 'revival';
-    if (D.started && input.G.firstGestureT !== null) return 'gather';
-    return 'start';
-  }
-
-  return { D, begin, update, ff, contextText, suggestPhase, STATES, get stateName() { return i18n.t(STATES[D.envState]); }, P0 };
+  return { D, begin, update, ff, context, STATES, BEATS, get stateName() { return i18n.t(STATES[D.envState]); }, reveal, attention };
 }

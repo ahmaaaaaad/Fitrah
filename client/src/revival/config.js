@@ -37,19 +37,25 @@ export const CONFIG = {
   half: 128,                 // simulation covers x,z in [-128, 128] m
   grid: 96,                  // cells per side
   cloudHeight: 36,           // m (stylized: low, heavy clouds over the valley)
-  meadow: { x: 38, z: -30, r: 40 },     // plateau at the foot of the east slope
-  basin: { x: 10, z: 30, r: 75 },       // the basin floor the player looks over from the first mark
+  // The route runs downhill (north to south), so following water is physically right.
+  meadow: { x: 28, z: 18, r: 34 },      // plateau at the foot of the east slope, downstream
+  basin: { x: -4, z: -50, r: 48 },      // where the first rain falls, around the arrival
   // The authored rail (x, z). Eye height is added on top of the terrain.
-  rail: [[6, 94], [7, 80], [9, 62], [12, 46], [12.5, 36], [14, 24], [15.5, 12], [17, 2], [18, -6]],
-  marks: { start: 0, stream: 4, meadow: 8 }, // rail point index of each mark
+  rail: [[-2, -68], [-4, -60], [-6, -52], [-6.8, -44], [-6.4, -37], [-3.8, -29], [0, -22], [3, -12], [5, -4], [8, 2]],
+  marks: { start: 0, stream: 5, meadow: 9 }, // rail point index of each mark
+  // The world's own phenomena (authored paths the player follows; the player never moves them)
+  // from the north-east slopes, across in front of the player, then up and ahead (south) into the gathering cloud
+  current: [[64, 20, -104], [50, 13, -84], [34, 10, -71], [20, 10, -61], [10, 14, -52], [4, 22, -44], [0, 28, -36]],
+  rainCenter: { x: -4, z: -52, r: 28 },
+  // the first water gathers in the dry stream bed here and runs downhill to the stream mark
+  water: { zFrom: -70, zTo: -27 },
   grassCount: QUALITY === 'low' ? 16000 : 70000,
   flowerCount: QUALITY === 'low' ? 2200 : 7000,
   rainCount: QUALITY === 'low' ? 5000 : 16000,
   moteCount: QUALITY === 'low' ? 500 : 1500,
   terrainSegments: QUALITY === 'low' ? 160 : 300,
   ripen: [8, 12],            // seconds a cloud must hold its density before it rains
-  lightBand: [0.55, 0.75],   // sun exposure over the meadow that counts as balance
-  harmonyHold: 3,            // seconds inside the band
+  lightTarget: 0.72,         // how much sun reaches the meadow once the clouds have opened
   dalil: {
     desired: 3.0, min: 1.6, max: 6.0, omega: 2.2, turn: 2.1, walk: 1.1, run: 2.6,
     lookAhead: 2.5, side: 0.49, hover: 0.75,

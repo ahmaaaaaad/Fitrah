@@ -72,7 +72,7 @@ function ridgeGeometry(R, h0, h1, seed) {
 const cloudVS = /* glsl */`varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`;
 const cloudFS = /* glsl */`
 ${NOISE}${FIELD}${LIGHT}
-uniform vec2 uPrevailing; uniform float uTime, uLayer, uHaze;
+uniform vec2 uPrevailing; uniform float uTime, uLayer, uHaze; uniform vec4 uBreak;
 varying vec3 vW;
 void main(){
   vec2 xz = vW.xz + vec2(uLayer * 1.5, -uLayer * 1.0);
@@ -99,6 +99,9 @@ void main(){
   float edge = 1.0 - smoothstep(0.16, 0.42, d);
   vec3 col = under + uSunCol * edge * (0.12 + 0.55 * toward) * (1.0 - uHaze * 0.6);
   col += vec3(1.0, 0.82, 0.55) * uLightPhase * (1.0 - thick) * (0.18 + 0.4 * toward); // light leaking through thin cloud
+  // the rim of a forming break glows with the sun behind it
+  float db = distance(vW.xz, uBreak.xy) + (fbm(vW.xz * 0.06 + 2.0) - 0.5) * (4.0 + uBreak.z * 0.7); // an irregular edge, never a ring
+  col += vec3(1.0, 0.86, 0.62) * uBreak.w * exp(-pow((db - uBreak.z) / (5.0 + uBreak.z * 0.3), 2.0)) * 0.45 * (1.0 - thick * 0.5);
   col = grade(col);
   float dist = length(vW.xz - cameraPosition.xz);
   col = mix(col, uFogCol, smoothstep(120.0, 420.0, dist) * 0.7);
@@ -209,14 +212,14 @@ export function createSky(scene) {
         const s = j * SN + i, x = shafts.slots[s * 4], z = shafts.slots[s * 4 + 1];
         const c0 = cloudSample(x, z);
         let ring = 0;
-        for (const rr of [12, 24]) {
+        for (const rr of [12, 24, 40]) {
           let r = 0;
           for (let a = 0; a < 6; a++) r += cloudSample(x + Math.cos(a * 1.047 + rr) * rr, z + Math.sin(a * 1.047 + rr) * rr);
           ring = Math.max(ring, r / 6);
         }
         // a gap: clear here, cloud around it (shafts are what a gap in a canopy looks like)
         const through = 1 - smoothstepJS(0.1, 0.68, c0) * 0.93; // the same rule as the sunlight in the simulation
-        targetsS[s] = smoothstepJS(0.3, 0.75, through) * smoothstepJS(0.25, 0.55, ring) * clear * (0.6 + 0.4 * U.uLightPhase.value);
+        targetsS[s] = smoothstepJS(0.3, 0.75, through) * smoothstepJS(0.2, 0.5, ring) * clear * (0.55 + 0.45 * U.uLightPhase.value);
         let rr = 0; for (let a = 0; a < 5; a++) rr = Math.max(rr, sim.sample(rain, x + (a === 1 ? 4 : a === 2 ? -4 : 0), z + (a === 3 ? 4 : a === 4 ? -4 : 0)));
         targetsR[s] = rr > 0.05 ? Math.min(1, rr * 1.4) : 0;
       }
@@ -225,7 +228,7 @@ export function createSky(scene) {
     for (let s = 0; s < SN * SN; s++) {
       shafts.cur[s] += (targetsS[s] - shafts.cur[s]) * kS;
       curtains.cur[s] += (targetsR[s] - curtains.cur[s]) * kR;
-      shafts.slots[s * 4 + 2] = shafts.cur[s]; shafts.slots[s * 4 + 3] = 4.0 + shafts.cur[s] * 4.0;
+      shafts.slots[s * 4 + 2] = shafts.cur[s]; shafts.slots[s * 4 + 3] = 4.5 + shafts.cur[s] * 5.0;
       curtains.slots[s * 4 + 2] = curtains.cur[s]; curtains.slots[s * 4 + 3] = 7.5;
     }
     shafts.attr.needsUpdate = true; curtains.attr.needsUpdate = true;

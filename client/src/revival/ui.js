@@ -4,6 +4,7 @@
 import { i18n, arDigits } from '../core/i18n.js';
 import { h } from '../ui/dom.js';
 import { PROVISIONAL, DEBUG, CONFIG } from './config.js';
+import { CT, CT_LABEL } from './events.js';
 
 const tracked = [];
 function T(el, obj) { el.textContent = i18n.t(obj); tracked.push([el, obj]); return el; }
@@ -30,13 +31,17 @@ export function createUI() {
   i18n.onChange(() => { if (hintObj) hintEl.textContent = i18n.t(hintObj); });
 
   // ------------------------------------------------------------------ caption (Dalil speaks beside itself)
+  const capLabel = h('span', { class: 'cap-label' });
   const capText = h('span', { class: 'cap-text' });
   const capCites = h('span', { class: 'cap-cites' });
-  const cap = h('div', { class: 'caption', role: 'note' }, capText, capCites);
+  const cap = h('div', { class: 'caption', role: 'note' }, capLabel, capText, capCites);
   root.append(cap);
   let capAnchor = null, capUntil = 0, capObj = null;
-  function caption(obj, { anchor, duration = 5, cites = [], source } = {}) {
+  function caption(obj, { anchor, duration = 5, cites = [], source, type = CT.NARRATIVE_DIALOGUE } = {}) {
     capObj = obj; capAnchor = anchor;
+    // every line says what kind of text it is; scripture never appears here
+    cap.dataset.type = type;
+    capLabel.textContent = type === CT.NARRATIVE_DIALOGUE ? '' : i18n.t(CT_LABEL[type] || CT_LABEL.NARRATIVE_DIALOGUE);
     capText.textContent = i18n.t(obj);
     capText.lang = /[؀-ۿ]/.test(capText.textContent) ? 'ar' : 'en';
     capText.dir = capText.lang === 'ar' ? 'rtl' : 'ltr';
@@ -99,8 +104,8 @@ export function createUI() {
   const soundBtn = btn({ ar: 'الصوت: يعمل', en: 'Sound: on' }, () => { state.sound = !state.sound; cb.onSound?.(state.sound); T(soundBtn, state.sound ? { ar: 'الصوت: يعمل', en: 'Sound: on' } : { ar: 'الصوت: متوقف', en: 'Sound: off' }); });
   const readBtn = btn({ ar: 'وضع القراءة: لا', en: 'Readable verse: off' }, () => { state.readable = !state.readable; T(readBtn, state.readable ? { ar: 'وضع القراءة: نعم', en: 'Readable verse: on' } : { ar: 'وضع القراءة: لا', en: 'Readable verse: off' }); });
   const jumps = [
-    ['rain', { ar: 'المطر', en: 'Rain' }], ['revival', { ar: 'الإحياء', en: 'Revival' }], ['stream', { ar: 'الجدول', en: 'Stream' }],
-    ['meadow', { ar: 'المرج', en: 'Meadow' }], ['light', { ar: 'النور', en: 'Light' }], ['harmony', { ar: 'الانسجام', en: 'Harmony' }],
+    ['current', { ar: 'الريح', en: 'Wind' }], ['rain', { ar: 'المطر', en: 'Rain' }], ['water', { ar: 'الماء', en: 'Water' }],
+    ['stream', { ar: 'الجدول', en: 'Stream' }], ['meadow', { ar: 'المرج', en: 'Meadow' }], ['light', { ar: 'النور', en: 'Light' }],
   ].map(([k, l]) => btn(l, () => { cb.onJump?.(k); toggleMenu(false); }, 'small'));
   const provList = h('ul', { class: 'prov' });
   const P = PROVISIONAL;
@@ -112,7 +117,8 @@ export function createUI() {
     [{ ar: 'الموسيقى', en: 'Music' }, { ar: 'القناة موجودة ومعطّلة حتى المراجعة الإبداعية والشرعية', en: 'bus exists, disabled until the creative and Sharia review' }],
     [{ ar: 'التلاوة', en: 'Recitation' }, { ar: P.audio.recitation.src ? 'ملف مرخّص مُعدّ' : 'لا يوجد ملف مرخّص بعد', en: P.audio.recitation.src ? 'licensed file configured' : 'no licensed file configured yet' }],
     [{ ar: 'هيئة دليل: نورٌ يمشي', en: 'Dalil’s form: a walking light' }, { ar: 'بانتظار صاحب المشروع والمراجعة', en: 'pending project owner and review' }],
-    [{ ar: 'اللاعب: منظور أول على مسار', en: 'Player: first person on a rail' }, { ar: 'يُختبر عبر هذا النموذج', en: 'validated through this prototype' }],
+    [{ ar: 'اللاعب شاهد: يتتبّع ويكشف ويصل ويُبصر', en: 'The player as witness: trace, reveal, connect, align' }, { ar: 'نموذج التفاعل يُختبر عبر هذا النموذج', en: 'interaction model validated through this prototype' }],
+    [{ ar: 'شروح دليل وسطوره', en: 'Dalil’s explanations and lines' }, { ar: 'مكتوبة للنموذج، بانتظار المراجعة', en: 'authored for the prototype, pending review' }],
   ];
   function renderProv() { provList.replaceChildren(...provItems().map(([a, b]) => h('li', {}, tx(a, 'strong'), ' — ', tx(b, 'span')))); }
   renderProv();
@@ -157,8 +163,8 @@ export function createUI() {
         h('div', { class: 'langs' },
           h('button', { type: 'button', class: 'pill big', lang: 'ar', onClick: () => begin('ar') }, 'ابدأ بالعربية'),
           h('button', { type: 'button', class: 'pill big', onClick: () => begin('en') }, 'Begin in English')),
-        h('p', { class: 'how', lang: 'ar', dir: 'rtl' }, 'اسحب عبر السماء لتسوق الهواء · انقر على دليل لتسأله · W/S أو العجلة للمشي'),
-        h('p', { class: 'how' }, 'Sweep across the sky to move the air · Click Dalil to ask · W/S or the wheel to walk'),
+        h('p', { class: 'how', lang: 'ar', dir: 'rtl' }, 'يُفضَّل الاستماع بسمّاعات'),
+        h('p', { class: 'how' }, 'Best with sound on'),
       ));
     root.append(card);
     return card;
@@ -168,7 +174,7 @@ export function createUI() {
   function endCard({ onReplay }) {
     const card = h('div', { class: 'end' },
       tx({ ar: 'نهاية الشريحة التجريبية', en: 'End of the prototype slice' }, 'p', { class: 'kicker' }),
-      tx({ ar: 'يمكنك البقاء في المرج، أو سؤال دليل، أو إعادة التجربة.', en: 'Stay in the meadow, ask Dalil, or play again.' }, 'p'),
+      tx({ ar: 'يمكنك البقاء في المرج، أو سؤال دليل عمّا رأيت، أو إعادة التجربة.', en: 'Stay in the meadow, ask Dalil about what you saw, or play again.' }, 'p'),
       h('div', { class: 'langs' }, btn({ ar: 'إعادة', en: 'Play again' }, onReplay), btn({ ar: 'القرارات المؤقّتة', en: 'Provisional decisions' }, () => toggleMenu(true))));
     root.append(card);
     requestAnimationFrame(() => card.classList.add('on'));

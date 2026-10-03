@@ -55,6 +55,46 @@ with sync_playwright() as pw:
                     for s in range(1, 7): pg.mouse.move(x1 + (x2 - x1) * s / 6, y1 + (y2 - y1) * s / 6); time.sleep(0.03)
                     pg.mouse.up()
                 print(f"[{time.time()-t0:5.1f}] partat {pt} x{n}")
+            elif k == "follow":
+                # press on the active trace's head and keep the pointer on it until it is done
+                tmo = float(v or 120); t1 = time.time(); pressed = False
+                while time.time() - t1 < tmo:
+                    hp = pg.evaluate("(()=>{const g=window.revival.input.G.active; if(!g||!g.headScreen||g.s.done) return null; const p=g.headScreen(); return [p.x,p.y,p.visible,g.s.u]})()")
+                    if not hp: break
+                    if not pressed: pg.mouse.move(hp[0], hp[1]); pg.mouse.down(); pressed = True
+                    pg.mouse.move(hp[0] + 6, hp[1] + 3); time.sleep(0.05)
+                if pressed: pg.mouse.up()
+                print(f"[{time.time()-t0:5.1f}] follow done in {time.time()-t1:.0f}s")
+            elif k == "wipe":
+                tmo = float(v or 60); t1 = time.time()
+                import math
+                while time.time() - t1 < tmo:
+                    act = pg.evaluate("(()=>{const g=window.revival.input.G.active; return g && g.s && g.s.kind==='reveal' && !g.s.done})()")
+                    if not act: break
+                    y = H * (0.45 + 0.25 * math.sin(time.time()))
+                    pg.mouse.move(W * 0.25, y); pg.mouse.down()
+                    for i in range(1, 9): pg.mouse.move(W * (0.25 + 0.5 * i / 8), y + math.sin(i) * 20); time.sleep(0.08)
+                    time.sleep(0.4); pg.mouse.up()
+                print(f"[{time.time()-t0:5.1f}] wipe done in {time.time()-t1:.0f}s")
+            elif k == "connect":
+                tmo = float(v or 60); t1 = time.time()
+                while time.time() - t1 < tmo:
+                    st = pg.evaluate("(()=>{const g=window.revival.input.G.active; if(!g||!g.screens||g.s.done) return null; return {l:g.s.linked, p:g.screens()}})()")
+                    if not st: break
+                    na = st['p'][st['l']]; nb = st['p'][st['l'] + 1]
+                    pg.mouse.move(na['x'], na['y']); pg.mouse.down()
+                    for i in range(1, 9): pg.mouse.move(na['x'] + (nb['x'] - na['x']) * i / 8, na['y'] + (nb['y'] - na['y']) * i / 8); time.sleep(0.04)
+                    time.sleep(0.2); pg.mouse.up()
+                print(f"[{time.time()-t0:5.1f}] connect done in {time.time()-t1:.0f}s")
+            elif k == "align":
+                tmo = float(v or 90); t1 = time.time(); pressed = False
+                while time.time() - t1 < tmo:
+                    tp = pg.evaluate("(()=>{const g=window.revival.input.G.active; if(!g||!g.targetScreen||g.s.done) return null; const p=g.targetScreen(); return [p.x,p.y]})()")
+                    if not tp: break
+                    if not pressed: pg.mouse.move(tp[0], tp[1]); pg.mouse.down(); pressed = True
+                    pg.mouse.move(tp[0] + 10, tp[1] - 6); time.sleep(0.08)
+                if pressed: pg.mouse.up()
+                print(f"[{time.time()-t0:5.1f}] align done in {time.time()-t1:.0f}s")
             elif k == "sweep":
                 n = int(v)
                 import math

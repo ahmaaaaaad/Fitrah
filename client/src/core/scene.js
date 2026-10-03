@@ -188,7 +188,8 @@ export const clock = { elapsed: 0 };
 let running = false;
 
 function tick(_time, deltaMs) {
-  const dt = Math.min(deltaMs / 1000, 1 / 20);
+  // ?nolag (headless tests): let slow software-rendered frames advance real time
+  const dt = Math.min(deltaMs / 1000, params.has('nolag') ? 0.25 : 1 / 20);
   clock.elapsed += dt;
   cinematic.uniforms.uTime.value = clock.elapsed;
   for (const fn of updaters) fn(dt, clock.elapsed);

@@ -6,6 +6,7 @@ import verses from '../../../data/quran/verses.json';
 import { i18n, arDigits } from '../core/i18n.js';
 import { PROVISIONAL, SPEED } from './config.js';
 import { h } from '../ui/dom.js';
+import { CT, CT_LABEL } from './events.js';
 
 const byKey = Object.fromEntries(verses.verses.map((v) => [v.key, v]));
 const REDUCED = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -60,11 +61,15 @@ function refText(v) {
 }
 
 /**
- * Reveal a passage. `anchor()` returns the screen point {x, y} of the world place
- * the verse rises from. Resolves when the player continues (never under the reading time).
- * hooks: onWord(i, total) for the rising motes, onReadable() when the continue control appears.
+ * Reveal a passage in three visibly separate layers:
+ *   1 QURAN_ARABIC       the verified text, word by word, right to left
+ *   2 TRANSLATION        an approved translation, labelled as a translation of the meaning
+ *   3 DALIL_EXPLANATION  Dalil's explanation, labelled as not Qur'anic text, only after reading time
+ * `anchor()` gives the screen point of the world place the verse rises from.
+ * hooks: onWord(i, n), onReadDone() when the minimum reading time has passed (before the explanation).
+ * Resolves when the player continues.
  */
-export async function revealVerse(key, { anchor, readable = false, hooks = {} } = {}) {
+export async function revealVerse(key, { anchor, readable = false, explanation = null, hooks = {} } = {}) {
   const v = byKey[key];
   const ok = await verifyVerse(key);
   if (!ok) { console.error(`[fitrah] verse ${key} failed its integrity check; nothing is shown.`); return { shown: false }; }
@@ -73,36 +78,49 @@ export async function revealVerse(key, { anchor, readable = false, hooks = {} } 
   const revealStart = performance.now();
   const words = v.ayah_texts.map((a) => a.ar.split(' '));
   const totalWords = words.reduce((s, w) => s + w.length, 0);
-  const minRead = Math.max(12, 2.5 * v.ayah_texts.length + 0.35 * totalWords + 2.5 * v.ayah_texts.length) / SPEED;
+  // each ayah fades in over 2.5 s; then 2.5 s + 0.35 s per word to read; never under 12 s on screen
+  const minRead = Math.max(12, 2.5 * v.ayah_texts.length + 2.5 + 0.35 * totalWords) / SPEED;
+  const label = (type, extra = '') => h('p', { class: 'layer-label', 'data-type': type }, i18n.t(CT_LABEL[type]) + extra);
 
   const ayahEls = v.ayah_texts.map((a, ai) => h('p', { class: 'ayah', lang: 'ar', dir: 'rtl' },
     ...words[ai].flatMap((w, wi) => [h('span', { class: 'w' }, w), wi < words[ai].length - 1 ? ' ' : '']),
     ' ', h('span', { class: 'w mark' }, ayahMark(a.n))));
-  const tr = h('p', { class: 'translation', lang: 'en', dir: 'ltr' }, ...v.ayah_texts.flatMap((a) => [a.en, h('span', { class: 'num' }, ` (${a.n}) `)]), h('span', { class: 'credit' }, ` — ${v.translation_en_author}`));
   const ref = h('p', { class: 'ref' }, i18n.t(refText(v)));
+  const quran = h('div', { class: 'layer quran', 'data-type': CT.QURAN_ARABIC }, label(CT.QURAN_ARABIC), h('div', { class: 'ayat' }, ...ayahEls), ref);
+
+  const trText = h('p', { class: 'translation', lang: 'en', dir: 'ltr' }, ...v.ayah_texts.flatMap((a) => [a.en, h('span', { class: 'num' }, ` (${a.n}) `)]));
+  const trLayer = h('div', { class: 'layer translation-layer', 'data-type': CT.TRANSLATION }, label(CT.TRANSLATION, ` · ${v.translation_en_author}`), trText);
+  // Arabic readers see the translation only on request; English readers always
+  const trToggle = i18n.lang === 'ar' ? h('button', { class: 'tr-toggle', type: 'button' }, 'عرض ترجمة المعاني بالإنجليزية') : null;
+  if (trToggle) { trLayer.classList.add('collapsed'); trToggle.addEventListener('click', () => { trLayer.classList.toggle('collapsed'); }); }
+
   const tags = h('div', { class: 'tags' },
     h('span', { class: 'tag' }, i18n.t({ ar: 'بانتظار المراجعة الشرعية', en: 'Pending Sharia review' })),
     isFinal ? h('span', { class: 'tag prov' }, i18n.t({
       ar: `اختيار مؤقّت — يحتاج إلى تحقّق ومراجعة شرعية قبل اعتماده (البديل: ${arDigits(alt)})`,
       en: `Provisional selection — requires verification and Sharia review before it is canonical (alternative: ${alt})`,
     })) : null);
+  const exLayer = explanation ? h('div', { class: 'layer explain', 'data-type': CT.DALIL_EXPLANATION },
+    label(CT.DALIL_EXPLANATION), h('p', { class: 'explain-text', lang: i18n.lang, dir: i18n.dir }, i18n.t(explanation))) : null;
   const cont = h('button', { class: 'continue', type: 'button' }, i18n.t({ ar: 'متابعة', en: 'Continue' }));
   const box = h('section', { class: `verse${readable ? ' readable' : ''}`, role: 'dialog', 'aria-label': i18n.t(refText(v)) },
-    h('div', { class: 'ayat' }, ...ayahEls), i18n.lang === 'en' ? tr : null, ref, tags, cont);
+    quran, trToggle, trLayer, tags, exLayer, cont);
   document.getElementById('verse-layer').append(box);
 
   // place it at the world anchor (computed once: the camera is locked for the reveal)
   const a = anchor?.();
-  if (a) {
+  const place = () => {
+    if (!a) return;
     const W = window.innerWidth, Hh = window.innerHeight;
     if (box.getBoundingClientRect().height > Hh * 0.88) box.classList.add('compact');
     const bh = box.getBoundingClientRect().height;
     box.style.left = `${Math.min(W * 0.62, Math.max(W * 0.38, a.x))}px`;
     box.style.top = `${Math.min(Hh - bh / 2 - 12, Math.max(bh / 2 + 12, a.y))}px`;
-  }
+  };
+  place();
   requestAnimationFrame(() => box.classList.add('in'));
 
-  // words fade in one by one, in reading order (right to left); each ayah over 2.5 s
+  // layer 1: words fade in one by one, in reading order (right to left); each ayah over 2.5 s
   const spans = [...box.querySelectorAll('.ayah .w')];
   let wi = 0;
   for (let ai = 0; ai < ayahEls.length; ai++) {
@@ -114,11 +132,20 @@ export async function revealVerse(key, { anchor, readable = false, hooks = {} } 
     }
     if (!REDUCED) await new Promise((r) => setTimeout(r, 400 / SPEED));
   }
-  tr.classList.add('on'); ref.classList.add('on'); tags.classList.add('on');
-  // the verse stays until the player moves on, never under the minimum reading time
-  const remaining = Math.max(0, minRead * 1000 - (performance.now() - revealStart));
-  await new Promise((r) => setTimeout(r, remaining));
-  cont.classList.add('on'); hooks.onReadable?.();
+  ref.classList.add('on'); quran.classList.add('done');
+  // layer 2: the translation follows the Arabic, never replaces it
+  await new Promise((r) => setTimeout(r, 900 / SPEED));
+  trLayer.classList.add('on'); trText.classList.add('on'); tags.classList.add('on'); trToggle?.classList.add('on');
+  // the reader's time: nothing else appears until it has passed
+  await new Promise((r) => setTimeout(r, Math.max(0, minRead * 1000 - (performance.now() - revealStart))));
+  hooks.onReadDone?.();
+  // layer 3: Dalil's explanation, set apart and labelled
+  if (exLayer) {
+    exLayer.classList.add('on'); place();
+    const t = (3.5 + i18n.t(explanation).length * 0.045) / SPEED;
+    await new Promise((r) => setTimeout(r, t * 1000));
+  }
+  cont.classList.add('on');
   cont.focus({ preventScroll: true });
   await new Promise((r) => cont.addEventListener('click', r, { once: true }));
   box.classList.remove('in'); box.classList.add('out');

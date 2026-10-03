@@ -21,6 +21,8 @@ import { createDalil } from './dalil/brain.js';
 import { createUI } from './ui.js';
 import { createAudio } from './audio.js';
 import { createDirector } from './director.js';
+import { createPhenomena } from './phenomena.js';
+import { bus } from './events.js';
 
 // look of this world
 renderer.toneMappingExposure = 0.95;
@@ -36,24 +38,23 @@ const flora = createFlora(scene);
 const water = createWater(scene);
 const rain = createRain(scene);
 const motes = createMotes(scene);
+const phenomena = createPhenomena(scene, camera, renderer);
 const player = createPlayer(camera);
 const ui = createUI();
 const audio = createAudio();
-let director = null;
-const dalil = createDalil({ scene, camera, player, ui, renderer });
+const dalil = createDalil({ scene, camera, player, ui, renderer, phenomena });
 const input = createInput({
-  canvas: renderer.domElement, camera,
+  canvas: renderer.domElement,
   getDalilScreen: () => dalil.screen(),
-  partEnabled: () => director?.D.phase === 'light',
-  onAsk: () => { if (director?.D.started) dalil.openAsk(); },
+  onAsk: () => { if (director.D.started) dalil.openAsk(); },
   onMenu: () => ui.toggleMenu(),
-  onWalk: (d) => { const s = player.state; if (s.lockedUntil > 0) return; s.sTarget = Math.min(s.sMax, Math.max(0, s.sTarget + d)); if (Math.abs(d) > 0) s.look = null; },
+  onWalk: (d) => { const s = player.state; if (s.lockedUntil > 0) return; s.sTarget = Math.min(s.sMax, Math.max(0, s.sTarget + d)); },
 });
-director = createDirector({ player, dalil, input, ui, audio, water, flora, motes, camera });
-dalil.brain.contextText = director.contextText;
+const director = createDirector({ player, dalil, input, ui, audio, water, flora, motes, camera, phenomena, scene });
+dalil.brain.context = director.context;
 
-// first frame: the player at the first mark, Dalil a dim ember in the soil
-player.snapTo(0, new THREE.Vector3(8, 22, 22));
+// first frame: the player at the first mark; Dalil is already beside them
+player.snapTo(0, new THREE.Vector3(40, 10, -80));
 player.update(1 / 60, 0);
 dalil.placeStart();
 
@@ -65,7 +66,7 @@ ui.cb.onPause = (p) => { paused = p; };
 ui.cb.getStatus = (full) => {
   const S = sim.stats;
   const base = {
-    state: director.stateName, phase: director.D.phase,
+    state: director.stateName, beat: director.D.beat,
     'dalil state': dalil.state,
     'ai adapter': dalil.aiStatus.adapter, 'ai last': dalil.aiStatus.last,
     'artifact runtime': dalil.aiStatus.artifact, 'server route': dalil.aiStatus.server,
@@ -79,7 +80,7 @@ ui.cb.getStatus = (full) => {
     amBasin: S.amBasin.toFixed(2), cdMax: S.cdMax.toFixed(2), ripeness: S.ripeness.toFixed(2), rainMax: S.rainMax.toFixed(2),
     smBasinHi: S.smBasinHi.toFixed(2), vegBasinHi: S.vegBasinHi.toFixed(2), waterFlow: sim.waterFlow.toFixed(2),
     vegMeadow: S.vegMeadow.toFixed(2), sunMeadow: S.sunMeadow.toFixed(2), wind: S.windEnergy.toFixed(2),
-    gesture: `${input.G.type} / ${input.G.region}`, rainSustained: director.D.rainSustained.toFixed(1),
+    beat: director.D.beat, interaction: director.D.interaction, events: bus.recent(4).map((e) => e.type).join(' '),
   };
 };
 ui.mountStart(() => { audio.start(); director.begin(); });
@@ -92,21 +93,21 @@ onUpdate((dt, t) => {
   U.uTime.value = t;
   input.update(dt, t);
   if (!paused) { updateSim(dt); director.update(dt, t); }
-  dalil.brain.phase = director.suggestPhase();
-  player.state.parallaxTarget.copy(input.parallax);
+  player.state.parallaxTarget.copy(input.G.active ? { x: 0, y: 0 } : input.parallax);
   player.update(dt, t);
-  dalil.update(dt, t);
+  dalil.update(dt * Math.max(1, SPEED * 0.75), t); // ?speed hurries Dalil too, for review
   sky.update(dt, camera);
   rain.update();
   motes.update(dt, camera, renderer);
-  terrain.uniforms.uFlow.value = water.uniforms.uFill.value > 0.05 ? Math.min(1, water.uniforms.uFill.value * 1.5) : 0;
+  phenomena.update(dt);
+  terrain.uniforms.uFlow.value += ((water.uniforms.uFront.value > 1 ? 1 : 0) - terrain.uniforms.uFlow.value) * dt * 0.3;
   ui.update();
 });
 
 // hooks for headless tests and review tooling
 window.revival = {
-  director, sim, player, dalil, input, ui, flora, water, sky, PROVISIONAL, CONFIG, DEBUG, heightAt, camera,
+  director, sim, player, dalil, input, ui, flora, water, sky, phenomena, bus, PROVISIONAL, CONFIG, DEBUG, heightAt, camera,
   ff: (k) => director.ff(k),
   begin: () => { document.querySelector('.start button')?.click(); },
-  stats: () => ({ ...sim.stats, waterFlow: sim.waterFlow, waterFill: sim.waterFill, phase: director.D.phase, env: director.D.envState, dalil: dalil.state, ai: { ...dalil.aiStatus } }),
+  stats: () => ({ beat: director.D.beat, env: director.D.envState, dalil: dalil.state, interaction: director.D.interaction, rainMax: sim.stats.rainMax, vegBasinHi: sim.stats.vegBasinHi, vegMeadow: sim.stats.vegMeadow, sunMeadow: sim.stats.sunMeadow, cdMeadow: sim.stats.cdMeadow, front: director.D.waterFront, events: bus.recent(3).map((e) => e.type), ai: dalil.aiStatus.last }),
 };
