@@ -94,10 +94,15 @@ export function createPlayer(camera) {
     state.heading.set(Math.sin(state.yaw), 0, -Math.cos(state.yaw));
     // lens: keep at least ~50 degrees of horizontal view on narrow screens
     state.fov = smoothDamp(state.fov, state.fovTarget, 1.2, dt);
+    const fov = lensFor(state.fov);
+    if (Math.abs(camera.fov - fov) > 0.01) { camera.fov = fov; camera.updateProjectionMatrix(); }
+  }
+
+  /** The lens the camera really uses for a requested fov: at least ~50 degrees of horizontal view on narrow screens. */
+  function lensFor(f) {
     const minH = 50 * Math.PI / 180;
     const vfovForH = 2 * Math.atan(Math.tan(minH / 2) / camera.aspect) * 180 / Math.PI;
-    const fov = Math.max(state.fov, Math.min(85, vfovForH));
-    if (Math.abs(camera.fov - fov) > 0.01) { camera.fov = fov; camera.updateProjectionMatrix(); }
+    return Math.max(f, Math.min(85, vfovForH));
   }
 
   function snapTo(s, look) {
@@ -110,5 +115,5 @@ export function createPlayer(camera) {
     }
   }
 
-  return { state, curve, length: L, marks, update, pointAt, snapTo };
+  return { state, curve, length: L, marks, update, pointAt, snapTo, lensFor };
 }

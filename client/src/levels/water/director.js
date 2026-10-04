@@ -19,8 +19,10 @@ import { createTrace, createReveal, createConnect, createAlign, createAttention 
 import { createHeroFlower } from './phenomena.js';
 import { bus, EV } from './events.js';
 import { LINES, EXPLAIN } from './dalil/lines.js';
-import { renderer } from '../core/scene.js';
-import { i18n } from '../core/i18n.js';
+import { renderer } from '../../core/scene.js';
+import { i18n } from '../../core/i18n.js';
+import { interactionRegion } from '../../core/device.js';
+import { solveFraming } from '../../core/framing.js';
 
 export const STATES = [
   { ar: 'سكون', en: 'Dormant' }, { ar: 'أولى العلامات', en: 'First signs' }, { ar: 'الإحياء', en: 'Revival' },
@@ -82,9 +84,11 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
   function watchStall(line, g, test, after = 12) {
     let said = false;
     const t0 = D.t; // the frame clock, the same clock the input stamps gestures with
+    const beat = D.beat;
+    const still = () => g === gen && D.beat === beat && test(); // the moment it is meant for
     const tick = () => {
-      if (g !== gen || said) return;
-      if (test() && D.t - t0 > after / SPEED && D.t - Math.max(input.G.lastGestureT, t0) > after / SPEED) { said = true; dalil.say(line); return; }
+      if (g !== gen || said || D.beat !== beat) return;
+      if (test() && D.t - t0 > after / SPEED && D.t - Math.max(input.G.lastGestureT, t0) > after / SPEED) { said = true; dalil.say(line, { valid: still }); return; }
       setTimeout(tick, 400);
     };
     setTimeout(tick, 400);
@@ -128,7 +132,9 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     const lookAt = new THREE.Vector3();
     D.look = () => lookAt.copy(arrivalLook).lerp(trace.head, smooth(0, 0.06, trace.s.u));
     input.setActive(trace);
-    watchStall(LINES.current_follow, g, () => !trace.s.everNear, 8);
+    // as he points: what to do with the hands (worded for mouse, touch or pen)
+    dalil.say(LINES.current_follow, { gap: 1.2 });
+    watchStall(LINES.stall_hold, g, () => !trace.s.everNear, 12);
     watchStall(LINES.stall_trace, g, () => trace.s.u < 0.9, 26);
     D.activeTrace = trace;
     await race(trace.done, g);
@@ -156,8 +162,8 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     const done = reveal.begin();
     input.setActive(reveal);
     D.interaction = 'looking through the rain at the cracked soil';
-    dalil.say(LINES.rain_closer);
-    watchStall(LINES.stall_reveal, g, () => reveal.s.coverage < 0.12, 11);
+    dalil.say(LINES.rain_closer, { gap: 0.8 });
+    watchStall(LINES.stall_reveal, g, () => reveal.s.coverage < 0.12, 12);
     const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
     const lensFocus = focus.clone();
     D.look = () => {
@@ -198,7 +204,7 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     bus.emit(EV.WATER_MOVING);
     await sleep(1.2, g);
     dalil.notice(curve.getPointAt(0.05), { step: 2 });
-    dalil.say(LINES.water_moving);
+    dalil.say(LINES.water_moving, { gap: 1 });
     let explained = false;
     const span = aTo() - aFrom() - 4;
     const trace = createTrace({
@@ -211,7 +217,8 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     });
     input.setActive(trace); D.activeTrace = trace;
     D.interaction = 'following the first water down the dry stream bed';
-    watchStall(LINES.stall_water, g, () => trace.s.u < 0.2, 12);
+    watchStall(LINES.stall_hold, g, () => trace.s.u < 0.2 && !trace.s.everNear, 12);
+    watchStall(LINES.stall_water, g, () => trace.s.u < 0.2 && trace.s.everNear, 14);
     // walking is following: the player keeps a few metres behind where attention is
     D.rail = () => Math.max(0, railS(trace.head) - 3);
     const lk = new THREE.Vector3();
@@ -271,17 +278,24 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     dalil.kneel(new THREE.Vector3(flowerAt.x + 0.6, 0, flowerAt.z - 0.4), 6);
     dalil.say(LINES.flower_look);
     await dalil.quiet(); alive(g);
-    // follow the relationship: cloud -> (rain) -> soil -> water -> flower, all in one frame
-    D.fov = 58;
-    const nodes = [{ id: 'cloud', world: comp.cloud }, { id: 'soil', world: comp.soil }, { id: 'water', world: comp.water }, { id: 'flower', world: hero.headPos() }];
-    D.look = () => comp.view;
-    await sleep(1.5, g);
+    // follow the relationship: cloud -> (rain) -> soil -> water -> flower, all in one frame.
+    // The frame is calculated for this screen: all four points inside the safe region
+    // (see frameChain), recalculated if the screen turns or resizes.
+    const nodes = [{ id: 'cloud', world: comp.cloud.clone() }, { id: 'soil', world: comp.soil.clone() }, { id: 'water', world: comp.water.clone() }, { id: 'flower', world: hero.headPos() }];
+    let framing = frameChain(nodes, comp, true);
+    await sleep(1.0, g);
+    const settleFrom = D.t; // the frame clock: the camera has had time to arrive, however slow the device
+    await until(() => cameraSettled(framing) || D.t - settleFrom > 4, g);
     connect = createConnect({ camera, nodes, attention, onLink: (i) => { bus.emit('LINK', { to: nodes[i].id }); dalil.point(nodes[i].world); } });
     input.setActive(connect);
     D.interaction = 'following the chain from the cloud to the flower';
-    dalil.say(LINES.chain_prompt);
+    dalil.say(LINES.chain_prompt, { gap: 0.8 });
     watchStall(LINES.stall_connect, g, () => connect && connect.s.linked === 0, 12);
-    await race(connect.done, g);
+    // a turned phone or a resized window: frame again (the points may move only before the first link)
+    let resizeT = 0;
+    const onResize = () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (g === gen && connect && !connect.s.done) framing = frameChain(nodes, comp, connect.s.linked === 0); }, 120); };
+    window.addEventListener('resize', onResize);
+    try { await race(connect.done, g); } finally { window.removeEventListener('resize', onResize); clearTimeout(resizeT); }
     input.setActive(null);
     bus.emit(EV.PLAYER_CONNECTED_CHAIN);
     dalil.say(LINES.chain_explain, { priority: 1 });
@@ -304,7 +318,17 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     dalil.notice(B.clone());
     await sleep(0.8, g);
     dalil.lead(ahead(3.5).add(new THREE.Vector3(1.5, 0, 0)), B);
-    dalil.say(LINES.light_notice);
+    dalil.say(LINES.light_notice, { gap: 1 });
+    // the thinning cloud and the way it will drift must both be reachable on this screen
+    // (the authored frame stays wherever it already holds them)
+    const frameLight = () => {
+      const f = solveFraming({ eye: camera.position.clone(), points: [B.clone(), B1], look: meadowLook, fov: 53, aspect: window.innerWidth / window.innerHeight, region: interactionRegion(), lens: player.lensFor, maxFov: 85 });
+      if (f.how !== 'authored') { D.look = () => f.look; D.fov = f.fov; } else { D.look = () => meadowLook; D.fov = 53; }
+      D.lightFrame = { how: f.how, fov: Math.round(f.fov * 10) / 10 };
+    };
+    frameLight();
+    const onResizeLight = () => frameLight();
+    window.addEventListener('resize', onResizeLight);
     const align = createAlign({ camera, target: () => B, attention, need: 5 / SPEED });
     input.setActive(align);
     D.interaction = 'keeping their eyes on the thinning cloud';
@@ -315,7 +339,7 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
       U.uBreak.value.set(B.x, B.z, 3 + align.progress() * 3, 0.35 + align.progress() * 0.6);
       if (!D.lightOpen) worldThin(B.x, B.z, 7, dt * 0.05);
     };
-    await race(align.done, g);
+    try { await race(align.done, g); } finally { window.removeEventListener('resize', onResizeLight); }
     input.setActive(null);
     bus.emit(EV.PLAYER_ALIGNED_LIGHT);
     // the clouds separate by themselves: the light sequence
@@ -357,19 +381,70 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     ui.endCard({ onReplay: () => location.reload() });
   }
   const meadowLook = ground(M.x + 6, M.z + 6, 9);
-  /** The meadow frame for the chain: cloud far above, soil and flower near, the stream to the right. */
-  function meadowComposition() {
+  /**
+   * The meadow frame for the chain: cloud far above, soil and flower near, the stream to the right.
+   * `spread` < 1 draws the soil and water points in toward the flower (the cloud is already
+   * beside it), for screens too narrow to hold the full composition. The flower never moves.
+   */
+  function meadowComposition(spread = 1) {
     const pm = player.pointAt(railPoint('meadow'));
     const at = (deg, d, up) => { const a = (deg * Math.PI) / 180; return ground(pm.x + Math.cos(a) * d, pm.z + Math.sin(a) * d, up); };
+    const FLOWER = 52, toward = (deg) => FLOWER + (deg - FLOWER) * spread;
     let water = null, best = 1e9;
     for (let z = pm.z + 8; z < pm.z + 34; z += 1) {
       const x = channelX(z), ang = Math.atan2(z - pm.z, x - pm.x) * 180 / Math.PI;
-      if (Math.abs(ang - 90) < best) { best = Math.abs(ang - 90); water = new THREE.Vector3(x, waterY(z) + 0.1, z); }
+      if (Math.abs(ang - toward(90)) < best) { best = Math.abs(ang - toward(90)); water = new THREE.Vector3(x, waterY(z) + 0.1, z); }
     }
     const cloud = at(56, 88, 0); cloud.y = CONFIG.cloudHeight - 2;
     const eye = heightAt(pm.x, pm.z) + 1.6;
     const view = at(66, 30, 0); view.y = eye + 1.5;
-    return { view, flower: at(52, 5.4, 0), soil: at(72, 6.5, 0.05), water, cloud };
+    return { view, flower: at(FLOWER, 5.4, 0), soil: at(toward(72), 6.5, 0.05), water, cloud };
+  }
+
+  /**
+   * Frame the chain for this screen (core/framing.js): the authored view when every point is
+   * already inside the safe interaction region; otherwise the least turn; otherwise centred with
+   * a wider lens; and only if that is not enough, the points drawn closer together (repick).
+   */
+  function frameChain(nodes, comp, repick) {
+    const region = interactionRegion();
+    const pm = player.pointAt(railPoint('meadow'));
+    const eye = new THREE.Vector3(pm.x, heightAt(pm.x, pm.z) + player.state.eye, pm.z);
+    const aspect = window.innerWidth / window.innerHeight;
+    const solve = (maxFov) => solveFraming({ eye, points: nodes.map((n) => n.world), look: comp.view, fov: 58, aspect, region, lens: player.lensFor, maxFov });
+    let f = null, spread = null;
+    const tries = [];
+    const angles = () => nodes.map((n) => Math.round(Math.atan2(n.world.z - eye.z, n.world.x - eye.x) * 180 / Math.PI));
+    const place = (s) => {
+      const c = s === 1 ? comp : meadowComposition(s);
+      nodes[0].world.copy(c.cloud); nodes[1].world.copy(c.soil); nodes[2].world.copy(c.water);
+      spread = s;
+    };
+    for (const s of repick ? [1, 0.84, 0.7, 0.56] : [null]) {
+      if (s !== null) place(s);
+      f = solve(85);
+      tries.push({ s, how: f.how, need: Math.round(f.need * 10) / 10, deg: angles() });
+      if (f.fits) break;
+    }
+    if (!f.fits) {
+      // no composition fits the usual lens: keep the most faithful one that needs the least
+      // (drawing points closer only counts when it really narrows the view), and widen to it
+      if (repick) {
+        const least = Math.min(...tries.map((t) => t.need));
+        place(tries.find((t) => t.need <= least + 1).s);
+      }
+      f = solve(100); // a very small screen: a wider lens rather than a point out of reach
+    }
+    D.look = () => f.look; D.fov = f.fov;
+    D.chainFrame = { how: f.how, fov: Math.round(f.fov * 10) / 10, need: Math.round(f.need * 10) / 10, spread, cls: region.cls, W: region.W, H: region.H, eye: eye.toArray().map((v) => +v.toFixed(2)), yaw: +f.yaw.toFixed(3), pitch: +f.pitch.toFixed(3), region: [region.left, region.right, region.top, region.bottom], tries };
+    return f;
+  }
+  const _dir = new THREE.Vector3(), _want = new THREE.Vector3();
+  /** The camera has arrived at a framing (direction and lens), so the points are where they will stay. */
+  function cameraSettled(f) {
+    camera.getWorldDirection(_dir);
+    _want.copy(f.look).sub(camera.position).normalize();
+    return _dir.angleTo(_want) < 0.025 && Math.abs(camera.fov - player.lensFor(f.fov)) < 1;
   }
 
   // ---------------------------------------------------------------- revelation (verse first; Dalil explains after reading)

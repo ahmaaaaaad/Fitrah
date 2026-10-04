@@ -28,11 +28,16 @@ export function createAudio() {
     return { src, f, g };
   }
 
-  function start() {
+  /** @param {AudioContext|null} [existing] a context the menu already unlocked inside the player's click */
+  function start(existing) {
     if (state.started) { ctx?.resume(); return; }
     const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    ctx = new AC();
+    if (!AC && !existing) return;
+    ctx = existing || new AC();
+    ctx.resume?.().catch?.(() => {});
+    // some mobile browsers keep a context suspended until a touch inside the page; the first one wakes it
+    const wake = () => { if (ctx.state !== 'running') ctx.resume?.().catch?.(() => {}); else window.removeEventListener('pointerdown', wake, true); };
+    window.addEventListener('pointerdown', wake, true);
     master = ctx.createGain(); master.gain.value = state.enabled ? 0.9 : 0;
     const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -18; comp.ratio.value = 3;
     master.connect(comp).connect(ctx.destination);

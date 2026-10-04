@@ -1,4 +1,4 @@
-/* Fitrah · The Revival — interface. Quiet, warm, readable; the world stays in front. */
+/* Fitrah · The Water — interface. Quiet, warm, readable; the world stays in front. */
 /* Qur'anic text: the KFGQPC Uthmanic Script HAFS font, unmodified (see fonts/KFGQPC-LICENSE.txt). */
 @font-face { font-family: 'KFGQPC Uthmanic Script HAFS'; src: url(./fonts/KFGQPC-Uthmanic-Script-HAFS.otf) format('opentype'); font-display: swap; }
 :root {
@@ -80,6 +80,11 @@ button { font-family: inherit; cursor: pointer; }
 .panel .status .kv { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); padding: 3px 0; font-size: 12.5px; }
 .panel .status code { color: var(--gold); direction: ltr; text-align: end; }
 .panel > .pill:last-child { margin-top: 14px; }
+.panel .panel-end { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; margin-top: 16px; }
+.pill.quiet { background: transparent; color: var(--dim); }
+.pill.quiet:hover, .pill.quiet:focus-visible { color: var(--ink); }
+.pill[hidden] { display: none; }
+.end .end-exit { margin-top: 10px; border-color: transparent; }
 .panel > a.pill { margin-top: 8px; }
 
 /* keyboard wind focus */
@@ -109,6 +114,16 @@ button { font-family: inherit; cursor: pointer; }
 .verse.compact .translation { font-size: 13px; margin-top: 4px; line-height: 1.45; }
 .verse.compact .ref, .verse.compact .tags { margin-top: 4px; }
 .verse.compact .continue { margin-top: 8px; padding: 6px 16px; }
+.verse.scrolls { pointer-events: auto; touch-action: pan-y; overscroll-behavior: contain; }
+@media (max-height: 460px) {
+  /* a phone on its side: the same layers, a little tighter */
+  .verse.compact .ayah { font-size: clamp(16px, 4.6vh, 26px); line-height: 1.7; }
+  .verse.compact .layer-label { font-size: 10.5px; margin-bottom: 2px; }
+  .verse.compact .translation { font-size: 12.5px; line-height: 1.4; }
+  .verse.compact .tag { font-size: 11px; padding: 1px 8px; }
+  .verse.compact .explain-text { font-size: 12.5px; line-height: 1.4; }
+  .verse.compact .continue { margin-top: 6px; padding: 5px 16px; }
+}
 .verse.readable { background: rgba(14, 12, 10, 0.78); border-radius: 22px; padding: 22px 26px; border: 1px solid var(--line); }
 .verse.readable .ayah { font-size: clamp(30px, 4.2vw, 54px); text-shadow: none; color: #fff; }
 @media (prefers-reduced-motion: reduce) { .verse .w, .verse, .caption, .hint { transition: opacity 0.3s linear; } }

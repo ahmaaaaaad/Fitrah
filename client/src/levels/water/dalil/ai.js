@@ -5,7 +5,8 @@
 // Inference is asynchronous and never blocks rendering; answers are validated whole
 // before the player sees a word.
 import { CONFIG } from '../config.js';
-import { ANSWERS, UNKNOWN } from './lines.js';
+import { ANSWERS, UNKNOWN, wordFor } from './lines.js';
+import { inputKind } from '../../../core/device.js';
 import { buildPrompt, validate } from './prompt.js';
 import { CT } from '../events.js';
 
@@ -38,7 +39,7 @@ export function matchIntent(q) {
   return best;
 }
 export function reviewedAnswer(intent, lang) {
-  const a = intent && ANSWERS[intent];
+  const a = intent && wordFor(ANSWERS[intent], inputKind());
   if (a) return { text: a[lang] || a.en, cite: a.cite, type: a.type, source: 'reviewed' };
   return { text: UNKNOWN[lang] || UNKNOWN.en, cite: [], type: UNKNOWN.type, source: 'template' };
 }

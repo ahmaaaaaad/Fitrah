@@ -4,6 +4,15 @@ Work done during the challenge days. Everything that existed before is listed in
 
 ## 4 October
 
+### The Water: the first scene of Fitrah, a menu of scenes, clearer instructions, mobile framing
+
+The approved build was kept as the reference before anything changed (branch `reference/the-water`). Then, without redesigning the experience:
+
+- **Renamed and organised into levels.** The Revival is now **The Water** (`client/src/levels/water/`), one level of Fitrah. `client/src/levels/registry.js` defines the levels (`id`, `title`, `description`, `status`, scene loader, still); The Light and The Balance are listed as placeholders with no content. A new entry page (`client/fitrah.html`, `client/src/shell/`) holds the menu: a still from The Water, slow motes of light, the name, and the scenes as a quiet list. Choosing The Water lowers a veil with its title while the scene loads behind it; leaving (from the in-game menu or the end card) returns to the menu. No scores, stars or progression.
+- **Dalil says what to do with the hands.** Each gesture's instruction is worded for the way the player is touching the screen: "Click and hold, then follow it." with a mouse, "Touch and hold, then drag along it." on a phone, "Press and hold…" with a pen (`client/src/core/device.js`, `dalil/lines.js`). He says it as he points (wind, rain, water, the chain, the thinning cloud), and one reminder after a stall. Silence budgets were adjusted so the chain's explanation is no longer dropped.
+- **The four points always on screen.** The chain's points are kept inside a calculated safe interaction region (viewport, safe-area insets, the corner menu, room for a fingertip) by a framing solver (`client/src/core/framing.js`): the authored frame wherever it already fits (desktop, landscape phone), otherwise the least turn, otherwise centred with a wider lens; recalculated when the screen turns or resizes. The same check keeps the thinning cloud reachable in the light sequence. Touch targets and tolerances are a little larger under a finger.
+- **Tests:** full play-throughs from the menu with real gestures on desktop and on emulated phones in portrait and landscape (real touch events), checking all four points are inside the screen, then back to the menu and into The Water again (`client/tests/water_full_playthrough.sh`).
+
 ### The Revival: the player as witness
 
 A creative correction made the player a witness, never a creator: the player does not make rain, move clouds, bring light, revive the earth or control balance. The prototype (`client/revival.html`, `client/src/revival/`) was rebuilt around it.

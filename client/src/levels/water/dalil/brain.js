@@ -7,12 +7,13 @@
 //   COMPANION    stays near, stops when the player stops, sits beside them at the end
 import * as THREE from 'three';
 import { CONFIG, SPEED } from '../config.js';
-import { i18n } from '../../core/i18n.js';
+import { i18n } from '../../../core/i18n.js';
 import { heightAt } from '../terrain.js';
 import { windAt } from '../sim.js';
 import { createDalilBody } from './body.js';
 import { askDalil, aiStatus } from './ai.js';
-import { SILENCE, SUGGEST, QUESTION_TEXT } from './lines.js';
+import { SILENCE, SUGGEST, QUESTION_TEXT, wordFor } from './lines.js';
+import { inputKind } from '../../../core/device.js';
 import { bus, EV, CT } from '../events.js';
 
 const K = CONFIG.dalil;
@@ -41,14 +42,18 @@ export function createDalil({ scene, camera, player, ui, renderer, phenomena }) 
   }
 
   // ---------------------------------------------------------------- voice, under the silence budget
-  /** item = {type, en, ar}. Returns true when it will be spoken. */
-  function say(item, { priority = P.P3, cites = [], ttl = 14, source = 'authored', force = false } = {}) {
+  /**
+   * item = {type, en, ar} or, for an instruction about the hands, {type, by: {mouse, touch, pen}}.
+   * `gap` overrides the budget's quiet before this line (an instruction right after Dalil points).
+   * Returns true when it will be spoken.
+   */
+  function say(item, { priority = P.P3, cites = [], ttl = 14, source = 'authored', force = false, gap, valid } = {}) {
     if (!item) return false;
     const budget = SILENCE[brain.seq] || { maxLines: 2, gap: 6 };
     const used = brain.spoken[brain.seq] || 0;
     if (!force && used >= budget.maxLines) return false;
     brain.spoken[brain.seq] = used + 1;
-    brain.queue.push({ item, priority, cites, born: now, ttl, source, gap: force ? 0 : budget.gap });
+    brain.queue.push({ item, priority, cites, born: now, ttl, source, gap: force ? 0 : gap ?? budget.gap, valid });
     brain.queue.sort((a, b) => a.priority - b.priority);
     if (brain.queue.length > 3) brain.queue.length = 3;
     return true;
@@ -56,15 +61,18 @@ export function createDalil({ scene, camera, player, ui, renderer, phenomena }) 
   function pumpVoice() {
     if (brain.speaking) { if (now > brain.speaking.until) { brain.speaking = null; brain.lastLineT = now; } else return; }
     if (['VERSE_PRESENTATION', 'CINEMATIC_POSITIONING'].includes(brain.state)) return; // silence is enforced during revelation
-    brain.queue = brain.queue.filter((q) => now - q.born < q.ttl);
+    // a line still waiting when its moment has passed (a reminder after the gesture is done) is dropped
+    brain.queue = brain.queue.filter((q) => now - q.born < q.ttl && (!q.valid || q.valid()));
     const next = brain.queue[0];
     if (!next) return;
     if (now - brain.lastLineT < next.gap / Math.max(1, SPEED)) return;
     brain.queue.shift();
-    const text = i18n.t(next.item);
+    // instructions are worded for the way the player is touching the world as Dalil speaks
+    const item = wordFor(next.item, inputKind());
+    const text = i18n.t(item);
     const dur = (2.4 + text.length * 0.055) / Math.max(1, SPEED * 0.5);
-    brain.speaking = { ...next, until: now + dur };
-    ui.caption(next.item, { anchor, duration: dur, cites: next.cites, source: next.source, type: next.item.type });
+    brain.speaking = { ...next, item, until: now + dur };
+    ui.caption(item, { anchor, duration: dur, cites: next.cites, source: next.source, type: item.type });
   }
   const speaking = () => !!brain.speaking || brain.queue.length > 0;
   /** Resolves when Dalil has finished everything he is saying. */

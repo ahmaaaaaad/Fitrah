@@ -6,6 +6,7 @@
 // Each gesture only changes what the player attends to (the camera, the knot of
 // light, the lens). The world keeps its own time; it never obeys the gesture.
 import * as THREE from 'three';
+import { isDirect } from '../../core/device.js';
 
 const _v = new THREE.Vector3();
 export function project(camera, world, out = {}) {
@@ -15,7 +16,8 @@ export function project(camera, world, out = {}) {
   out.visible = _v.z < 1 && Math.abs(_v.x) < 1.1 && Math.abs(_v.y) < 1.1;
   return out;
 }
-const tol = () => Math.max(56, Math.min(window.innerWidth, window.innerHeight) * 0.075);
+// how close the pointer must be: a fingertip covers more than a cursor and hides what it touches
+const tol = () => (isDirect() ? Math.max(64, Math.min(window.innerWidth, window.innerHeight) * 0.09) : Math.max(56, Math.min(window.innerWidth, window.innerHeight) * 0.075));
 
 // ------------------------------------------------------------------ the instrument: where attention is focused
 export function createAttention() {
@@ -177,7 +179,7 @@ export function createConnect({ camera, nodes, attention, onLink }) {
   document.body.append(svg);
   const lines = nodes.slice(1).map(() => { const l = document.createElementNS(NS, 'line'); l.setAttribute('class', 'thread'); svg.append(l); return l; });
   const live = document.createElementNS(NS, 'line'); live.setAttribute('class', 'thread live'); svg.append(live);
-  const dots = nodes.map(() => { const c = document.createElementNS(NS, 'circle'); c.setAttribute('class', 'node'); c.setAttribute('r', '9'); svg.append(c); return c; });
+  const dots = nodes.map(() => { const c = document.createElementNS(NS, 'circle'); c.setAttribute('class', 'node'); svg.append(c); return c; });
   const s = { kind: 'connect', linked: 0, pressed: false, x: 0, y: 0, dragging: false, assist: false, assistT: 0, done: false };
   const scr = nodes.map(() => ({}));
   let resolveDone; const done = new Promise((r) => { resolveDone = r; });
@@ -197,8 +199,9 @@ export function createConnect({ camera, nodes, attention, onLink }) {
         const nx = scr[s.linked + 1];
         if (Math.hypot(nx.x - s.x, nx.y - s.y) < tol()) { s.linked++; onLink?.(s.linked, nodes[s.linked]); }
       }
+      const r = isDirect() ? 12 : 9; // a little larger under a finger
       dots.forEach((d, i) => {
-        d.setAttribute('cx', scr[i].x.toFixed(1)); d.setAttribute('cy', scr[i].y.toFixed(1));
+        d.setAttribute('cx', scr[i].x.toFixed(1)); d.setAttribute('cy', scr[i].y.toFixed(1)); d.setAttribute('r', r);
         d.setAttribute('class', `node${i <= s.linked ? ' lit' : ''}${i === s.linked + 1 ? ' next' : ''}${i === s.linked && !s.done ? ' from' : ''}`);
       });
       lines.forEach((l, i) => {

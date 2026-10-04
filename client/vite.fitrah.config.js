@@ -1,11 +1,12 @@
-// The Revival prototype: a second entry page with its own build output.
-//   npm run dev:revival    -> http://localhost:5173/revival.html
-//   npm run build:revival  -> dist-revival/ (static; runs from any folder or host)
+// Fitrah: the menu of scenes and its levels (The Water first), with its own build output.
+//   npm run dev:fitrah    -> http://localhost:5173/fitrah.html
+//   npm run build:fitrah  -> dist-fitrah/ (static; runs from any folder or host)
+// Each level is split into its own chunk and loaded only when the player chooses it.
 // The dev server also serves POST /api/dalil: with ANTHROPIC_API_KEY set it asks
 // the model through the same prompt and validation as the client; without a key
 // it answers 503 and Dalil uses its reviewed answers.
 import { defineConfig } from 'vite';
-import { buildPrompt, validate } from './src/revival/dalil/prompt.js';
+import { buildPrompt, validate } from './src/levels/water/dalil/prompt.js';
 
 function dalilRoute() {
   return {
@@ -48,12 +49,13 @@ export default defineConfig({
   server: { host: true, fs: { allow: ['..'] } },
   build: {
     target: 'es2020',
-    outDir: 'dist-revival',
+    outDir: 'dist-fitrah',
     emptyOutDir: true,
     chunkSizeWarningLimit: 2500,
     rollupOptions: {
-      input: 'revival.html',
-      output: { inlineDynamicImports: true, entryFileNames: 'revival.js', assetFileNames: '[name][extname]' },
+      input: 'fitrah.html',
+      // flat, predictable names so the build can be published as plain files
+      output: { entryFileNames: 'fitrah.js', chunkFileNames: '[name].js', assetFileNames: '[name][extname]' },
     },
   },
 });

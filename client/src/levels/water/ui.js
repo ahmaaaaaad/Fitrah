@@ -1,8 +1,8 @@
 // The interface layer: one quiet corner menu, Dalil's caption and ask ribbon,
 // a live region for screen readers, the start and end cards, and the review
 // panel that lists every provisional decision.
-import { i18n, arDigits } from '../core/i18n.js';
-import { h } from '../ui/dom.js';
+import { i18n, arDigits } from '../../core/i18n.js';
+import { h } from '../../ui/dom.js';
 import { PROVISIONAL, DEBUG, CONFIG } from './config.js';
 import { CT, CT_LABEL } from './events.js';
 
@@ -111,7 +111,7 @@ export function createUI() {
   const P = PROVISIONAL;
   const altOf = (k) => (k === '57:17' ? '30:50' : '57:17');
   const provItems = () => [
-    [{ ar: 'الإحياء كعالَم أول لفطرة', en: 'The Revival as Fitrah’s first world' }, { ar: 'يُختبر عبر هذا النموذج', en: 'validated through this prototype' }],
+    [{ ar: 'الماء كأول مشاهد فطرة', en: 'The Water as Fitrah’s first scene' }, { ar: 'يُختبر عبر هذا النموذج', en: 'validated through this prototype' }],
     [{ ar: `آية الماء: ${arDigits(P.verses.revival)}`, en: `Water verse: ${P.verses.revival}` }, { ar: 'بانتظار المراجعة الشرعية', en: 'pending Sharia review' }],
     [{ ar: `الآية الأخيرة: ${arDigits(P.verses.final)} (البديل ${arDigits(altOf(P.verses.final))})`, en: `Final verse: ${P.verses.final} (alternative ${altOf(P.verses.final)})` }, { ar: 'مؤقّت — يحتاج إلى تحقّق ومراجعة قبل اعتماده', en: 'provisional — requires verification and review before it is canonical' }],
     [{ ar: 'الموسيقى', en: 'Music' }, { ar: 'القناة موجودة ومعطّلة حتى المراجعة الإبداعية والشرعية', en: 'bus exists, disabled until the creative and Sharia review' }],
@@ -128,21 +128,32 @@ export function createUI() {
   T(altBtn, altLabel());
   altBtn.addEventListener('click', () => { P.verses.final = altOf(P.verses.final); renderProv(); T(altBtn, altLabel()); refreshStatus(); });
   panel.append(
-    tx({ ar: 'فطرة · الإحياء — نموذج تجريبي', en: 'Fitrah · The Revival — prototype' }, 'h2'),
+    tx({ ar: 'فطرة · الماء — نموذج تجريبي', en: 'Fitrah · The Water — prototype' }, 'h2'),
     row({ ar: 'اللغة', en: 'Language' }, langAr, langEn),
     row({ ar: 'الصوت', en: 'Sound' }, soundBtn),
     row({ ar: 'الآية', en: 'Verse' }, readBtn),
     row({ ar: 'انتقال للمراجعة', en: 'Jump (review)' }, ...jumps),
     tx({ ar: 'قرارات مؤقّتة', en: 'Provisional decisions' }, 'h3'), provList, altBtn,
     tx({ ar: 'حالة دليل', en: 'Dalil status' }, 'h3'), statusBox,
-    btn({ ar: 'متابعة', en: 'Continue' }, () => toggleMenu(false)),
+    h('div', { class: 'panel-end' },
+      btn({ ar: 'متابعة', en: 'Continue' }, () => toggleMenu(false)),
+      exitBtn()),
   );
+  // back to the menu of scenes (only when the level was opened by the shell)
+  function exitBtn(cls = '') {
+    const b = btn({ ar: 'العودة إلى المشاهد', en: 'Back to the scenes' }, () => cb.onExit?.(), `quiet ${cls}`);
+    b.dataset.exit = '';
+    b.hidden = !cb.onExit;
+    return b;
+  }
+  // without a shell to return to, the exit buttons stay hidden
+  const syncExit = () => { for (const b of root.querySelectorAll('[data-exit]')) b.hidden = !cb.onExit; };
   function toggleMenu(force) {
     state.menuOpen = force ?? !state.menuOpen;
     panel.classList.toggle('on', state.menuOpen);
     menuBtn.setAttribute('aria-expanded', String(state.menuOpen));
     cb.onPause?.(state.menuOpen);
-    if (state.menuOpen) refreshStatus();
+    if (state.menuOpen) { refreshStatus(); syncExit(); }
   }
   menuBtn.addEventListener('click', () => toggleMenu());
   function refreshStatus() {
@@ -156,8 +167,8 @@ export function createUI() {
     const card = h('div', { class: 'start' },
       h('div', { class: 'start-inner' },
         h('p', { class: 'kicker' }, 'FITRAH · فطرة'),
-        h('h1', { lang: 'ar' }, 'الإحياء'),
-        h('p', { class: 'sub' }, 'The Revival'),
+        h('h1', { lang: 'ar' }, 'الماء'),
+        h('p', { class: 'sub' }, 'The Water'),
         h('p', { class: 'note', lang: 'ar', dir: 'rtl' }, 'نموذج تجريبي قابل للعب — للمراجعة'),
         h('p', { class: 'note' }, 'Playable prototype — for review'),
         h('div', { class: 'langs' },
@@ -173,9 +184,10 @@ export function createUI() {
   // ------------------------------------------------------------------ end card
   function endCard({ onReplay }) {
     const card = h('div', { class: 'end' },
-      tx({ ar: 'نهاية الشريحة التجريبية', en: 'End of the prototype slice' }, 'p', { class: 'kicker' }),
-      tx({ ar: 'يمكنك البقاء في المرج، أو سؤال دليل عمّا رأيت، أو إعادة التجربة.', en: 'Stay in the meadow, ask Dalil about what you saw, or play again.' }, 'p'),
-      h('div', { class: 'langs' }, btn({ ar: 'إعادة', en: 'Play again' }, onReplay), btn({ ar: 'القرارات المؤقّتة', en: 'Provisional decisions' }, () => toggleMenu(true))));
+      tx({ ar: 'الماء · اكتمل المشهد', en: 'The Water · the scene is complete' }, 'p', { class: 'kicker' }),
+      tx({ ar: 'يمكنك البقاء في المرج، أو سؤال دليل عمّا رأيت، أو العودة إلى المشاهد.', en: 'Stay in the meadow, ask Dalil about what you saw, or return to the scenes.' }, 'p'),
+      h('div', { class: 'langs' }, btn({ ar: 'إعادة', en: 'Play again' }, onReplay), btn({ ar: 'القرارات المؤقّتة', en: 'Provisional decisions' }, () => toggleMenu(true))),
+      exitBtn('end-exit'));
     root.append(card);
     requestAnimationFrame(() => card.classList.add('on'));
   }

@@ -7,8 +7,8 @@
     "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview --host",
-    "dev:revival": "vite --host --config vite.revival.config.js --open /revival.html",
-    "build:revival": "vite build --config vite.revival.config.js"
+    "dev:fitrah": "vite --host --config vite.fitrah.config.js --open /fitrah.html",
+    "build:fitrah": "vite build --config vite.fitrah.config.js"
   },
   "dependencies": {
     "@fontsource/amiri-quran": "^5.3.0",

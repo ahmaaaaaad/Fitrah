@@ -2,7 +2,7 @@
 // browser (artifact adapter) and by the dev server route (/api/dalil).
 // Layers in a fixed order; the player's text goes last, inside a delimited data
 // block the model is told not to follow.
-import verses from '../../../../data/quran/verses.json';
+import verses from '../../../../../data/quran/verses.json';
 import { ANSWERS } from './lines.js';
 
 import { DALIL_TYPES } from '../events.js';

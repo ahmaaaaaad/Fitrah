@@ -16,17 +16,17 @@ with sync_playwright() as pw:
     pg.on("console", lambda m: m.type == "error" and print("console error:", m.text[:300]))
     if MOCKS[mode]:
         pg.add_init_script("window.__calls=[]; window.claude = { use: async (n) => n==='sample' ? Object.freeze({ json: async (prompt, opts) => { window.__calls.push(prompt.length); await new Promise(r=>setTimeout(r,300)); return " + MOCKS[mode] + "; } }) : null };")
-    pg.goto("http://localhost:8771/revival.html?q=low&nolag&speed=4")
+    pg.goto("http://localhost:8771/fitrah.html?q=low&nolag&speed=4#water/en")
     time.sleep(3)
     pg.locator(".start button").nth(1).click(force=True)
     time.sleep(2)
-    pg.evaluate("window.revival.ff('stream')")
+    pg.evaluate("window.fitrahLevel.ff('stream')")
     pg.locator(".verse .continue.on").wait_for(timeout=200000)
     pg.locator(".verse .continue").click(force=True)
     time.sleep(6)
     # tap Dalil where it is on screen
-    s = pg.evaluate("(()=>{const s=window.revival.dalil.screen(); return [s.x,s.y,s.visible]})()")
-    print("dalil on screen:", s, "state", pg.evaluate("window.revival.dalil.state"))
+    s = pg.evaluate("(()=>{const s=window.fitrahLevel.dalil.screen(); return [s.x,s.y,s.visible]})()")
+    print("dalil on screen:", s, "state", pg.evaluate("window.fitrahLevel.dalil.state"))
     if s[2]:
         pg.mouse.click(s[0], s[1])
     else:
@@ -37,5 +37,5 @@ with sync_playwright() as pw:
     pg.locator(".caption.on").wait_for(timeout=60000)
     time.sleep(0.5)
     print("caption:", pg.evaluate("document.querySelector('.caption').innerText"), "| source:", pg.evaluate("document.querySelector('.caption').dataset.source"), "| type:", pg.evaluate("document.querySelector('.caption').dataset.type"))
-    print("ai:", pg.evaluate("JSON.stringify(window.revival.dalil.aiStatus)"), "calls:", pg.evaluate("window.__calls || null"))
+    print("ai:", pg.evaluate("JSON.stringify(window.fitrahLevel.dalil.aiStatus)"), "calls:", pg.evaluate("window.__calls || null"))
     b.close()

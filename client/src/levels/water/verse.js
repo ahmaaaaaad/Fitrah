@@ -2,10 +2,10 @@
 // the world it speaks about, as real text in the page (lang="ar", dir="rtl"),
 // shaped by the browser and never bent, mirrored or broken by effects.
 // Each ayah is re-hashed before display; if a hash fails, nothing is shown.
-import verses from '../../../data/quran/verses.json';
-import { i18n, arDigits } from '../core/i18n.js';
+import verses from '../../../../data/quran/verses.json';
+import { i18n, arDigits } from '../../core/i18n.js';
 import { PROVISIONAL, SPEED } from './config.js';
-import { h } from '../ui/dom.js';
+import { h } from '../../ui/dom.js';
 import { CT, CT_LABEL } from './events.js';
 
 const byKey = Object.fromEntries(verses.verses.map((v) => [v.key, v]));
@@ -111,13 +111,22 @@ export async function revealVerse(key, { anchor, readable = false, explanation =
   const a = anchor?.();
   const place = () => {
     if (!a) return;
+    if (!box.isConnected) { window.removeEventListener('resize', place); return; }
     const W = window.innerWidth, Hh = window.innerHeight;
     if (box.getBoundingClientRect().height > Hh * 0.88) box.classList.add('compact');
-    const bh = box.getBoundingClientRect().height;
-    box.style.left = `${Math.min(W * 0.62, Math.max(W * 0.38, a.x))}px`;
+    const r = box.getBoundingClientRect(), bh = r.height, half = r.width / 2;
+    // near the anchor, but never past the screen's edges (on a phone the box is nearly full width)
+    const lo = Math.max(W * 0.38, half + 8), hi = Math.min(W * 0.62, W - half - 8);
+    box.style.left = `${lo <= hi ? Math.min(hi, Math.max(lo, a.x)) : W / 2}px`;
     box.style.top = `${Math.min(Hh - bh / 2 - 12, Math.max(bh / 2 + 12, a.y))}px`;
+    // a short screen (a phone on its side) may still not hold every layer: then the box scrolls
+    box.classList.toggle('scrolls', overflow() > 2);
   };
+  // how far the layers run past the box (measured to the last layer: the soft backdrop drawn
+  // around the text must not count as content)
+  function overflow() { return cont.offsetTop + cont.offsetHeight - box.clientHeight; }
   place();
+  window.addEventListener('resize', place);
   requestAnimationFrame(() => box.classList.add('in'));
 
   // layer 1: words fade in one by one, in reading order (right to left); each ayah over 2.5 s
@@ -147,6 +156,8 @@ export async function revealVerse(key, { anchor, readable = false, explanation =
   }
   cont.classList.add('on');
   cont.focus({ preventScroll: true });
+  // Continue must be on screen and reachable, however short the screen
+  if (overflow() > 2) box.scrollTo({ top: overflow(), behavior: 'smooth' });
   await new Promise((r) => cont.addEventListener('click', r, { once: true }));
   box.classList.remove('in'); box.classList.add('out');
   setTimeout(() => box.remove(), 1200);
