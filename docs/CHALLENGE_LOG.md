@@ -2,6 +2,12 @@
 
 Work done during the challenge days. Everything that existed before is listed in `START_VERSION.md`.
 
+## 5 October
+
+### Design: Fitrah and Tafakor
+
+A new Game Design & Technical Architecture document, "Fitrah — Game Design & Technical Architecture" (a Claude doc), restructures the product into two paths: **Fitrah**, the guided four-question level (Who created me? Allah. Why am I here? To worship Allah. How should I live? Arkan al-Islam. What comes after death? Al-Akhirah), and **Tafakor** (تفكّر), the contemplation worlds, with The Water as the first and The Mountains and The Space as placeholders. It covers the four chapters beat by beat in one transforming "Chamber of Questions", one interaction per chapter, the sources for each answer (mostly already in `data/quran/verses.json`, plus 39:62, 47:19, 3:97, 98:5 and the hadith of the five pillars to add), Dalil as a visible educator with three knowledge levels, source-first answering and validated structured output, an honest "Talk to someone" path, the level registry and content model, performance tiers, acceptance criteria and the implementation priority order.
+
 ## 4 October
 
 ### The Water: the first scene of Fitrah, a menu of scenes, clearer instructions, mobile framing
