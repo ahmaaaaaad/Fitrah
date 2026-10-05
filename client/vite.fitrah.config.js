@@ -3,10 +3,14 @@
 //   npm run build:fitrah  -> dist-fitrah/ (static; runs from any folder or host)
 // Each level is split into its own chunk and loaded only when the player chooses it.
 // The dev server also serves POST /api/dalil: with ANTHROPIC_API_KEY set it asks
-// the model through the same prompt and validation as the client; without a key
-// it answers 503 and Dalil uses its reviewed answers.
+// the model through the same prompt and validation as the client (chosen by the
+// request's `level`); without a key it answers 503 and Dalil uses his reviewed answers.
 import { defineConfig } from 'vite';
-import { buildPrompt, validate } from './src/levels/water/dalil/prompt.js';
+import * as waterPrompt from './src/levels/water/dalil/prompt.js';
+import * as fitrahPrompt from './src/levels/fitrah/dalil-prompt.js';
+
+// each level brings its own prompt and validation (same modules the browser uses)
+const PROMPTS = { water: waterPrompt, fitrah: fitrahPrompt };
 
 function dalilRoute() {
   return {
@@ -21,7 +25,8 @@ function dalilRoute() {
         let raw = '';
         for await (const chunk of req) { raw += chunk; if (raw.length > 4000) return send(413, { error: 'too large' }); }
         try {
-          const { question, context, lang } = JSON.parse(raw);
+          const { question, context, lang, level } = JSON.parse(raw);
+          const { buildPrompt, validate } = PROMPTS[level] || PROMPTS.water;
           const r = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
@@ -55,7 +60,15 @@ export default defineConfig({
     rollupOptions: {
       input: 'fitrah.html',
       // flat, predictable names so the build can be published as plain files
-      output: { entryFileNames: 'fitrah.js', chunkFileNames: '[name].js', assetFileNames: '[name][extname]' },
+      output: {
+        entryFileNames: 'fitrah.js', chunkFileNames: '[name].js', assetFileNames: '[name][extname]',
+        // what the levels share: the rendering engine, and the verified verse records
+        manualChunks(id) {
+          if (/node_modules\/(three|gsap)\//.test(id) || /src\/core\/scene\.js$/.test(id)) return 'engine';
+          if (/data\/quran\/verses\.json$/.test(id)) return 'verses';
+          return undefined;
+        },
+      },
     },
   },
 });

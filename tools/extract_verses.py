@@ -44,6 +44,24 @@ USES=[
  (56,[68,69,70],"revival.revelation_water","أَفَرَأَيْتُمُ الْمَاءَ الَّذِي تَشْرَبُونَ"),
  (57,[17],"revival.revelation_final_provisional","اعْلَمُوا أَنَّ اللَّهَ يُحْيِي الْأَرْضَ بَعْدَ مَوْتِهَا"),
  (30,[50],"revival.revelation_final_alternative","فَانظُرْ إِلَىٰ آثَارِ رَحْمَتِ اللَّهِ كَيْفَ يُحْيِي الْأَرْضَ بَعْدَ مَوْتِهَا"),
+ # Fitrah, the four questions (5 October). Pairings are provisional until Sharia review.
+ (52,[35],"fitrah.ch1.source",None),
+ (39,[62],"fitrah.ch1.answer","اللَّهُ خَالِقُ كُلِّ شَيْءٍ"),
+ (67,[3],"fitrah.ch1.deeper",None),
+ (23,[115],"fitrah.bridge.purpose_and_return",None),
+ (51,[56],"fitrah.ch2.source",None),
+ (6,[162],"fitrah.ch2.deeper",None),
+ (98,[5],"fitrah.ch2_ch3.bridge","وَمَا أُمِرُوا إِلَّا لِيَعْبُدُوا اللَّهَ"),
+ (47,[19],"fitrah.ch3.shahadah","فَاعْلَمْ أَنَّهُ لَا إِلَٰهَ إِلَّا اللَّهُ"),
+ (4,[103],"fitrah.ch3.salah",None),
+ (9,[103],"fitrah.ch3.zakah",None),
+ (2,[183],"fitrah.ch3.sawm",None),
+ (3,[97],"fitrah.ch3.hajj","وَلِلَّهِ عَلَى النَّاسِ حِجُّ الْبَيْتِ"),
+ (3,[185],"fitrah.ch4.source",None),
+ (36,[78,79],"fitrah.ch4.resurrection",None),
+ (99,[7,8],"fitrah.ch4.accountability",None),
+ (39,[53],"fitrah.ch4.mercy",None),
+ (30,[30],"fitrah.ending",None),
 ]
 def skel(s):
     s=unicodedata.normalize('NFKD',s)

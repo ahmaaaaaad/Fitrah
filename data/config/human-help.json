@@ -1,0 +1,24 @@
+{
+  "_meta": {
+    "purpose": "Where \"Talk to someone\" sends a player. Only verified destinations go here.",
+    "rule": "Add a partner only after the project owner has confirmed it, with who verified it and when. While `enabled` is false, the interface says plainly that no live person is available yet and shows the general pathways below."
+  },
+  "enabled": false,
+  "partners": [],
+  "pathways": [
+    {
+      "id": "local-mosque",
+      "label": { "ar": "مسجد قريب منك", "en": "A mosque near you" },
+      "detail": { "ar": "اطلب الحديث مع الإمام؛ كثير من المساجد ترحّب بالأسئلة.", "en": "Ask to speak with the imam; many mosques welcome questions." },
+      "kind": "general"
+    },
+    {
+      "id": "information-centre",
+      "label": { "ar": "مركز للتعريف بالإسلام في بلدك", "en": "An Islamic information centre in your country" },
+      "detail": { "ar": "مراكز تجيب عن الأسئلة بلغات متعددة.", "en": "Centres that answer questions in many languages." },
+      "kind": "general"
+    }
+  ],
+  "curated_by": null,
+  "curated_on": null
+}

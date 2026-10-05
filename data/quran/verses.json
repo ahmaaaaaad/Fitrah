@@ -51,7 +51,8 @@
       "translation_en": "[And] who created seven heavens in layers. You do not see in the creation of the Most Merciful any inconsistency. So return [your] vision [to the sky]; do you see any breaks",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world1.station1_order"
+        "world1.station1_order",
+        "fitrah.ch1.deeper"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -75,7 +76,8 @@
       "translation_en": "Or were they created by nothing, or were they the creators [of themselves]",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world1.station2_causes"
+        "world1.station2_causes",
+        "fitrah.ch1.source"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -192,7 +194,8 @@
       "translation_en": "So direct your face toward the religion, inclining to truth. [Adhere to] the fitrah of Allah upon which He has created [all] people. No change should there be in the creation of Allah. That is the correct religion, but most of the people do not know",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world1.closing_fitrah"
+        "world1.closing_fitrah",
+        "fitrah.ending"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -406,7 +409,8 @@
       "translation_en": "Then did you think that We created you uselessly and that to Us you would not be returned",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world2.station1"
+        "world2.station1",
+        "fitrah.bridge.purpose_and_return"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -502,7 +506,8 @@
       "translation_en": "And I did not create the jinn and mankind except to worship Me",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world2.closing"
+        "world2.closing",
+        "fitrah.ch2.source"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -526,7 +531,8 @@
       "translation_en": "Say, \"Indeed, my prayer, my rites of sacrifice, my living and my dying are for Allah, Lord of the worlds",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world3.shahada"
+        "world3.shahada",
+        "fitrah.ch2.deeper"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -550,7 +556,8 @@
       "translation_en": "And when you have completed the prayer, remember Allah standing, sitting, or [lying] on your sides. But when you become secure, re-establish [regular] prayer. Indeed, prayer has been decreed upon the believers a decree of specified times",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world3.salah"
+        "world3.salah",
+        "fitrah.ch3.salah"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -574,7 +581,8 @@
       "translation_en": "Take, [O, Muhammad], from their wealth a charity by which you purify them and cause them increase, and invoke [Allah 's blessings] upon them. Indeed, your invocations are reassurance for them. And Allah is Hearing and Knowing",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world3.zakah"
+        "world3.zakah",
+        "fitrah.ch3.zakah"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -598,7 +606,8 @@
       "translation_en": "O you who have believed, decreed upon you is fasting as it was decreed upon those before you that you may become righteous",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world3.sawm"
+        "world3.sawm",
+        "fitrah.ch3.sawm"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -694,7 +703,8 @@
       "translation_en": "Every soul will taste death, and you will only be given your [full] compensation on the Day of Resurrection. So he who is drawn away from the Fire and admitted to Paradise has attained [his desire]. And what is the life of this world except the enjoyment of delusion",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world4.arrival"
+        "world4.arrival",
+        "fitrah.ch4.source"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -749,7 +759,8 @@
       "translation_en": "And he presents for Us an example and forgets his [own] creation. He says, \"Who will give life to bones while they are disintegrated Say, \"He will give them life who produced them the first time; and He is, of all creation, Knowing",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world4.station2"
+        "world4.station2",
+        "fitrah.ch4.resurrection"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -780,7 +791,8 @@
       "translation_en": "So whoever does an atom's weight of good will see it And whoever does an atom's weight of evil will see it",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world4.station3"
+        "world4.station3",
+        "fitrah.ch4.accountability"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -804,7 +816,8 @@
       "translation_en": "Say, \"O My servants who have transgressed against themselves [by sinning], do not despair of the mercy of Allah. Indeed, Allah forgives all sins. Indeed, it is He who is the Forgiving, the Merciful",
       "translation_en_author": "Saheeh International",
       "used_in": [
-        "world4.station4"
+        "world4.station4",
+        "fitrah.ch4.mercy"
       ],
       "review_status": "pending_sharia_review"
     },
@@ -987,6 +1000,102 @@
       "translation_en_author": "Saheeh International",
       "used_in": [
         "revival.revelation_final_alternative"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "39:62",
+      "surah": 39,
+      "surah_name_ar": "الزمر",
+      "surah_name_en": "Az-Zumar",
+      "ayahs": [
+        62
+      ],
+      "ayah_texts": [
+        {
+          "n": 62,
+          "ar": "ٱللَّهُ خَٰلِقُ كُلِّ شَيۡءٖۖ وَهُوَ عَلَىٰ كُلِّ شَيۡءٖ وَكِيلٞ",
+          "sha256": "8a6d9571c7ce7b71ba98b877f7440aa2d319e1530883caec99c81599e317c479",
+          "en": "Allah is the Creator of all things, and He is, over all things, Disposer of affairs"
+        }
+      ],
+      "text_uthmani": "ٱللَّهُ خَٰلِقُ كُلِّ شَيۡءٖۖ وَهُوَ عَلَىٰ كُلِّ شَيۡءٖ وَكِيلٞ",
+      "translation_en": "Allah is the Creator of all things, and He is, over all things, Disposer of affairs",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "fitrah.ch1.answer"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "98:5",
+      "surah": 98,
+      "surah_name_ar": "البينة",
+      "surah_name_en": "Al-Bayyinah",
+      "ayahs": [
+        5
+      ],
+      "ayah_texts": [
+        {
+          "n": 5,
+          "ar": "وَمَآ أُمِرُوٓاْ إِلَّا لِيَعۡبُدُواْ ٱللَّهَ مُخۡلِصِينَ لَهُ ٱلدِّينَ حُنَفَآءَ وَيُقِيمُواْ ٱلصَّلَوٰةَ وَيُؤۡتُواْ ٱلزَّكَوٰةَۚ وَذَٰلِكَ دِينُ ٱلۡقَيِّمَةِ",
+          "sha256": "9e2e919714e4b46e7fd0ff16f11e6a5b60fcaddb3bc778d7783d70797743cbba",
+          "en": "And they were not commanded except to worship Allah, [being] sincere to Him in religion, inclining to truth, and to establish prayer and to give zakah. And that is the correct religion"
+        }
+      ],
+      "text_uthmani": "وَمَآ أُمِرُوٓاْ إِلَّا لِيَعۡبُدُواْ ٱللَّهَ مُخۡلِصِينَ لَهُ ٱلدِّينَ حُنَفَآءَ وَيُقِيمُواْ ٱلصَّلَوٰةَ وَيُؤۡتُواْ ٱلزَّكَوٰةَۚ وَذَٰلِكَ دِينُ ٱلۡقَيِّمَةِ",
+      "translation_en": "And they were not commanded except to worship Allah, [being] sincere to Him in religion, inclining to truth, and to establish prayer and to give zakah. And that is the correct religion",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "fitrah.ch2_ch3.bridge"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "47:19",
+      "surah": 47,
+      "surah_name_ar": "محمد",
+      "surah_name_en": "Muhammad",
+      "ayahs": [
+        19
+      ],
+      "ayah_texts": [
+        {
+          "n": 19,
+          "ar": "فَٱعۡلَمۡ أَنَّهُۥ لَآ إِلَٰهَ إِلَّا ٱللَّهُ وَٱسۡتَغۡفِرۡ لِذَنۢبِكَ وَلِلۡمُؤۡمِنِينَ وَٱلۡمُؤۡمِنَٰتِۗ وَٱللَّهُ يَعۡلَمُ مُتَقَلَّبَكُمۡ وَمَثۡوَىٰكُمۡ",
+          "sha256": "5c100ba7e6ebb5f85893a88636541677690159ab1b44b014754b619f9cbefa1e",
+          "en": "So know, [O Muhammad], that there is no deity except Allah and ask forgiveness for your sin and for the believing men and believing women. And Allah knows of your movement and your resting place"
+        }
+      ],
+      "text_uthmani": "فَٱعۡلَمۡ أَنَّهُۥ لَآ إِلَٰهَ إِلَّا ٱللَّهُ وَٱسۡتَغۡفِرۡ لِذَنۢبِكَ وَلِلۡمُؤۡمِنِينَ وَٱلۡمُؤۡمِنَٰتِۗ وَٱللَّهُ يَعۡلَمُ مُتَقَلَّبَكُمۡ وَمَثۡوَىٰكُمۡ",
+      "translation_en": "So know, [O Muhammad], that there is no deity except Allah and ask forgiveness for your sin and for the believing men and believing women. And Allah knows of your movement and your resting place",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "fitrah.ch3.shahadah"
+      ],
+      "review_status": "pending_sharia_review"
+    },
+    {
+      "key": "3:97",
+      "surah": 3,
+      "surah_name_ar": "آل عمران",
+      "surah_name_en": "Ali 'Imran",
+      "ayahs": [
+        97
+      ],
+      "ayah_texts": [
+        {
+          "n": 97,
+          "ar": "فِيهِ ءَايَٰتُۢ بَيِّنَٰتٞ مَّقَامُ إِبۡرَٰهِيمَۖ وَمَن دَخَلَهُۥ كَانَ ءَامِنٗاۗ وَلِلَّهِ عَلَى ٱلنَّاسِ حِجُّ ٱلۡبَيۡتِ مَنِ ٱسۡتَطَاعَ إِلَيۡهِ سَبِيلٗاۚ وَمَن كَفَرَ فَإِنَّ ٱللَّهَ غَنِيٌّ عَنِ ٱلۡعَٰلَمِينَ",
+          "sha256": "795a820fb4221a7a4f0788cbaf75a61c4575844dc6a79b698ce04d8387042a2e",
+          "en": "In it are clear signs [such as] the standing place of Abraham. And whoever enters it shall be safe. And [due] to Allah from the people is a pilgrimage to the House - for whoever is able to find thereto a way. But whoever disbelieves - then indeed, Allah is free from need of the worlds"
+        }
+      ],
+      "text_uthmani": "فِيهِ ءَايَٰتُۢ بَيِّنَٰتٞ مَّقَامُ إِبۡرَٰهِيمَۖ وَمَن دَخَلَهُۥ كَانَ ءَامِنٗاۗ وَلِلَّهِ عَلَى ٱلنَّاسِ حِجُّ ٱلۡبَيۡتِ مَنِ ٱسۡتَطَاعَ إِلَيۡهِ سَبِيلٗاۚ وَمَن كَفَرَ فَإِنَّ ٱللَّهَ غَنِيٌّ عَنِ ٱلۡعَٰلَمِينَ",
+      "translation_en": "In it are clear signs [such as] the standing place of Abraham. And whoever enters it shall be safe. And [due] to Allah from the people is a pilgrimage to the House - for whoever is able to find thereto a way. But whoever disbelieves - then indeed, Allah is free from need of the worlds",
+      "translation_en_author": "Saheeh International",
+      "used_in": [
+        "fitrah.ch3.hajj"
       ],
       "review_status": "pending_sharia_review"
     }

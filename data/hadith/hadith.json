@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "purpose": "Hadith records used in Fitrah. Each record names the collection, the number and the edition it was entered from.",
+    "rule": "Never type hadith text from memory. Enter the Arabic text, an attributed translation and the grading from a named edition, then record the reviewer's sign-off. Until then `arabic` stays null and the reference is shown as provisional.",
+    "status": "review_required"
+  },
+  "hadith": [
+    {
+      "id": "hadith:built-on-five",
+      "title": { "ar": "حديث «بُني الإسلام على خمس»", "en": "\"Islam is built on five\"" },
+      "summary": {
+        "ar": "يذكر الحديث أن الإسلام بُني على خمسة أركان: الشهادتان، وإقام الصلاة، وإيتاء الزكاة، وصوم رمضان، وحج البيت.",
+        "en": "The hadith says Islam is built on five pillars: the testimony of faith, prayer, zakah, fasting in Ramadan, and pilgrimage to the House."
+      },
+      "summary_type": "DALIL_EXPLANATION",
+      "collections": [
+        { "work": "Sahih al-Bukhari", "number": "8", "numbering": "standard numbering, to be confirmed against the edition used" },
+        { "work": "Sahih Muslim", "number": "16", "numbering": "standard numbering, to be confirmed against the edition used" }
+      ],
+      "arabic": null,
+      "translations": [],
+      "grading": null,
+      "edition": null,
+      "used_in": ["fitrah.ch3.source"],
+      "review": { "status": "review_required", "notes": "Text not yet entered from a verified edition; numbering not final." }
+    }
+  ]
+}

@@ -11,7 +11,7 @@
 import '../fonts.css';
 import './shell.css';
 import { i18n } from '../core/i18n.js';
-import { LEVELS, levelById, isPlayable } from '../levels/registry.js';
+import { LEVELS, PATHS, levelById, levelsIn, isPlayable } from '../levels/registry.js';
 
 const REDUCED = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 const NAME_KEY = 'fitrah:';
@@ -109,62 +109,108 @@ function createMotes(canvas) {
 }
 
 // ---------------------------------------------------------------- the menu
+// Two views over one backdrop: the main view holds the two paths (Fitrah, Tafakor);
+// the Tafakor view lists its worlds. Same still, motes, type and motion as before.
 const shell = document.getElementById('shell');
-const state = { busy: false, menu: null, motes: null, current: null };
+const state = { busy: false, menu: null, motes: null, current: null, view: 'main', still: null };
 
-function renderMenu({ intro }) {
-  const firstPlayable = LEVELS.find(isPlayable);
-  const still = (firstPlayable || LEVELS[0])?.thumbnail;
-  const num = (i) => i18n.num(i + 1);
+function itemButton({ id, num, title, subtitle, description, playable, later, onActivate, still }) {
+  const numEl = h('span', { class: 'fm-num', 'aria-hidden': 'true' });
+  const setNum = () => { numEl.textContent = i18n.num(num); };
+  setNum(); i18n.onChange(setNum);
+  const alt = h('span', { class: 'fm-alt' });
+  const setAlt = () => { const l = other(i18n.lang); alt.lang = l; alt.textContent = title[l]; };
+  setAlt(); i18n.onChange(setAlt);
+  const name = h('span', { class: 'fm-name' }, T(h('span'), title));
+  const sub = subtitle ? T(h('span', { class: 'fm-sub' }), subtitle) : null;
+  let extra = null;
+  if (playable) {
+    extra = h('span', { class: 'fm-desc' }, h('span', {},
+      description ? T(h('em'), description) : null,
+      T(h('span', { class: 'fm-go' }), { ar: 'ادخل', en: 'Enter' })));
+  } else if (later) {
+    const tag = T(h('span', { class: 'fm-later' }), { ar: 'لاحقاً', en: 'LATER' });
+    const setLang = () => { tag.lang = i18n.lang; }; setLang(); i18n.onChange(setLang);
+    name.append(tag);
+  }
+  const btn = h('button', {
+    type: 'button', class: `fm-ch ${playable ? 'available' : 'locked'}`, 'data-id': id,
+    'aria-disabled': playable ? null : 'true',
+  }, numEl, h('span', {}, name, alt, sub), extra);
+  if (!playable) {
+    const label = () => btn.setAttribute('aria-label', `${i18n.t(title)} — ${i18n.t({ ar: 'لاحقاً', en: 'later' })}`);
+    label(); i18n.onChange(label);
+  }
+  const item = { id, playable, still, activate: onActivate };
+  btn.addEventListener('pointerenter', () => setCurrent(item));
+  btn.addEventListener('focus', () => setCurrent(item));
+  btn.addEventListener('click', () => { if (playable) onActivate(); else setCurrent(item); });
+  btn._item = item;
+  return h('li', {}, btn);
+}
 
-  const items = LEVELS.map((level, i) => {
-    const playable = isPlayable(level);
-    const numEl = h('span', { class: 'fm-num', 'aria-hidden': 'true' });
-    const setNum = () => { numEl.textContent = num(i); };
-    setNum(); i18n.onChange(setNum);
-    const alt = h('span', { class: 'fm-alt' });
-    const setAlt = () => { const l = other(i18n.lang); alt.lang = l; alt.textContent = level.title[l]; };
-    setAlt(); i18n.onChange(setAlt);
-    const nameText = T(h('span'), level.title);
-    const name = h('span', { class: 'fm-name' }, nameText);
-    let extra;
-    if (playable) {
-      extra = h('span', { class: 'fm-desc' }, h('span', {},
-        level.description ? T(h('em'), level.description) : null,
-        T(h('span', { class: 'fm-go' }), { ar: 'ادخل', en: 'Enter' })));
-    } else {
-      const later = T(h('span', { class: 'fm-later' }), { ar: 'لاحقاً', en: 'LATER' });
-      const setLang = () => { later.lang = i18n.lang; }; setLang(); i18n.onChange(setLang);
-      name.append(later);
-    }
-    const btn = h('button', {
-      type: 'button', class: `fm-ch ${playable ? 'available' : 'locked'}`, 'data-id': level.id,
-      'aria-disabled': playable ? null : 'true',
-    }, numEl, h('span', {}, name, alt), extra);
-    if (!playable) {
-      const label = () => btn.setAttribute('aria-label', `${i18n.t(level.title)} — ${i18n.t({ ar: 'لاحقاً', en: 'later' })}`);
-      label(); i18n.onChange(label);
-    }
-    btn.addEventListener('pointerenter', () => setCurrent(level));
-    btn.addEventListener('focus', () => setCurrent(level));
-    btn.addEventListener('click', () => { if (playable) enter(level); else setCurrent(level); });
-    return h('li', {}, btn);
+function mainItems() {
+  return PATHS.map((p, i) => {
+    const level = p.level ? levelById(p.level) : null;
+    const still = level?.thumbnail || levelsIn(p.section || '').find(isPlayable)?.thumbnail;
+    return itemButton({
+      id: p.id, num: i + 1, title: p.title, subtitle: p.subtitle, description: p.description,
+      playable: p.level ? isPlayable(level) : true, still,
+      onActivate: () => (level ? enter(level) : showView(p.section)),
+    });
   });
+}
+function tafakorItems() {
+  return levelsIn('tafakor').map((l, i) => itemButton({
+    id: l.id, num: i + 1, title: l.title, description: l.description,
+    playable: isPlayable(l), later: l.status === 'coming_soon',
+    still: l.thumbnail || levelsIn('tafakor').find(isPlayable)?.thumbnail,
+    onActivate: () => enter(l),
+  }));
+}
 
+function showStill(url) {
+  if (!state.menu || !url || url === state.still) return;
+  state.still = url;
+  const [a, b] = state.menu.querySelectorAll('.fm-img');
+  const next = a.classList.contains('on') ? b : a, prev = next === a ? b : a;
+  next.style.backgroundImage = `url("${url}")`;
+  next.classList.add('on'); prev.classList.remove('on');
+}
+
+function showView(view, { instant = false } = {}) {
+  if (!state.menu || state.busy) return;
+  state.view = view;
+  writeRoute(view === 'tafakor' ? 'tafakor' : 'menu', i18n.lang);
+  const nav = state.menu.querySelector('.fm-chapters');
+  const fill = () => {
+    const list = h('ol', {}, view === 'tafakor' ? tafakorItems() : mainItems());
+    const crumb = view === 'tafakor' ? h('div', { class: 'fm-crumb' },
+      T(h('button', { type: 'button', class: 'fm-back', onClick: () => showView('main') }), { ar: 'رجوع', en: 'Back' }),
+      T(h('span', { class: 'fm-section' }), { ar: 'تفكّر · عوالم التأمّل', en: 'Tafakor · The Experiential Worlds' })) : null;
+    nav.replaceChildren(...[crumb, list].filter(Boolean));
+    nav.dataset.view = view;
+    const first = nav.querySelector('.fm-ch.available') || nav.querySelector('.fm-ch');
+    if (first?._item) setCurrent(first._item);
+    nav.classList.remove('switching');
+  };
+  if (instant || REDUCED) fill();
+  else { nav.classList.add('switching'); setTimeout(fill, 420); }
+}
+
+function renderMenu({ intro, view = 'main' }) {
   const langBtn = h('button', { type: 'button', class: 'fm-lang' });
   const setLangBtn = () => { const l = other(i18n.lang); langBtn.textContent = l === 'ar' ? 'العربية' : 'English'; langBtn.lang = l; };
   setLangBtn(); i18n.onChange(setLangBtn);
-  langBtn.addEventListener('click', () => { const l = other(i18n.lang); i18n.set(l); storeLang(l); writeRoute('menu', l); document.title = i18n.t({ ar: 'فطرة', en: 'Fitrah' }); });
+  langBtn.addEventListener('click', () => { const l = other(i18n.lang); i18n.set(l); storeLang(l); writeRoute(state.view === 'tafakor' ? 'tafakor' : 'menu', l); document.title = i18n.t({ ar: 'فطرة', en: 'Fitrah' }); });
 
-  const nav = h('nav', { class: 'fm-chapters' }, h('ol', {}, items));
-  nav.setAttribute('aria-label', i18n.t({ ar: 'المشاهد', en: 'Scenes' }));
-  i18n.onChange(() => nav.setAttribute('aria-label', i18n.t({ ar: 'المشاهد', en: 'Scenes' })));
+  const nav = h('nav', { class: 'fm-chapters' });
+  nav.setAttribute('aria-label', i18n.t({ ar: 'أقسام فطرة', en: 'Parts of Fitrah' }));
+  i18n.onChange(() => nav.setAttribute('aria-label', i18n.t({ ar: 'أقسام فطرة', en: 'Parts of Fitrah' })));
 
-  const img = h('div', { class: 'fm-img' });
-  if (still) img.style.backgroundImage = `url("${still}")`;
   const motesCanvas = h('canvas', { class: 'fm-motes', 'aria-hidden': 'true' });
   const menu = h('main', { class: 'fm' },
-    h('div', { class: 'fm-bg', 'aria-hidden': 'true' }, img),
+    h('div', { class: 'fm-bg', 'aria-hidden': 'true' }, h('div', { class: 'fm-img on' }), h('div', { class: 'fm-img' })),
     h('div', { class: 'fm-shade', 'aria-hidden': 'true' }),
     motesCanvas,
     h('div', { class: 'fm-grain', 'aria-hidden': 'true' }),
@@ -179,9 +225,9 @@ function renderMenu({ intro }) {
   shell.replaceChildren(menu);
   state.menu = menu;
   state.motes = createMotes(motesCanvas);
-  setCurrent(firstPlayable || LEVELS[0]);
+  showView(view, { instant: true });
 
-  // keyboard: arrows move through the scenes, Enter opens one
+  // keyboard: arrows move through the items, Enter opens one, Esc goes back
   menu.addEventListener('keydown', (e) => {
     const list = [...menu.querySelectorAll('.fm-ch')];
     const i = list.indexOf(document.activeElement);
@@ -192,9 +238,11 @@ function renderMenu({ intro }) {
     }
   });
   window.addEventListener('keydown', (e) => {
-    if (state.busy || !state.menu || document.activeElement?.closest?.('.fm')) return;
+    if (state.busy || !state.menu) return;
+    if ((e.key === 'Escape' || e.key === 'Backspace') && state.view === 'tafakor' && !(e.target instanceof HTMLInputElement)) { e.preventDefault(); showView('main'); return; }
+    if (document.activeElement?.closest?.('.fm')) return;
     if (['ArrowDown', 'ArrowUp', 'Tab'].includes(e.key)) { const b = menu.querySelector('.fm-ch.current') || menu.querySelector('.fm-ch'); if (e.key !== 'Tab') e.preventDefault(); b?.focus(); }
-    else if (e.key === 'Enter' && state.current && isPlayable(state.current)) enter(state.current);
+    else if (e.key === 'Enter' && state.current?.playable) state.current.activate();
   });
 
   // the first moment of a fresh visit shows the name alone; returning from a scene goes straight to the list
@@ -213,11 +261,12 @@ function renderMenu({ intro }) {
   return menu;
 }
 
-function setCurrent(level) {
+function setCurrent(item) {
   if (!state.menu || state.busy) return;
-  state.current = level;
-  state.menu.dataset.focus = isPlayable(level) ? 'available' : 'locked';
-  for (const b of state.menu.querySelectorAll('.fm-ch')) b.classList.toggle('current', b.dataset.id === level.id);
+  state.current = item;
+  state.menu.dataset.focus = item.playable ? 'available' : 'locked';
+  showStill(item.still);
+  for (const b of state.menu.querySelectorAll('.fm-ch')) b.classList.toggle('current', b.dataset.id === item.id);
 }
 
 // ---------------------------------------------------------------- entering and leaving a level
@@ -237,13 +286,15 @@ function unlockAudio() {
   } catch { return null; }
 }
 
-function exitToMenu() {
+function exitToMenu({ to } = {}) {
   if (state.leaving) return;
+  // by default a world goes back to where it was chosen: a Tafakor world to the Tafakor list
+  if (!to) to = levelById(document.body.dataset.level)?.category === 'tafakor' ? 'tafakor' : 'menu';
   state.leaving = true;
   const lang = i18n.lang;
   titleCard(null);
   veilTo(true, 1100, '#14110e').then(() => {
-    writeRoute('menu', lang);
+    writeRoute(to === 'tafakor' ? 'tafakor' : 'menu', lang);
     location.reload();
   });
 }
@@ -288,18 +339,19 @@ async function enter(level, { fromMenu = true } = {}) {
 const { route, lang } = readRoute();
 i18n.set(lang);
 document.title = i18n.t({ ar: 'فطرة', en: 'Fitrah' });
-const target = route && route !== 'menu' ? levelById(route) : null;
-window.fitrahShell = { LEVELS, enter: (id) => enter(levelById(id)), exit: exitToMenu, get state() { return { route: document.body.dataset.level || 'menu', busy: state.busy, current: state.current?.id }; } };
+const target = route && route !== 'menu' && route !== 'tafakor' ? levelById(route) : null;
+window.fitrahShell = { LEVELS, enter: (id) => enter(levelById(id)), exit: exitToMenu, view: (v) => showView(v), get state() { return { route: document.body.dataset.level || 'menu', view: state.view, busy: state.busy, current: state.current?.id }; } };
 
 if (isPlayable(target)) {
   // a direct link to a scene: the level shows its own start card (the gesture that starts sound)
   enter(target, { fromMenu: false });
 } else {
-  writeRoute('menu', lang);
-  const returning = route === 'menu';
-  renderMenu({ intro: !returning });
+  const view = route === 'tafakor' ? 'tafakor' : 'main';
+  writeRoute(view === 'tafakor' ? 'tafakor' : 'menu', lang);
+  const returning = route === 'menu' || route === 'tafakor';
+  renderMenu({ intro: !returning, view });
   const show = () => veilTo(false, returning ? 1200 : 1600, '#14110e');
-  const still = LEVELS.find(isPlayable)?.thumbnail;
+  const still = state.still;
   if (still) {
     const img = new Image();
     let shown = false;

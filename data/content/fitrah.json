@@ -1,0 +1,863 @@
+{
+  "_meta": {
+    "purpose": "All player-facing text of the Fitrah level: the opening, the four chapters, the ending and Dalil's reviewed answers.",
+    "status": "Draft, written 5 October 2026. Every item needs Sharia review before release.",
+    "rules": [
+      "Qur'anic text and translations are never written here; they are referenced by key from data/quran/verses.json.",
+      "Hadith text is never written here; hadith are referenced by id from data/hadith/hadith.json.",
+      "Every Dalil line exists at three depths: exploring (new to Islam), learning (knows the basics), reflective (Muslim, wants a reminder).",
+      "The player never causes creation, revelation or life; they follow, notice and understand.",
+      "Arabic lines written for Dalil never reproduce Qur'anic wording (checked by tests/fitrah_validation.mjs against every verse in the data); Qur'anic wording appears only in verified verse records."
+    ]
+  },
+  "depth": {
+    "question": {
+      "ar": "قبل أن نبدأ: ما مدى معرفتك بالإسلام؟",
+      "en": "Before we begin: how familiar is Islam to you?"
+    },
+    "options": [
+      {
+        "id": "exploring",
+        "label": {
+          "ar": "جديد عليّ",
+          "en": "New to me"
+        }
+      },
+      {
+        "id": "learning",
+        "label": {
+          "ar": "أعرف الأساسيات",
+          "en": "I know the basics"
+        }
+      },
+      {
+        "id": "reflective",
+        "label": {
+          "ar": "أنا مسلم — ذكّرني",
+          "en": "I'm Muslim — remind me"
+        }
+      }
+    ],
+    "skip": {
+      "ar": "تخطَّ",
+      "en": "Skip"
+    },
+    "note": {
+      "ar": "يغيّر هذا أسلوب شرحي فقط، ولا يُحفظ.",
+      "en": "This only changes how I explain things, and it isn't stored."
+    }
+  },
+  "opening": {
+    "welcome": {
+      "ar": "في داخل كل إنسان أربعة أسئلة. تعالَ نمشِ معها معًا.",
+      "en": "Every person carries four questions. Let us walk through them together."
+    },
+    "four": {
+      "ar": "أربعة أسئلة… يسألها كل واحد منّا في وقتٍ ما.",
+      "en": "Four questions. Every one of us asks them at some point."
+    },
+    "begin": {
+      "ar": "نبدأ بالأول.",
+      "en": "We begin with the first."
+    }
+  },
+  "chapters": [
+    {
+      "id": "ch1",
+      "n": 1,
+      "state": "creation",
+      "question": {
+        "ar": "من خلقني؟",
+        "en": "Who created me?"
+      },
+      "answer": {
+        "ar": "الله",
+        "en": "Allah"
+      },
+      "answer_line": {
+        "ar": "الله — الخالق، وكل ما سواه مخلوق",
+        "en": "Allah — the Creator; everything else is created"
+      },
+      "intro": {
+        "exploring": {
+          "ar": "أنت موجود، ولم تختر أن توجد. فمن أين جئت؟",
+          "en": "You exist, and you did not choose to. So where did you come from?"
+        },
+        "learning": {
+          "ar": "أنت موجود دون أن تختار ذلك. لنتتبّع من أين جئت.",
+          "en": "You exist without having chosen to. Let us trace where you came from."
+        },
+        "reflective": {
+          "ar": "نعرف الجواب، لكن لنمشِ إليه خطوة خطوة.",
+          "en": "We know the answer. Let us still walk to it, one step at a time."
+        }
+      },
+      "interaction": {
+        "kind": "connect",
+        "built": true,
+        "why": {
+          "ar": "يكتشف اللاعب بنفسه أن سلسلة المخلوقات لا تفسّر وجودها بنفسها.",
+          "en": "The player discovers for themselves that a chain of created things cannot account for its own existence."
+        },
+        "instruction": {
+          "mouse": {
+            "ar": "انقر مع الاستمرار على نورك، ثم اسحب إلى ما جاء قبلك.",
+            "en": "Click and hold on your light, then drag to what came before you."
+          },
+          "touch": {
+            "ar": "المس نورك مطوّلًا، ثم اسحب إلى ما جاء قبلك.",
+            "en": "Touch and hold your light, then drag to what came before you."
+          },
+          "pen": {
+            "ar": "اضغط على نورك مطوّلًا، ثم اسحب إلى ما جاء قبلك.",
+            "en": "Press and hold on your light, then drag to what came before you."
+          }
+        },
+        "stall": {
+          "mouse": {
+            "ar": "أبقِ الزر مضغوطًا، واسحب من نقطة إلى التي قبلها.",
+            "en": "Keep the button held down, and drag from one point to the one before it."
+          },
+          "touch": {
+            "ar": "أبقِ إصبعك على الشاشة، واسحب من نقطة إلى التي قبلها.",
+            "en": "Keep your finger down, and drag from one point to the one before it."
+          },
+          "pen": {
+            "ar": "أبقِ القلم على الشاشة، واسحب من نقطة إلى التي قبلها.",
+            "en": "Keep the pen down, and drag from one point to the one before it."
+          }
+        },
+        "nodes": [
+          {
+            "id": "you",
+            "label": {
+              "ar": "أنت",
+              "en": "You"
+            }
+          },
+          {
+            "id": "parents",
+            "label": {
+              "ar": "والداك",
+              "en": "Your parents"
+            }
+          },
+          {
+            "id": "before",
+            "label": {
+              "ar": "مَن قبلهما",
+              "en": "Those before them"
+            }
+          },
+          {
+            "id": "earth",
+            "label": {
+              "ar": "الأرض",
+              "en": "The earth"
+            }
+          },
+          {
+            "id": "sun",
+            "label": {
+              "ar": "الشمس",
+              "en": "The sun"
+            }
+          },
+          {
+            "id": "stars",
+            "label": {
+              "ar": "النجوم",
+              "en": "The stars"
+            }
+          },
+          {
+            "id": "beyond",
+            "label": {
+              "ar": "؟",
+              "en": "?"
+            }
+          }
+        ],
+        "node_note": {
+          "ar": "له بداية",
+          "en": "had a beginning"
+        },
+        "end": {
+          "type": "EDUCATIONAL_CONTEXT",
+          "exploring": {
+            "ar": "لكلٍّ من هذه بداية، ولم يوجِد أيٌّ منها نفسه. وزيادة الحلقات لا تغيّر ذلك.",
+            "en": "Each of these had a beginning, and none of them brought itself into being. Adding more links does not change that."
+          },
+          "learning": {
+            "ar": "كل حلقة وُجدت بعد أن لم تكن، وسلسلة من الموجودات بعد عدم لا تفسّر نفسها مهما طالت.",
+            "en": "Every link came to be after it was not. A chain of things that began cannot explain itself, however long it grows."
+          },
+          "reflective": {
+            "ar": "مهما امتدّت السلسلة، تبقى كلها محتاجة إلى من أوجدها.",
+            "en": "However far the chain runs, all of it still needs the One who brought it into being."
+          }
+        }
+      },
+      "source": {
+        "key": "52:35",
+        "order": "verse-first",
+        "explanation": {
+          "exploring": {
+            "ar": "تطرح هذه الآية سؤالين: هل جاء الناس من لا شيء؟ أم خلقوا أنفسهم؟ ولا يصحّ أيٌّ منهما، فيبقى أن لهم خالقًا.",
+            "en": "This verse asks two questions. Did people come from nothing? Or did they create themselves? Neither can be true, which leaves a Creator."
+          },
+          "learning": {
+            "ar": "تعرض الآية البديلين الوحيدين عن الخالق: العدم أو أن يخلق المرء نفسه، وتترك للسامع أن يرى بطلانهما.",
+            "en": "The verse sets out the only alternatives to a Creator, nothing or self-creation, and leaves the listener to see that both fail."
+          },
+          "reflective": {
+            "ar": "تحاجّ الآية بالسؤال: لا العدم ولا أنفسنا تفسّر وجودنا. سؤالٌ يكفي التأمل فيه.",
+            "en": "The verse argues by asking: neither nothing nor we ourselves can account for us. The question is enough to reflect on."
+          }
+        }
+      },
+      "answer_source": {
+        "key": "39:62",
+        "explanation": {
+          "exploring": {
+            "ar": "يُسمّى الخالق في الإسلام «الله»: هو الذي أوجد كل شيء، ولم يوجده شيء.",
+            "en": "In Islam the Creator is called Allah: the One who brought everything into being, and whom nothing brought into being."
+          },
+          "learning": {
+            "ar": "تقرّر الآية ذلك صراحة: كل شيء مخلوقٌ لله، وهو القائم على تدبيره.",
+            "en": "The verse states it plainly: everything is created by Allah, and He oversees all of its affairs."
+          },
+          "reflective": {
+            "ar": "الله خلقك وخلق كل ما سبقك. هذا هو الجواب الأول، ومنه تنبثق الأجوبة الأخرى.",
+            "en": "Allah created you, and everything that came before you. That is the first answer, and the others grow from it."
+          }
+        }
+      },
+      "reflection": {
+        "ar": "إن كنتَ قد خُلقت عن قصد، فما هو القصد؟",
+        "en": "If you were created on purpose, what was the purpose?"
+      },
+      "summary": {
+        "ar": "الله خلقك… وهذا يقودنا إلى السؤال الثاني.",
+        "en": "Allah created you. That brings us to the second question."
+      },
+      "suggest": [
+        "causes-1",
+        "causes-2",
+        "causes-3",
+        "allah-name"
+      ]
+    },
+    {
+      "id": "ch2",
+      "n": 2,
+      "state": "purpose",
+      "question": {
+        "ar": "لماذا أنا هنا؟",
+        "en": "Why am I here?"
+      },
+      "answer": {
+        "ar": "لعبادة الله",
+        "en": "To worship Allah"
+      },
+      "answer_line": {
+        "ar": "لعبادة الله",
+        "en": "To worship Allah"
+      },
+      "intro": {
+        "exploring": {
+          "ar": "ما صُنع بعناية صُنع لغاية. فلماذا أنت هنا؟",
+          "en": "Something made with care is made for something. So why are you here?"
+        },
+        "learning": {
+          "ar": "إن كان لنا خالق، فلخلقنا غاية. فما هي؟",
+          "en": "If we have a Creator, our creation has a purpose. What is it?"
+        },
+        "reflective": {
+          "ar": "نعرف الغاية، لكن هل نعيشها؟ لنتأمّلها من جديد.",
+          "en": "We know the purpose; do we live it? Let us look at it again."
+        }
+      },
+      "interaction": {
+        "kind": "rotate",
+        "built": false,
+        "why": {
+          "ar": "يشعر اللاعب أن العبادة اتجاهٌ للحياة كلها، لا أمرٌ بين أمور.",
+          "en": "The player feels that worship is an orientation for the whole of life, not one more item among others."
+        }
+      },
+      "lead": {
+        "ar": "يجيب الله عن هذا السؤال صراحة.",
+        "en": "Allah answers this question directly."
+      },
+      "source": {
+        "key": "51:56",
+        "order": "dalil-first",
+        "explanation": {
+          "exploring": {
+            "ar": "العبادة في الإسلام ليست الصلاة وحدها، بل أن تعيش حياتك كلها لمن خلقك.",
+            "en": "In Islam, worship is not only prayer. It means living your whole life for the One who created you."
+          },
+          "learning": {
+            "ar": "العبادة تشمل كل عمل يُبتغى به وجه الله؛ والآية ٦:١٦٢ تجعل الصلاة والمحيا والممات كلها لله.",
+            "en": "Worship ('ibadah) covers every act done for Allah; 6:162 places prayer, living and dying all for Him."
+          },
+          "reflective": {
+            "ar": "إن كانت الحياة كلها عبادة، فالسؤال: إلى أي حدّ نحقّقها؟",
+            "en": "If all of life can be worship, the question is not whether, but how fully."
+          }
+        }
+      },
+      "reflection": {
+        "ar": "إن كانت العبادة اتجاهًا، فكيف يسير فيه الإنسان كل يوم؟",
+        "en": "If worship is a direction, how does a person walk it every day?"
+      },
+      "summary": {
+        "ar": "خُلقتَ لعبادة الله… فكيف تُعاش هذه العبادة؟",
+        "en": "You were created to worship Allah. So how is that worship lived?"
+      },
+      "suggest": [
+        "worship-meaning",
+        "why-worship",
+        "causes-2"
+      ]
+    },
+    {
+      "id": "ch3",
+      "n": 3,
+      "state": "practice",
+      "question": {
+        "ar": "كيف أعيش؟",
+        "en": "How should I live?"
+      },
+      "answer": {
+        "ar": "أركان الإسلام",
+        "en": "Arkan al-Islam"
+      },
+      "answer_line": {
+        "ar": "أركان الإسلام الخمسة",
+        "en": "Arkan al-Islam — the Five Pillars"
+      },
+      "intro": {
+        "exploring": {
+          "ar": "يصف الإسلام نفسه ببناءٍ يقوم على خمسة أركان.",
+          "en": "Islam describes itself as a building that stands on five pillars."
+        },
+        "learning": {
+          "ar": "للعبادة إطار عملي: خمسة أركان يقوم عليها الإسلام.",
+          "en": "Worship has a practical framework: five pillars on which Islam stands."
+        },
+        "reflective": {
+          "ar": "خمسة أركان نعرفها جيدًا. لنرها بناءً واحدًا، لا قائمة.",
+          "en": "Five pillars we know well. Let us see them as one building, not a list."
+        }
+      },
+      "pillars": [
+        {
+          "id": "shahadah",
+          "label": {
+            "ar": "الشهادة",
+            "en": "Shahadah"
+          },
+          "key": "47:19"
+        },
+        {
+          "id": "salah",
+          "label": {
+            "ar": "الصلاة",
+            "en": "Salah"
+          },
+          "key": "4:103"
+        },
+        {
+          "id": "zakah",
+          "label": {
+            "ar": "الزكاة",
+            "en": "Zakah"
+          },
+          "key": "9:103"
+        },
+        {
+          "id": "sawm",
+          "label": {
+            "ar": "الصوم",
+            "en": "Sawm"
+          },
+          "key": "2:183"
+        },
+        {
+          "id": "hajj",
+          "label": {
+            "ar": "الحج",
+            "en": "Hajj"
+          },
+          "key": "3:97"
+        }
+      ],
+      "interaction": {
+        "kind": "inspect",
+        "built": false,
+        "why": {
+          "ar": "يلتقي اللاعب بالأركان الخمسة أجزاءً لبناء واحد، لا قائمة مهام.",
+          "en": "The player meets the five as parts of one structure, not a checklist."
+        }
+      },
+      "source": {
+        "hadith": "hadith:built-on-five",
+        "order": "dalil-first",
+        "explanation": {
+          "exploring": {
+            "ar": "هذه الخمسة هي إطار عبادة المسلم: الشهادة، والصلاة، والزكاة، والصوم، والحج.",
+            "en": "These five are the framework of a Muslim's worship: bearing witness, prayer, giving, fasting, and pilgrimage."
+          },
+          "learning": {
+            "ar": "يشبّه الحديث الإسلام ببناء، والأركان دعائمه؛ فإذا قامت قام البناء.",
+            "en": "The hadith pictures Islam as a building and the pillars as what holds it up; when they stand, the building stands."
+          },
+          "reflective": {
+            "ar": "الأركان ليست غاية في ذاتها، بل هي الصورة العملية للعبادة التي خُلقنا لها.",
+            "en": "The pillars are not the goal in themselves; they are the lived form of the worship we were created for."
+          }
+        }
+      },
+      "reflection": {
+        "ar": "البناء يُسكَن… فإلى أين تمضي هذه الحياة؟",
+        "en": "A building is lived in. Where does this life lead?"
+      },
+      "summary": {
+        "ar": "أركان الإسلام تبني الحياة… لكن إلى أين تنتهي؟",
+        "en": "The pillars build a life. But where does it end?"
+      },
+      "suggest": [
+        "pillars-list",
+        "worship-meaning"
+      ]
+    },
+    {
+      "id": "ch4",
+      "n": 4,
+      "state": "return",
+      "question": {
+        "ar": "ماذا بعد الموت؟",
+        "en": "What comes after death?"
+      },
+      "answer": {
+        "ar": "الآخرة",
+        "en": "Al-Akhirah"
+      },
+      "answer_line": {
+        "ar": "الآخرة: رجوعٌ وحياةٌ باقية",
+        "en": "Al-Akhirah — a return, and an everlasting Hereafter"
+      },
+      "intro": {
+        "exploring": {
+          "ar": "كلّ واحد منّا سيموت، ويعلّمنا الإسلام أن الموت ليس النهاية.",
+          "en": "Every one of us will die. Islam teaches that it is not the end."
+        },
+        "learning": {
+          "ar": "الموت يقين، والإسلام يعلّمنا ما بعده: بعثٌ وحساب وحياة باقية.",
+          "en": "Death is certain, and Islam teaches what follows: resurrection, accountability, a life that lasts."
+        },
+        "reflective": {
+          "ar": "نذكر الموت لا لنخاف، بل لنعرف إلى أين نمضي.",
+          "en": "We remember death not to fear it, but to know where we are going."
+        }
+      },
+      "interaction": {
+        "kind": "notice",
+        "built": false,
+        "why": {
+          "ar": "يتعلّم اللاعب أن لا شيء من عمل الإنسان يصغر عن أن يُرى ويوزن.",
+          "en": "The player learns that nothing a person does is too small to be seen and weighed."
+        }
+      },
+      "source": {
+        "key": "3:185",
+        "order": "verse-first",
+        "explanation": {
+          "exploring": {
+            "ar": "الموت يأتي كل نفس، ويوم القيامة يوفّى كل إنسان جزاء ما عمل.",
+            "en": "Death comes to every soul, and on the Day of Resurrection each person receives the full return for what they did."
+          },
+          "learning": {
+            "ar": "تجمع الآية ثلاثة: يقين الموت، والجزاء الكامل يوم القيامة، وأن متاع الدنيا قليلٌ يخدع.",
+            "en": "The verse holds three things together: death is certain, the full return comes on the Day of Resurrection, and this world's enjoyment is brief and deceiving."
+          },
+          "reflective": {
+            "ar": "حين تكون النهاية رجوعًا، يصبح لكل يوم وزنه.",
+            "en": "When the end is a return, every day carries weight."
+          }
+        }
+      },
+      "mercy": {
+        "ar": "ورحمة الله أوسع من أن ييأس منها أحد (٣٩:٥٣).",
+        "en": "And Allah's mercy is too wide for anyone to despair of it (39:53)."
+      },
+      "reflection": {
+        "ar": "إن كان هناك رجوع، فبماذا تحبّ أن ترجع؟",
+        "en": "If there is a return, what would you like to return with?"
+      },
+      "summary": {
+        "ar": "هناك رجوع، وحياة باقية.",
+        "en": "There is a return, and an everlasting life."
+      },
+      "suggest": [
+        "hereafter-meaning",
+        "fear-or-hope"
+      ]
+    }
+  ],
+  "ending": {
+    "recap": {
+      "ar": "أربعة أسئلة، وأربعة أجوبة.",
+      "en": "Four questions, four answers."
+    },
+    "source": "30:30",
+    "explanation": {
+      "exploring": {
+        "ar": "«الفطرة» هي ما خلق الله الناسَ عليه: ميلٌ في داخل كل إنسان إلى معرفة خالقه.",
+        "en": "Fitrah is what Allah created people upon: something in every person that inclines them to know their Creator."
+      },
+      "learning": {
+        "ar": "تصف الآية الدين بأنه موافق للفطرة التي فطر الله الناس عليها.",
+        "en": "The verse describes the religion as matching the fitrah, the nature Allah created people with."
+      },
+      "reflective": {
+        "ar": "لم تكن هذه أجوبة جديدة، بل تذكيرٌ بما خُلقنا عليه.",
+        "en": "These were not new answers, but a reminder of what we were created upon."
+      }
+    },
+    "final": {
+      "ar": "لم تكن هذه أربعة دروس… بل أسئلة كنت تحملها من قبل.",
+      "en": "These were not four lessons. They were questions you already carried."
+    },
+    "invite": {
+      "tafakor": {
+        "ar": "تأمّل الآيات · تفكّر",
+        "en": "Explore the signs · Tafakor"
+      },
+      "ask": {
+        "ar": "اسأل دليل",
+        "en": "Ask Dalil"
+      },
+      "talk": {
+        "ar": "تحدّث مع إنسان",
+        "en": "Talk to someone"
+      },
+      "menu": {
+        "ar": "العودة إلى البداية",
+        "en": "Back to the beginning"
+      }
+    }
+  },
+  "answers": {
+    "from_script": [
+      "causes-1",
+      "causes-2",
+      "causes-3",
+      "fitrah-1",
+      "oneness-3",
+      "order-2"
+    ],
+    "fitrah": [
+      {
+        "id": "allah-name",
+        "keys": [
+          "who is allah",
+          "what is allah",
+          "name allah",
+          "allah mean",
+          "من هو الله",
+          "ما معنى الله",
+          "اسم الله"
+        ],
+        "question": {
+          "ar": "من هو «الله»؟",
+          "en": "Who is Allah?"
+        },
+        "type": "DALIL_EXPLANATION",
+        "answer": {
+          "ar": "«الله» اسم الخالق في الإسلام: واحدٌ لا شريك له، لا والد له ولا ولد، ولا أحد يكافئه.",
+          "en": "Allah is the name of the Creator in Islam: One, without partner, who neither begets nor was begotten, and none is comparable to Him."
+        },
+        "cite": [
+          "112:1-4"
+        ]
+      },
+      {
+        "id": "worship-meaning",
+        "keys": [
+          "worship",
+          "ibadah",
+          "what does worship",
+          "عبادة",
+          "العبادة",
+          "معنى العبادة"
+        ],
+        "question": {
+          "ar": "ما معنى العبادة في الإسلام؟",
+          "en": "What does worship mean in Islam?"
+        },
+        "type": "DALIL_EXPLANATION",
+        "answer": {
+          "ar": "العبادة كل ما يفعله الإنسان لوجه الله: الصلاة، وكذلك الصدق والإحسان والعمل المتقن.",
+          "en": "Worship is everything a person does for Allah's sake: prayer, and also honesty, kindness and work done well."
+        },
+        "cite": [
+          "51:56",
+          "6:162"
+        ]
+      },
+      {
+        "id": "why-worship",
+        "keys": [
+          "why worship",
+          "why do muslims worship",
+          "need our worship",
+          "لماذا نعبد",
+          "لماذا العبادة"
+        ],
+        "question": {
+          "ar": "لماذا يعبد المسلمون الله؟",
+          "en": "Why do Muslims worship Allah?"
+        },
+        "type": "DALIL_EXPLANATION",
+        "answer": {
+          "ar": "لأنه خالقهم، ولأن القرآن يذكر أن الناس خُلقوا لهذا.",
+          "en": "Because He is their Creator, and the Qur'an says this is what people were created for."
+        },
+        "cite": [
+          "51:56"
+        ]
+      },
+      {
+        "id": "pillars-list",
+        "keys": [
+          "five pillars",
+          "pillars",
+          "arkan",
+          "أركان",
+          "الأركان",
+          "أركان الإسلام"
+        ],
+        "question": {
+          "ar": "ما أركان الإسلام الخمسة؟",
+          "en": "What are the five pillars?"
+        },
+        "type": "EDUCATIONAL_CONTEXT",
+        "answer": {
+          "ar": "الشهادتان، والصلاة، والزكاة، وصوم رمضان، والحج لمن قدر عليه.",
+          "en": "The testimony of faith, prayer, zakah, fasting in Ramadan, and pilgrimage for those who are able."
+        },
+        "cite": [
+          "47:19",
+          "4:103",
+          "9:103",
+          "2:183",
+          "3:97"
+        ]
+      },
+      {
+        "id": "hereafter-meaning",
+        "keys": [
+          "hereafter",
+          "akhirah",
+          "after death",
+          "resurrection",
+          "الآخرة",
+          "بعد الموت",
+          "البعث"
+        ],
+        "question": {
+          "ar": "ما الآخرة؟",
+          "en": "What is al-Akhirah?"
+        },
+        "type": "DALIL_EXPLANATION",
+        "answer": {
+          "ar": "الحياة بعد هذه الحياة: يُبعث الناس، ويُحاسب كلٌّ على عمله، ويكون المصير باقيًا.",
+          "en": "The life after this one: people are raised again, each is accounted for their deeds, and the outcome lasts."
+        },
+        "cite": [
+          "3:185",
+          "36:78-79",
+          "99:7-8"
+        ]
+      },
+      {
+        "id": "fear-or-hope",
+        "keys": [
+          "afraid",
+          "scared",
+          "fear",
+          "hope",
+          "mercy",
+          "خائف",
+          "أخاف",
+          "خوف",
+          "رجاء",
+          "رحمة"
+        ],
+        "question": {
+          "ar": "هل يدعو هذا إلى الخوف؟",
+          "en": "Should this make me afraid?"
+        },
+        "type": "DALIL_EXPLANATION",
+        "answer": {
+          "ar": "يذكّر الإسلام بالحساب، ويفتح باب الرحمة واسعًا: فرحمة الله أوسع من أن ييأس منها أحد.",
+          "en": "Islam reminds us of accountability and opens the door of mercy wide: Allah's mercy is too wide for anyone to despair of it."
+        },
+        "cite": [
+          "99:7-8",
+          "39:53"
+        ]
+      }
+    ],
+    "refer": [
+      {
+        "id": "ruling",
+        "keys": [
+          "is it haram",
+          "is it halal",
+          "haram",
+          "halal",
+          "fatwa",
+          "ruling",
+          "allowed to",
+          "حرام",
+          "حلال",
+          "فتوى",
+          "حكم",
+          "يجوز"
+        ],
+        "script_line": "fatwa"
+      },
+      {
+        "id": "distress",
+        "keys": [
+          "kill myself",
+          "suicide",
+          "hurt myself",
+          "end my life",
+          "انتحار",
+          "أنتحر",
+          "أؤذي نفسي",
+          "أنهي حياتي"
+        ],
+        "script_line": "distress",
+        "distress": true
+      }
+    ],
+    "unknown_line": "no_source"
+  },
+  "review": {
+    "status": {
+      "ar": "كل المصادر أدناه بانتظار المراجعة الشرعية، ولا شيء منها نهائي.",
+      "en": "Every source below is pending Sharia review. None of it is final."
+    },
+    "additions": [
+      {
+        "ref": "39:62",
+        "kind": "verse",
+        "added": "2026-10-05",
+        "role": {
+          "ar": "جواب الفصل الأول: الله هو الخالق",
+          "en": "Chapter 1 answer: Allah is the Creator"
+        }
+      },
+      {
+        "ref": "47:19",
+        "kind": "verse",
+        "added": "2026-10-05",
+        "role": {
+          "ar": "الركن الأول: الشهادة",
+          "en": "First pillar: the Shahadah"
+        }
+      },
+      {
+        "ref": "3:97",
+        "kind": "verse",
+        "added": "2026-10-05",
+        "role": {
+          "ar": "الركن الخامس: الحج",
+          "en": "Fifth pillar: Hajj"
+        }
+      },
+      {
+        "ref": "98:5",
+        "kind": "verse",
+        "added": "2026-10-05",
+        "role": {
+          "ar": "مرجع لدليل عن معنى العبادة (لا يُعرض نصّه)",
+          "en": "A reference for Dalil on the meaning of worship (its text is not displayed)"
+        }
+      },
+      {
+        "ref": "hadith:built-on-five",
+        "kind": "hadith",
+        "added": "2026-10-05",
+        "role": {
+          "ar": "مصدر الفصل الثالث — لم يُدخل نصّه ولا ترقيمه من طبعة موثّقة بعد",
+          "en": "Chapter 3 source — its text and numbering are not yet entered from a verified edition"
+        }
+      }
+    ],
+    "pairings": [
+      {
+        "chapter": "ch1",
+        "refs": [
+          "52:35",
+          "39:62"
+        ]
+      },
+      {
+        "chapter": "ch2",
+        "refs": [
+          "51:56",
+          "6:162"
+        ]
+      },
+      {
+        "chapter": "ch3",
+        "refs": [
+          "hadith:built-on-five",
+          "47:19",
+          "4:103",
+          "9:103",
+          "2:183",
+          "3:97"
+        ]
+      },
+      {
+        "chapter": "ch4",
+        "refs": [
+          "3:185",
+          "39:53"
+        ]
+      },
+      {
+        "chapter": "ending",
+        "refs": [
+          "30:30"
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "ar": "سطور دليل وشروحه مكتوبة لهذا النموذج، بانتظار المراجعة",
+        "en": "Dalil's lines and explanations are written for this prototype, pending review"
+      },
+      {
+        "ar": "الفصول ٢–٤: القصة والمصادر والأجوبة جاهزة، والتفاعلات مصمَّمة ولم تُبنَ بعد",
+        "en": "Chapters 2–4: story, sources and answers in place; their interactions are designed, not yet built"
+      },
+      {
+        "ar": "«تحدّث مع إنسان»: لا توجد جهة موثّقة مرتبطة بعد",
+        "en": "\"Talk to someone\": no verified person or organisation is connected yet"
+      },
+      {
+        "ar": "لا موسيقى؛ صوت المكان فقط",
+        "en": "No music; only the sound of the place"
+      }
+    ]
+  }
+}
