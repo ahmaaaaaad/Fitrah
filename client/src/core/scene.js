@@ -12,28 +12,43 @@ import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
 const params = new URLSearchParams(location.search);
 // ---------------------------------------------------------------------------
-// Quality profiles. The device decides a starting profile (screen, memory, cores,
-// and the GPU once a context exists); the adaptive resolution below then follows
-// the real frame times. ?q=cinematic|high|balanced|performance (or ?q=low) forces one.
-//   cinematic  everything, full resolution          (fast desktops)
-//   high       everything, resolution capped at 2   (desktops, recent laptops)
-//   balanced   bloom on, fewer particles, ratio 1.5 (phones and tablets)
-//   performance no bloom or MSAA, half the particles (older devices, software GPUs)
+// Quality profiles. The device decides a starting profile (pointer, screen, memory and
+// the GPU's name once a context exists); the adaptive resolution below then follows
+// the real frame times. ?q=cinematic|high|mobile|balanced|performance (or ?q=low) forces one.
+//   cinematic   everything, full resolution           (fast desktops)
+//   high        everything, resolution capped at 2    (desktops, recent laptops)
+//   mobile      bloom, most particles, ratio up to 2  (recent phones and tablets)
+//   balanced    bloom, fewer particles, ratio 1.5     (mid-range phones)
+//   performance no bloom or MSAA, a third of the particles (old devices, software GPUs)
+// Phones used to be classed by core count; Safari reports few cores and no memory, so
+// every iPhone fell to "performance" and rendered at 0.75 of a CSS pixel: a third of
+// its screen's resolution, which is why the scenes looked enlarged and soft on phones.
+// The GPU's name is the better signal, and a phone never renders below 1.
 // ---------------------------------------------------------------------------
 export const PROFILES = {
-  cinematic: { particles: 1.0, pixelRatioMax: 2.5, bloom: true, msaa: 4, name: 'cinematic' },
-  high: { particles: 1.0, pixelRatioMax: 2, bloom: true, msaa: 4, name: 'high' },
-  balanced: { particles: 0.6, pixelRatioMax: 1.5, bloom: true, msaa: 0, name: 'balanced' },
-  performance: { particles: 0.35, pixelRatioMax: 1, bloom: false, msaa: 0, name: 'performance' },
+  cinematic: { particles: 1.0, pixelRatioMax: 2.5, pixelRatioMin: 1, bloom: true, msaa: 4, name: 'cinematic' },
+  high: { particles: 1.0, pixelRatioMax: 2, pixelRatioMin: 0.75, bloom: true, msaa: 4, name: 'high' },
+  mobile: { particles: 0.8, pixelRatioMax: 2, pixelRatioMin: 1, bloom: true, msaa: 0, name: 'mobile' },
+  balanced: { particles: 0.6, pixelRatioMax: 1.5, pixelRatioMin: 1, bloom: true, msaa: 0, name: 'balanced' },
+  performance: { particles: 0.35, pixelRatioMax: 1, pixelRatioMin: 0.75, bloom: false, msaa: 0, name: 'performance' },
 };
-function guessProfile() {
+const coarse = window.matchMedia?.('(pointer: coarse)').matches ?? false;
+function guessProfile(gpu = '') {
   const forced = params.get('q');
   if (forced === 'low') return 'performance';
   if (PROFILES[forced]) return forced;
-  const coarse = window.matchMedia?.('(pointer: coarse)').matches;
-  const mem = navigator.deviceMemory || 4, cores = navigator.hardwareConcurrency || 4;
-  if (coarse) return mem >= 6 && cores >= 6 ? 'balanced' : (mem <= 2 || cores <= 4 ? 'performance' : 'balanced');
-  return cores >= 12 && mem >= 8 ? 'cinematic' : 'high';
+  if (/swiftshader|llvmpipe|software|basic render/i.test(gpu)) return 'performance';
+  const mem = navigator.deviceMemory || 0; // 0: not reported (Safari)
+  if (coarse) {
+    if (mem && mem <= 2) return 'performance';
+    // old mobile GPUs
+    if (/adreno \(tm\) [2-5]\d\d|mali-[4t]|mali-g[5]\d|powervr|sgx|videocore/i.test(gpu)) return 'balanced';
+    // Apple GPUs (every iPhone and iPad that runs WebGL 2), recent Adreno, Mali-G7x+, Xclipse
+    if (/apple|adreno \(tm\) [6-9]\d\d|mali-g[67-9]\d|immortalis|xclipse/i.test(gpu)) return 'mobile';
+    return mem >= 6 ? 'mobile' : 'balanced';
+  }
+  const cores = navigator.hardwareConcurrency || 4;
+  return cores >= 12 && (mem === 0 || mem >= 8) ? 'cinematic' : 'high';
 }
 let profileName = guessProfile();
 export let QUALITY = profileName === 'performance' ? 'low' : 'high';
@@ -67,11 +82,11 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = CONFIG.exposure;
 
-// a software renderer (no GPU) gets the lightest profile, whatever the screen says
+// now that a context exists, the GPU's name refines the profile (a software renderer gets the lightest)
 try {
   const gl = renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info');
-  const gpu = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
-  if (/swiftshader|llvmpipe|software|basic render/i.test(gpu) && !PROFILES[params.get('q')]) profileName = 'performance';
+  const gpu = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : String(gl.getParameter(gl.RENDERER) || '');
+  profileName = guessProfile(gpu);
   PROFILES.gpu = gpu;
 } catch { /* the GPU name is optional */ }
 QUALITY = profileName === 'performance' ? 'low' : 'high';
@@ -88,6 +103,7 @@ export const camera = new THREE.PerspectiveCamera(
 // ---------------------------------------------------------------------------
 CONFIG.msaaSamples = PROFILE.msaa;
 CONFIG.pixelRatio.max = PROFILE.pixelRatioMax;
+CONFIG.pixelRatio.min = coarse ? Math.max(1, PROFILE.pixelRatioMin) : PROFILE.pixelRatioMin; // a phone never renders below 1
 const composerTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
   type: THREE.HalfFloatType, samples: CONFIG.msaaSamples,
 });
@@ -132,13 +148,14 @@ export const cinematic = new ShaderPass({
     uTint: { value: new THREE.Color(1, 1, 1) },
     uTintAmt: { value: 0 },
     uFade: { value: 0 },
+    uLift: { value: new THREE.Vector3(0, 0, 0) }, // a filmic toe: the darkest tones stay just above black
   },
   vertexShader: /* glsl */`
     varying vec2 vUv;
     void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
   fragmentShader: /* glsl */`
     uniform sampler2D tDiffuse; uniform float uTime; uniform vec2 uRes;
-    uniform float uVignette, uGrain, uCA, uWarp, uTintAmt, uFade; uniform vec3 uTint;
+    uniform float uVignette, uGrain, uCA, uWarp, uTintAmt, uFade; uniform vec3 uTint, uLift;
     varying vec2 vUv;
     float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
     vec3 sampleCA(vec2 uv){
@@ -159,6 +176,7 @@ export const cinematic = new ShaderPass({
       }
       col *= mix(1.0, smoothstep(0.95, 0.18, d), uVignette);
       col = mix(col, col * uTint, uTintAmt);
+      col += uLift * (1.0 - col);
       col += (hash(vUv * uRes + fract(uTime * 7.13)) - 0.5) * uGrain;
       col = mix(col, vec3(0.0), uFade);
       gl_FragColor = vec4(col, 1.0);
@@ -176,7 +194,7 @@ export class ResizeHandler {
     this.deviceRatio = window.devicePixelRatio || 1;
     this.ceiling = Math.min(this.deviceRatio, config.max);
     this.floor = Math.min(config.min, this.ceiling);
-    const coarse = window.matchMedia?.('(pointer: coarse)').matches;
+    // start one step under the ceiling on phones (the frame times decide the rest), at the floor on weak devices
     this.pixelRatio = QUALITY === 'low' ? this.floor
       : coarse ? Math.max(this.floor, this.ceiling - config.step) : this.ceiling;
     this.samples = [];

@@ -7,11 +7,16 @@ import * as THREE from 'three';
 import { solveFraming } from '../../core/framing.js';
 import { interactionRegion } from '../../core/device.js';
 import { REDUCED_MOTION } from '../../core/scene.js';
+import { adaptLens } from '../../core/lens.js';
 
 const V = (a) => new THREE.Vector3(...a);
+// Every shot is composed for a 16:9 screen; adaptLens() keeps that composition on any
+// other screen (see core/lens.js). `subject` is how far the camera stands from what the
+// shot is about (the figures), the distance it scales when it must step back; `reach`
+// is how far from the centre of the hall it may stand.
 export const SHOTS = {
   // the first frame: high and far behind, the small figure before the vast aperture
-  establish: { eye: [0, 6.2, 27], look: [0, 7.5, -20], fov: 52 },
+  establish: { eye: [0, 6.2, 27], look: [0, 7.5, -20], fov: 52, subject: 9, reach: 31 },
   opening:  { eye: [0, 1.8, 10.3], look: [0, 2.4, 0], fov: 50 },
   four:     { eye: [0, 1.95, 10.4], look: [0, 2.9, -3], fov: 52 },
   chain:    { eye: [0, 2.4, 10.6], look: [0, 2.6, 1.5], fov: 52 },
@@ -38,28 +43,43 @@ export function createCameraRig(camera) {
   const par = { x: 0, y: 0, tx: 0, ty: 0 };
 
   /** Fit `pts` into the safe region from an authored eye/look/fov. */
-  function fit(eye0, look0, fov0, pts) {
+  function fit(eye0, look0, fov0, pts, reach = HALL) {
     // the safe region, with a little more air: points sit comfortably inside, and names fit below them
     const r0 = interactionRegion(), aspect = r0.W / r0.H;
     const region = { ...r0, left: r0.left + r0.W * 0.05, right: r0.right + r0.W * 0.05, top: r0.top + r0.H * 0.03, bottom: r0.bottom + r0.H * 0.07 };
     let eye = eye0.clone(), r = null;
     const dir = eye0.clone().sub(look0).setY(0).normalize();
     for (let k = 0; k < 9; k++) {
-      r = solveFraming({ eye, points: pts, look: look0, fov: fov0, aspect, region, maxFov: 70, slack: 1.06 });
+      r = solveFraming({ eye, points: pts, look: look0, fov: fov0, aspect, region, maxFov: Math.max(70, fov0 + 2), slack: 1.06 });
       if (r.fits && r.fov <= fov0 * 1.15 + 0.01) return { eye, look: r.look, fov: r.fov, how: r.how };
       const next = eye.clone().addScaledVector(dir, 0.8);
-      if (Math.hypot(next.x, next.z) > HALL) break;
+      if (Math.hypot(next.x, next.z) > Math.max(reach, Math.hypot(eye0.x, eye0.z) + 0.01)) break;
       eye = next;
     }
-    r = solveFraming({ eye, points: pts, look: look0, fov: fov0, aspect, region, maxFov: 84, slack: 1.06 });
+    r = solveFraming({ eye, points: pts, look: look0, fov: fov0, aspect, region, maxFov: Math.max(84, fov0 + 4), slack: 1.06 });
     return { eye, look: r.look, fov: r.fov, how: r.how };
   }
 
   function aim(seconds) { w = 2.6 / Math.max(0.3, seconds); }
   /** Move to an authored shot; `pts` are world points that must stay on screen. */
+  let dolly = 0; // how far the current shot stands behind its 16:9 composition
+  /** The authored shot adapted to this screen: the same composition, a wider lens and, past a limit, a step back. */
+  function adapted(s) {
+    const eye = V(s.eye), look = V(s.look);
+    const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+    const L = adaptLens(s.fov, aspect);
+    const reach = s.reach || HALL;
+    let back = (L.back - 1) * (s.subject || 4.6);
+    const dir = eye.clone().sub(look).normalize();
+    // never through the wall of the hall
+    for (let k = 0; k < 20 && back > 0; k++) { const e = eye.clone().addScaledVector(dir, back); if (Math.hypot(e.x, e.z) <= Math.max(reach, Math.hypot(eye.x, eye.z))) break; back *= 0.85; }
+    return { eye: eye.addScaledVector(dir, back), look, fov: L.fov, back, reach };
+  }
   function shot(n, { pts = null, seconds = 3.5, snap = false } = {}) {
     const s = SHOTS[n] || SHOTS.opening; name = n; points = pts;
-    const f = pts?.length ? fit(V(s.eye), V(s.look), s.fov, pts) : { eye: V(s.eye), look: V(s.look), fov: s.fov };
+    const a = adapted(s);
+    const f = pts?.length ? fit(a.eye, a.look, a.fov, pts, a.reach) : { eye: a.eye, look: a.look, fov: a.fov };
+    dolly = f.eye.distanceTo(V(s.eye)); // Dalil keeps his place in the world however far the camera stands
     tgt.eye.copy(f.eye); tgt.look.copy(f.look); tgt.fov = f.fov;
     aim(seconds);
     if (snap) jump();
@@ -94,8 +114,11 @@ export function createCameraRig(camera) {
     if (Math.abs(camera.fov - cur.fov) > 1e-3) { camera.fov = cur.fov; camera.updateProjectionMatrix(); }
   }
 
-  /** Where Dalil stands for the shot being moved to: close, beside the player, inside the frame. */
+  /** Where Dalil stands for the shot being moved to: close, beside the player, inside the frame.
+   *  `dist` is meant for the 16:9 composition; when the camera stands further back on a
+   *  narrower screen, Dalil keeps his place in the world (and so his size beside the player). */
   function companionSpot(side = -1, dist = 3.3) {
+    dist += dolly;
     const f = tgt.look.clone().sub(tgt.eye).setY(0).normalize();
     const r = new THREE.Vector3().crossVectors(f, UP).normalize();
     const aspect = window.innerWidth / Math.max(1, window.innerHeight);
@@ -109,6 +132,7 @@ export function createCameraRig(camera) {
   return {
     shot, frame, jump, update, companionSpot, cur, tgt,
     get name() { return name; },
+    get dolly() { return dolly; },
     setParallax(x, y) { par.tx = x; par.ty = y; },
     setSway(s) { sway = s; },
   };

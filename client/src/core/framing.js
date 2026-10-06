@@ -131,3 +131,32 @@ export function pointsInside(camera, points, region) {
     return x >= region.left - 1 && x <= region.W - region.right + 1 && y >= region.top - 1 && y <= region.H - region.bottom + 1;
   });
 }
+
+/**
+ * Screen-space check of interaction targets as the player will actually see them: a target
+ * can exist in the world and still be practically unusable. For each point: on screen and in
+ * front of the camera, inside the safe interaction region, not under visible interface
+ * (`avoid` selectors, plus any `rects`, e.g. a character's screen bounds), and far enough from
+ * its neighbours to be told apart under a fingertip (`minSep`, CSS px).
+ * @returns {{ ok: boolean, issues: string[], screens: {x:number,y:number}[], minSep: number }}
+ */
+export function validateTargets(camera, points, { region, minSep = 0, avoid = [], rects = [] } = {}) {
+  const v = new THREE.Vector3(), issues = [], screens = [];
+  const ui = [...rects];
+  for (const sel of avoid) for (const el of document.querySelectorAll(sel)) {
+    const r = el.getBoundingClientRect(), cs = getComputedStyle(el);
+    if (r.width && r.height && cs.visibility !== 'hidden' && Number(cs.opacity) > 0.05) ui.push({ left: r.left, right: r.right, top: r.top, bottom: r.bottom, name: sel });
+  }
+  points.forEach((p, i) => {
+    v.copy(p).project(camera);
+    const x = (v.x * 0.5 + 0.5) * region.W, y = (-v.y * 0.5 + 0.5) * region.H;
+    screens.push({ x, y });
+    if (v.z > 1) { issues.push(`${i}:behind`); return; }
+    if (x < region.left || x > region.W - region.right || y < region.top || y > region.H - region.bottom) issues.push(`${i}:outside`);
+    for (const r of ui) if (x > r.left - 8 && x < r.right + 8 && y > r.top - 8 && y < r.bottom + 8) issues.push(`${i}:under ${r.name || 'ui'}`);
+  });
+  let sep = Infinity;
+  for (let i = 1; i < screens.length; i++) sep = Math.min(sep, Math.hypot(screens[i].x - screens[i - 1].x, screens[i].y - screens[i - 1].y));
+  if (minSep && sep < minSep) issues.push(`too-close:${Math.round(sep)}`);
+  return { ok: issues.length === 0, issues, screens, minSep: Math.round(sep) };
+}

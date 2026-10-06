@@ -8,6 +8,7 @@ import '../../fonts.css';
 import './the-four-questions.css';
 import * as THREE from 'three';
 import { scene, camera, renderer, start, onUpdate, cinematic, bloomPass, renderNow } from '../../core/scene.js';
+import { claimGestures } from '../../core/gesture-surface.js';
 import { i18n } from '../../core/i18n.js';
 import { hintPointer } from '../../core/device.js';
 import { openTalk, talkStatus } from '../../core/help/talk.js';
@@ -30,10 +31,13 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
   hintPointer(pointerType);
   // the look of the chamber
   renderer.toneMappingExposure = 0.85;
-  cinematic.uniforms.uVignette.value = 0.72;
-  cinematic.uniforms.uGrain.value = 0.03;
-  cinematic.uniforms.uCA.value = 0.0012;
-  bloomPass.threshold = 0.72; bloomPass.strength = 0.6; bloomPass.radius = 0.5;
+  // restrained finishing: a gentle vignette, fine grain, no visible fringing, the darkest tones lifted to a warm
+  // near-black, and a broad soft bloom that turns the brightest light into glow rather than hotspots
+  cinematic.uniforms.uVignette.value = 0.5;
+  cinematic.uniforms.uGrain.value = 0.016;
+  cinematic.uniforms.uCA.value = 0.0006;
+  cinematic.uniforms.uLift.value.set(0.0075, 0.006, 0.0052);
+  bloomPass.threshold = 0.7; bloomPass.strength = 0.5; bloomPass.radius = 0.68;
   camera.near = 0.08; camera.far = 600; camera.updateProjectionMatrix();
 
   const chamber = createChamber(scene);
@@ -68,7 +72,7 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
       beat: director.D.step || 'not started', depth: director.D.depth,
       'dalil state': dalil.state, 'ai adapter': dalil.aiStatus.adapter, 'ai last': dalil.aiStatus.last,
       'artifact runtime': dalil.aiStatus.artifact, 'server route': dalil.aiStatus.server,
-      'talk to someone': talkStatus(), sources: 'pending Sharia review', music: PROVISIONAL.audio.music ? 'on' : 'none', quality: QUALITY,
+      'talk to someone': talkStatus(), sources: 'verses confirmed; hadith numbering to be confirmed', music: PROVISIONAL.audio.music ? 'on' : 'none', quality: QUALITY,
     };
     if (!full) return s;
     return { ...s, fps: fps.toFixed(0), speed: SPEED, state: chamber.P.name, layout: chamber.layout, shot: rig.name, linked: director.chain?.s.linked ?? '-', events: director.D.events.join(' ') };
@@ -78,6 +82,7 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
 
   // ------------------------------------------------------------ input: the chain first, then the invited light, then Dalil
   const canvas = renderer.domElement;
+  claimGestures(canvas); // touch + hold + drag stays a gesture: no iOS selection popup over the game
   let down = false;
   canvas.addEventListener('pointerdown', (e) => {
     if (!director.D.started) return;

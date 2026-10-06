@@ -1,6 +1,8 @@
 // Fitrah · The Revival — prototype configuration.
 // Every entry under PROVISIONAL is a decision that is NOT final. Each can be
 // changed here without touching the architecture; the review session decides.
+import { PROFILE } from '../../core/scene.js';
+
 const params = new URLSearchParams(location.search);
 
 export const PROVISIONAL = {
@@ -29,8 +31,13 @@ export const PROVISIONAL = {
   player: { mode: 'first-person, authored shots', decidedBy: 'prototype review' },
 };
 
-export const QUALITY = params.get('q') === 'low' ? 'low' : 'high';
+// the light build when asked for, or when the device's profile is the lightest (core/scene.js);
+// phones keep the full build with a little fewer instances
+export const QUALITY = params.get('q') === 'low' || PROFILE.name === 'performance' ? 'low' : 'high';
+const N = (high, low) => (QUALITY === 'low' ? low : Math.round(high * Math.min(1, Math.max(0.6, PROFILE.particles))));
 export const DEBUG = params.has('debug');
+/** ?review shows the reviewers' tools: beat jumps, provisional decisions, Dalil's status */
+export const REVIEW = params.has('review') || DEBUG;
 export const SPEED = Math.max(0.25, Math.min(20, Number(params.get('speed')) || 1));
 
 export const CONFIG = {
@@ -49,10 +56,10 @@ export const CONFIG = {
   rainCenter: { x: -4, z: -52, r: 28 },
   // the first water gathers in the dry stream bed here and runs downhill to the stream mark
   water: { zFrom: -70, zTo: -27 },
-  grassCount: QUALITY === 'low' ? 16000 : 70000,
-  flowerCount: QUALITY === 'low' ? 2200 : 7000,
-  rainCount: QUALITY === 'low' ? 5000 : 16000,
-  moteCount: QUALITY === 'low' ? 500 : 1500,
+  grassCount: N(70000, 16000),
+  flowerCount: N(7000, 2200),
+  rainCount: N(16000, 5000),
+  moteCount: N(1500, 500),
   terrainSegments: QUALITY === 'low' ? 160 : 300,
   ripen: [8, 12],            // seconds a cloud must hold its density before it rains
   lightTarget: 0.72,         // how much sun reaches the meadow once the clouds have opened

@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { U } from './look.js';
 import { NOISE, FIELD, LIGHT } from './glsl.js';
-import { channelX, waterY, CHANNEL } from './terrain.js';
+import { channelX, waterY, CHANNEL, POOL, POOL_GLSL } from './terrain.js';
 
 const vs = /* glsl */`
 attribute float aAlong; attribute float aAcross;
@@ -11,7 +11,7 @@ varying float vAlong; varying float vAcross; varying vec3 vW;
 void main(){ vAlong = aAlong; vAcross = aAcross; vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`;
 const fs = /* glsl */`
 ${NOISE}${FIELD}${LIGHT}
-uniform float uTime, uFrom, uFront, uLength, uStill, uGlow; uniform vec3 uZenith, uHorizon;
+uniform float uTime, uFrom, uFront, uLength, uStill, uGlow, uEnd; uniform vec3 uZenith, uHorizon;
 varying float vAlong; varying float vAcross; varying vec3 vW;
 float ring(vec2 p, float t){
   vec2 i = floor(p), f = fract(p); float s = 0.0;
@@ -28,7 +28,8 @@ void main(){
   float filled = smoothstep(uFrom - 6.0, uFrom + 2.0, vAlong) * (1.0 - smoothstep(uFront - 2.0, uFront, vAlong));
   float w = mix(0.32, 1.0, smoothstep(0.0, 30.0, uFront - vAlong));
   float edge = 1.0 - smoothstep(0.55 * w, w, abs(vAcross));
-  float a = filled * edge;
+  // the stream comes to rest in the pool at the meadow: nothing runs on beyond it
+  float a = filled * edge * (1.0 - smoothstep(uEnd - 3.0, uEnd, vAlong));
   if (a < 0.01) discard;
   float flowT = uTime * (1.0 - uStill * 0.85);
   vec2 q = vec2(vAcross * 2.0, vAlong * 0.35 - flowT * 1.6);
@@ -42,7 +43,7 @@ void main(){
   vec3 R = reflect(-V, N);
   vec3 sky = mix(uHorizon, uZenith, smoothstep(0.0, 0.6, R.y));
   vec3 deep = vec3(0.012, 0.04, 0.045) * (0.6 + 0.4 * fieldB(vW.xz).b);
-  vec3 col = mix(deep, sky * vec3(0.6, 0.72, 0.76), fres * 0.75);
+  vec3 col = mix(deep, sky * vec3(0.56, 0.66, 0.68), min(fres * 0.7, 0.5));
   col += uSunCol * pow(max(dot(R, uSunDir), 0.0), 220.0) * 1.8 * fieldB(vW.xz).b;
   col += vec3(0.75, 0.8, 0.8) * smoothstep(0.62, 0.8, n2) * 0.08 * (1.0 - uStill); // flow streaks
   col += vec3(0.85, 0.9, 0.95) * rr * 0.25;
@@ -79,7 +80,7 @@ export function createWater(scene) {
   g.setAttribute('aAlong', new THREE.Float32BufferAttribute(along, 1));
   g.setAttribute('aAcross', new THREE.Float32BufferAttribute(across, 1));
   g.setIndex(idx);
-  const uniforms = { ...U, uFrom: { value: 0 }, uFront: { value: 0 }, uLength: { value: L }, uStill: { value: 0 }, uGlow: { value: 0 } };
+  const uniforms = { ...U, uFrom: { value: 0 }, uFront: { value: 0 }, uLength: { value: L }, uStill: { value: 0 }, uGlow: { value: 0 }, uEnd: { value: 0 } };
   const mesh = new THREE.Mesh(g, new THREE.ShaderMaterial({ uniforms, vertexShader: vs, fragmentShader: fs, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
   mesh.renderOrder = 2; mesh.frustumCulled = false;
   scene.add(mesh);
@@ -91,5 +92,70 @@ export function createWater(scene) {
     const p = centre[i], q = centre[i + 1], t = Math.max(0, Math.min(1, (a - p[3]) / Math.max(1e-3, q[3] - p[3])));
     return out.set(p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t, p[2] + (q[2] - p[2]) * t);
   }
-  return { mesh, uniforms, length: L, alongAt, pointAt };
+  uniforms.uEnd.value = alongAt(POOL.z) + POOL.r * 0.6;
+  const pool = createPool(scene, uniforms);
+  /** How full the pool is (0..1): it fills once the water has reached it. */
+  const poolAlong = alongAt(POOL.z) - POOL.r;
+  let fullT = 0;
+  function update(dt, full = false) {
+    fullT = full ? fullT + dt : 0;
+    // the pool gathers when the stream reaches it (or, at the latest, a while after the stream runs full)
+    const want = uniforms.uFront.value > poolAlong || fullT > 14 ? 1 : 0;
+    pool.uniforms.uPool.value.w += (want - pool.uniforms.uPool.value.w) * (1 - Math.exp(-dt * 0.35));
+  }
+  return { mesh, uniforms, length: L, alongAt, pointAt, pool, update, poolFill: () => pool.uniforms.uPool.value.w };
+}
+
+// ------------------------------------------------------------------ the pool
+const poolVS = /* glsl */`varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`;
+const poolFS = /* glsl */`
+${NOISE}${FIELD}${LIGHT}${POOL_GLSL}
+uniform float uTime, uStill, uGlow; uniform vec3 uZenith, uHorizon;
+varying vec3 vW;
+float rings(vec2 p, float t){
+  vec2 i = floor(p), f = fract(p); float s = 0.0;
+  for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+    vec2 g = vec2(float(x), float(y)); float h = hash12(i + g);
+    float ph = fract(t * (0.6 + h * 0.5) + h * 7.0);
+    vec2 c = g + vec2(hash12(i + g + 3.1), hash12(i + g + 7.7)) - f;
+    s += (1.0 - smoothstep(0.0, 0.06, abs(length(c) - ph * 0.45))) * (1.0 - ph);
+  }
+  return s;
+}
+void main(){
+  float R; float pd = poolDist(vW.xz, R);
+  float fill = uPool.w;
+  R *= mix(0.4, 1.0, fill);                         // it widens as it fills
+  float a = (1.0 - smoothstep(R * 0.84, R, pd)) * smoothstep(0.02, 0.2, fill);
+  if (a < 0.01) discard;
+  float shallow = smoothstep(R * 0.35, R, pd);      // the edge is shallow: the bed shows through
+  // slow, small movement; rain rings while it rains
+  vec2 q = vW.xz * 0.55;
+  float n1 = fbm(q + vec2(uTime * 0.05, 0.0)), n2 = fbm(q * 2.1 + vec2(3.0, -uTime * 0.07));
+  vec3 N = normalize(vec3((n1 - 0.5) * 0.16, 1.0, (n2 - 0.5) * 0.16));
+  float rr = rings(vW.xz * 1.3, uTime) * fieldA(vW.xz).a * (1.0 - uStill);
+  N = normalize(N + vec3(rr * 0.3, 0.0, rr * 0.18));
+  vec3 V = normalize(cameraPosition - vW);
+  float fres = 0.02 + 0.98 * pow(1.0 - max(dot(N, V), 0.0), 5.0);
+  vec3 Rf = reflect(-V, N);
+  vec3 sky = mix(uHorizon, uZenith, smoothstep(0.0, 0.6, Rf.y));
+  float sun = fieldB(vW.xz).b;
+  vec3 deep = vec3(0.016, 0.045, 0.048) * (0.6 + 0.4 * sun);
+  vec3 bed = vec3(0.13, 0.115, 0.085) * (0.7 + 0.3 * sun);
+  vec3 body = mix(deep, bed, shallow * 0.75);
+  vec3 col = mix(body, sky * vec3(0.6, 0.7, 0.72), min(fres * 0.75, 0.55) * (0.6 + 0.4 * (1.0 - shallow)));
+  col += uSunCol * pow(max(dot(Rf, uSunDir), 0.0), 260.0) * 1.6 * sun;   // the sun's glint
+  col += vec3(0.85, 0.9, 0.95) * rr * 0.22;
+  col += vec3(1.0, 0.82, 0.5) * uGlow * (0.25 + 0.75 * smoothstep(0.3, 0.9, n1)) * 0.35;
+  col = grade(col);
+  col = applyFog(col, length(cameraPosition - vW), vW.y);
+  gl_FragColor = vec4(col, a * mix(0.78, 0.95, fres));
+}`;
+function createPool(scene, streamUniforms) {
+  const uniforms = { ...U, uTime: streamUniforms.uTime, uStill: streamUniforms.uStill, uGlow: streamUniforms.uGlow, uPool: { value: new THREE.Vector4(POOL.x, POOL.z, POOL.r, 0) } };
+  const geo = new THREE.CircleGeometry(POOL.r * 1.5, 96); geo.rotateX(-Math.PI / 2);
+  const mesh = new THREE.Mesh(geo, new THREE.ShaderMaterial({ uniforms, vertexShader: poolVS, fragmentShader: poolFS, transparent: true, depthWrite: false }));
+  mesh.position.set(POOL.x, POOL.y, POOL.z); mesh.renderOrder = 2;
+  scene.add(mesh);
+  return { mesh, uniforms };
 }

@@ -49,6 +49,12 @@
 
 import waterStill from './water/still.jpg';
 import fitrahStill from './fitrah/fitrah-still.jpg';
+import waterStillPortrait from './water/still-portrait.jpg';
+import fitrahStillPortrait from './fitrah/fitrah-still-portrait.jpg';
+
+/** A still rendered for an upright phone, for each landscape still: on a tall screen the landscape
+ *  image would be cropped to its middle third and enlarged about three times (soft and grainy). */
+export const PORTRAIT_STILL = new Map([[waterStill, waterStillPortrait], [fitrahStill, fitrahStillPortrait]]);
 
 /** @type {LevelDefinition[]} */
 export const LEVELS = [

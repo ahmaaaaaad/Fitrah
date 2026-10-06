@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { U } from './look.js';
 import { NOISE, FIELD, WIND, LIGHT } from './glsl.js';
-import { heightAt, normalAt, channelX, M, fbm } from './terrain.js';
+import { heightAt, normalAt, channelX, M, fbm, poolEdge } from './terrain.js';
 
 const smooth = (e0, e1, x) => { const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
 
@@ -23,6 +23,8 @@ function railDist(x, z) {
 function grassDensity(x, z) {
   const dc = Math.abs(x - channelX(z));
   if (dc < 2.9) return 0;
+  const pe = poolEdge(x, z);
+  if (pe < 0.08) return 0; // nothing grows in the pool
   const n = normalAt(x, z);
   if (n.y < 0.8) return 0;
   const dm = Math.hypot(x - M.x, z - M.z);
@@ -32,6 +34,7 @@ function grassDensity(x, z) {
   const B = CONFIG.basin;
   d = Math.max(d, 0.16 * (1 - smooth(B.r, B.r + 30, Math.hypot(x - B.x, z - B.z))));
   d = Math.max(d, 0.05 * (Math.abs(x) < 100 && Math.abs(z) < 115 ? 1 : 0));
+  d = Math.max(d, 0.9 * smooth(0.08, 0.3, pe) * (1 - smooth(0.4, 0.9, pe))); // a thicker ring of grass at the shore
   return d * (0.65 + 0.7 * fbm(x * 0.05, z * 0.05, 3)) * smooth(0.8, 0.9, n.y);
 }
 
@@ -208,7 +211,7 @@ export function createFlora(scene) {
     const mask = fbm(x * 0.06 + 11, z * 0.06 + 3, 3);
     let p = (1 - smooth(M.r - 6, M.r + 4, dm)) * smooth(0.42, 0.6, mask);
     p = Math.max(p, 0.25 * smooth(3.2, 4, dc) * (1 - smooth(6, 9, dc)) * smooth(0.5, 0.62, mask));
-    if (dc < 3.2 || Math.random() > p) continue;
+    if (dc < 3.2 || poolEdge(x, z) < 0.25 || Math.random() > p) continue;
     const k = fp * 4, k3 = fp * 3;
     foff[k] = x; foff[k + 1] = z; foff[k + 2] = Math.random(); foff[k + 3] = heightAt(x, z) - 0.02;
     fshape[k3] = 0.28 + Math.random() * 0.4; fshape[k3 + 1] = 0.09 + Math.random() * 0.08; fshape[k3 + 2] = Math.random();

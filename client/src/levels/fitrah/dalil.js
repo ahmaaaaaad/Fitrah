@@ -223,7 +223,7 @@ export function createDalil({ scene, camera, ui, audio, rig }) {
   function update(dt, t) {
     dt = Math.min(dt, 0.25);
     B.uTime.value = t;
-    if (homeLocked) goal.copy(rig.companionSpot(side(), window.innerWidth < window.innerHeight ? 4.8 : 3.9));
+    if (homeLocked) goal.copy(rig.companionSpot(side(), 3.9));
     goal.y = 0;
     // a calm, critically damped walk (in small steps, so slow frames keep the pace)
     const wv = 1.5;

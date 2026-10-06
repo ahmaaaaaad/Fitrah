@@ -18,17 +18,19 @@ const VS = /* glsl */`
     gl_Position = projectionMatrix * viewMatrix * w; }`;
 const FS = /* glsl */`
   uniform vec3 uBase, uRim, uBack, uLamp, uLampPos; uniform float uRimI, uBackI, uLampI, uHem, uHemY, uAlpha, uFade;
-  uniform vec3 uBackDir, uSunDir, uSunCol, uCloth; uniform float uSunI;
+  uniform vec3 uBackDir, uSunDir, uSunCol, uCloth, uFill; uniform float uSunI, uFillI;
   varying vec3 vN; varying vec3 vV; varying vec3 vW; varying float vY;
   void main(){
     vec3 n = normalize(vN); vec3 v = normalize(vV);
-    float fres = pow(1.0 - max(dot(n, v), 0.0), 3.6);
+    float fres = pow(1.0 - max(dot(n, v), 0.0), 2.8);
     // light from behind the figure (the light of the place): a thin warm edge where the surface turns away
     float back = (pow(max(dot(n, -uBackDir), 0.0), 1.2) * 1.6 + 0.25) * fres;
     // the lantern's warm light on the cloth
     vec3 L = uLampPos - vW; float dl = length(L);
     float lamp = max(dot(n, L / dl), 0.0) / (1.0 + dl * dl * 2.5);
     vec3 c = uBase + uRim * back * uRimI + uBack * fres * uBackI + uLamp * lamp * uLampI;
+    // the warm light the hall bounces back (floor, walls): the form reads, softly, never flat black
+    c += uFill * uFillI * (0.35 + 0.65 * (n.y * 0.5 + 0.5)) * (1.0 - fres * 0.6);
     // in daylight (The Water) the cloth also takes the sun, softly wrapped
     c += uCloth * uSunCol * (max(dot(n, uSunDir), 0.0) * 0.7 + 0.3) * uSunI;
     // a thin band of light at the hem (Dalil's trim)
@@ -58,6 +60,7 @@ function makeMaterial(o) {
       uBase: { value: new THREE.Color(o.base) }, uRim: { value: new THREE.Color(o.rim) }, uBack: { value: new THREE.Color(o.back || o.rim) },
       uLamp: { value: new THREE.Color('#ffb866') }, uLampPos: { value: new THREE.Vector3(0, -50, 0) },
       uRimI: { value: o.rimI ?? 1 }, uBackI: { value: o.backI ?? 0.25 }, uLampI: { value: o.lampI ?? 0 },
+      uFill: { value: new THREE.Color(o.fill || '#3a2a1e') }, uFillI: { value: o.fillI ?? 0 },
       uHem: { value: o.hem ?? 0 }, uHemY: { value: o.hemY ?? 0.06 }, uAlpha: { value: 1 }, uFade: { value: 0 },
       uBackDir: { value: new THREE.Vector3(0, 0.25, -1).normalize() },
       uSunDir: { value: new THREE.Vector3(0, 1, 0) }, uSunCol: { value: new THREE.Color('#ffffff') }, uSunI: { value: 0 }, uCloth: { value: new THREE.Color(o.cloth || '#5a4636') },
@@ -106,8 +109,10 @@ export function createFigure(kind, { mirror = true } = {}) {
   const inner = new THREE.Group(); group.add(inner);
   const isGuide = kind === 'guide';
   const mat = makeMaterial(isGuide
-    ? { base: '#0d0907', rim: '#ffbf6a', back: '#ff9e4a', rimI: 1.3, backI: 0.18, lampI: 1.1, hem: 0.6, hemY: 0.05 }
-    : { base: '#050507', rim: '#ffe2b4', back: '#9aa4c8', rimI: 0.9, backI: 0.1, lampI: 0.35 });
+    // Dalil: a warm deep cloth that his own lantern lights, a clear rim, a quiet glow at the edge (readable, never shining)
+    ? { base: '#170f0a', rim: '#ffbf6a', back: '#ffa452', rimI: 1.45, backI: 0.3, lampI: 1.7, hem: 0.6, hemY: 0.05, fill: '#4a3222', fillI: 0.32 }
+    // the player: a darker, cooler figure seen from behind, outlined by the light of the place
+    : { base: '#0b0a0d', rim: '#ffe2b4', back: '#aab0c8', rimI: 1.0, backI: 0.14, lampI: 0.45, fill: '#3a3030', fillI: 0.22 });
   const body = new THREE.Mesh(isGuide ? guideGeometry() : playerGeometry(), mat);
   body.renderOrder = 4;
   inner.add(body);

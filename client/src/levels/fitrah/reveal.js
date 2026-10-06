@@ -99,7 +99,8 @@ export async function revealVerse(key, { anchor, readable = false, explanation =
   const trLayer = h('div', { class: 'layer translation-layer', 'data-type': CT.TRANSLATION }, label(CT.TRANSLATION, ` · ${v.translation_en_author}`), trText);
   const trToggle = i18n.lang === 'ar' ? h('button', { class: 'tr-toggle', type: 'button' }, 'عرض ترجمة المعاني بالإنجليزية') : null;
   if (trToggle) { trLayer.classList.add('collapsed'); trToggle.addEventListener('click', () => { trLayer.classList.toggle('collapsed'); place(); }); }
-  const tags = h('div', { class: 'tags' }, h('span', { class: 'tag' }, i18n.t(PENDING)));
+  // the verses of this level are confirmed by the project: no review badge on the card
+  const tags = h('div', { class: 'tags' });
   const ex = explanation ? explainLayer(explanation, depth, onDepth) : null;
   const cont = h('button', { class: 'continue', type: 'button' }, i18n.t({ ar: 'متابعة', en: 'Continue' }));
   const box = h('section', { class: `verse${readable ? ' readable' : ''}`, role: 'dialog', 'aria-label': i18n.t(refText(v)) }, quran, trToggle, trLayer, tags, ex?.el, cont);

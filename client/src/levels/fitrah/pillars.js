@@ -96,7 +96,7 @@ export function createPillars(scene) {
         const pulse = p.focusT * (0.5 + 0.5 * Math.sin(t * 2.4));
         p.mat.uniforms.uRise.value = p.rise; p.mat.uniforms.uTime.value = t;
         p.mat.uniforms.uI.value = (0.22 + p.state * 0.85 + pulse * 0.25 + joinedT * 0.2) * visibleT;
-        p.mat.uniforms.uColor.value.set('#c9cff2').lerp(_c.set('#ffd28a'), Math.max(p.state, p.focusT * 0.4));
+        p.mat.uniforms.uColor.value.set('#e3d6c2').lerp(_c.set('#ffd28a'), Math.max(p.state, p.focusT * 0.4));
         p.base.material.opacity = (0.15 + p.state * 0.55 + pulse * 0.2) * p.rise;
         p.cap.material.opacity = (0.1 + p.state * 0.8) * (p.rise > 0.95 ? 1 : 0);
         // the motif comes with the light

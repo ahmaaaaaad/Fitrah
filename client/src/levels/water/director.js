@@ -13,7 +13,7 @@ import * as THREE from 'three';
 import { CONFIG, PROVISIONAL, SPEED } from './config.js';
 import { U, updateLook } from './look.js';
 import { sim, setField, canopyAt, rainNear, exposureNow, worldGather, worldWet, worldWind, worldThin } from './sim.js';
-import { heightAt, channelX, waterY, raycastTerrain, M } from './terrain.js';
+import { heightAt, channelX, waterY, raycastTerrain, M, POOL } from './terrain.js';
 import { revealVerse } from './verse.js';
 import { createTrace, createReveal, createConnect, createAlign, createAttention } from './interact.js';
 import { createHeroFlower } from './phenomena.js';
@@ -23,7 +23,7 @@ import { LINES, EXPLAIN } from './dalil/lines.js';
 import { renderer } from '../../core/scene.js';
 import { i18n } from '../../core/i18n.js';
 import { interactionRegion } from '../../core/device.js';
-import { solveFraming } from '../../core/framing.js';
+import { solveFraming, validateTargets } from '../../core/framing.js';
 
 export const STATES = [
   { ar: 'سكون', en: 'Dormant' }, { ar: 'أولى العلامات', en: 'First signs' }, { ar: 'الإحياء', en: 'Revival' },
@@ -289,6 +289,16 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     await sleep(1.0, g);
     const settleFrom = D.t; // the frame clock: the camera has had time to arrive, however slow the device
     await until(() => cameraSettled(framing) || D.t - settleFrom > 4, g);
+    // check the targets as the player will see them (core/framing.js validateTargets): on screen, inside the
+    // safe region, clear of the caption and buttons, far enough apart for a fingertip. If one is not, frame again
+    // with more room before asking for the gesture.
+    const check = () => validateTargets(camera, nodes.map((n) => n.world), { region: interactionRegion(), minSep: 72, avoid: ['.caption.on', '.menu-btn', '.hint.on'] });
+    D.chainCheck = check();
+    for (let pad = 28; !D.chainCheck.ok && pad <= 84; pad += 28) {
+      framing = frameChain(nodes, comp, true, pad);
+      const from = D.t; await until(() => cameraSettled(framing) || D.t - from > 3, g);
+      D.chainCheck = check();
+    }
     connect = createConnect({ camera, nodes, attention, onLink: (i) => { bus.emit('LINK', { to: nodes[i].id }); dalil.point(nodes[i].world); } });
     input.setActive(connect);
     D.interaction = 'following the chain from the cloud to the flower';
@@ -399,6 +409,8 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
       const x = channelX(z), ang = Math.atan2(z - pm.z, x - pm.x) * 180 / Math.PI;
       if (Math.abs(ang - toward(90)) < best) { best = Math.abs(ang - toward(90)); water = new THREE.Vector3(x, waterY(z) + 0.1, z); }
     }
+    // with the full composition, the water is the pool where the stream has come to rest
+    if (spread === 1) water = new THREE.Vector3(POOL.x, POOL.y + 0.15, POOL.z);
     const cloud = at(56, 88, 0); cloud.y = CONFIG.cloudHeight - 2;
     const eye = heightAt(pm.x, pm.z) + 1.6;
     const view = at(66, 30, 0); view.y = eye + 1.5;
@@ -410,8 +422,9 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
    * already inside the safe interaction region; otherwise the least turn; otherwise centred with
    * a wider lens; and only if that is not enough, the points drawn closer together (repick).
    */
-  function frameChain(nodes, comp, repick) {
-    const region = interactionRegion();
+  function frameChain(nodes, comp, repick, pad = 0) {
+    const r0 = interactionRegion();
+    const region = pad ? { ...r0, left: r0.left + pad, right: r0.right + pad, top: r0.top + pad, bottom: r0.bottom + pad } : r0;
     const pm = player.pointAt(railPoint('meadow'));
     const eye = new THREE.Vector3(pm.x, heightAt(pm.x, pm.z) + player.state.eye, pm.z);
     const aspect = window.innerWidth / window.innerHeight;
@@ -505,8 +518,8 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     if (D.wetFocus) worldWet(D.wetFocus.x, D.wetFocus.z, 7, dt * SPEED, reveal.s.pressed || reveal.s.assist ? 0.22 : 0.06);
     // the first water runs on by itself; its banks drink
     if (D.waterRun) {
-      D.waterFront = Math.min(aTo() + 2, D.waterFront + D.waterRun * dt * SPEED);
-      const q = water.pointAt(Math.max(D.waterFrom, D.waterFront - 3));
+      if (!D.waterFull) D.waterFront = Math.min(aTo() + 2, D.waterFront + D.waterRun * dt * SPEED); // once full, the stream runs on to the pool
+      const q = water.pointAt(Math.max(D.waterFrom, Math.min(D.waterFront, water.uniforms.uEnd.value) - 3)); // the banks drink only where water runs (not past the pool)
       worldWet(q.x, q.z, 4, dt * SPEED, 0.5);
     }
     if (D.waterFull) { D.waterFrom = Math.max(0, D.waterFrom - 6 * dt * SPEED); D.waterFront = Math.min(water.length, D.waterFront + 4 * dt * SPEED); }

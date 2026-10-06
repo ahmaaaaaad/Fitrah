@@ -99,8 +99,10 @@ export function createReveal({ scene, attention, target = 0.32, attendSeconds = 
         vec2 p = vec2(vUv.x * uAspect, vUv.y);
         float streaks = n(vec2(p.x * 160.0, p.y * 6.0 + uTime * 9.0)) * n(vec2(p.x * 60.0 + 3.0, p.y * 3.0 + uTime * 6.0));
         float mist = n(p * 3.0 + vec2(uTime * 0.05, 0.0)) * 0.5 + n(p * 9.0 - uTime * 0.08) * 0.25;
-        vec3 col = mix(vec3(0.42, 0.45, 0.49), vec3(0.58, 0.61, 0.65), mist) + streaks * 0.2;
-        float a = uVeil * (0.58 + 0.22 * mist) * (1.0 - smoothstep(0.1, 0.8, m));
+        // two depths of rain: fine distant streaks, and nearer ones, broader, softer and faster
+        float near = n(vec2(p.x * 38.0 + 11.0, p.y * 2.2 + uTime * 13.0)) * n(vec2(p.x * 17.0, p.y * 1.4 + uTime * 9.0));
+        vec3 col = mix(vec3(0.34, 0.37, 0.41), vec3(0.54, 0.57, 0.61), mist) * mix(0.92, 1.06, vUv.y) + streaks * 0.13 + smoothstep(0.35, 0.8, near) * 0.09;
+        float a = uVeil * (0.5 + 0.22 * mist) * (1.0 - smoothstep(0.1, 0.8, m));
         float rim = smoothstep(0.1, 0.4, m) * (1.0 - smoothstep(0.4, 0.8, m)) * uVeil;  // the edge of the lens
         col += vec3(0.95, 0.85, 0.65) * rim * 0.18;
         gl_FragColor = vec4(col, max(a, rim * 0.1));
@@ -172,17 +174,44 @@ export function createReveal({ scene, attention, target = 0.32, attendSeconds = 
 }
 
 // ------------------------------------------------------------------ CONNECT
-/** Follow a relationship from one thing to the next. Nodes are things already in the world. */
+/**
+ * Follow a relationship from one thing to the next. Nodes are things already in the world.
+ * What the player sees, at one glance: where to start (the point that glows, steady), where
+ * to go (the next point: larger, warm, pulsing, with a soft ripple and a path of light running
+ * toward it), and the rest of the way (small, quiet, joined by a faint dotted route). Each
+ * point sits on a small dark disc so it reads over bright flowers and grass. Reaching the
+ * next point: a short ring of light, the path moves on, the next target wakes.
+ */
 export function createConnect({ camera, nodes, attention, onLink }) {
   const NS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'connect'); svg.setAttribute('aria-hidden', 'true');
+  const el = (name, attrs = {}, parent = null) => { const e = document.createElementNS(NS, name); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); parent?.append(e); return e; };
+  const svg = el('svg', { class: 'connect', 'aria-hidden': 'true' });
+  const defs = el('defs', {}, svg);
+  const grad = el('radialGradient', { id: 'cglow' }, defs);
+  el('stop', { offset: '0', 'stop-color': '#ffd38a', 'stop-opacity': '0.8' }, grad);
+  el('stop', { offset: '0.45', 'stop-color': '#ffc46e', 'stop-opacity': '0.28' }, grad);
+  el('stop', { offset: '1', 'stop-color': '#ffc46e', 'stop-opacity': '0' }, grad);
   document.body.append(svg);
-  const lines = nodes.slice(1).map(() => { const l = document.createElementNS(NS, 'line'); l.setAttribute('class', 'thread'); svg.append(l); return l; });
-  const live = document.createElementNS(NS, 'line'); live.setAttribute('class', 'thread live'); svg.append(live);
-  const dots = nodes.map(() => { const c = document.createElementNS(NS, 'circle'); c.setAttribute('class', 'node'); svg.append(c); return c; });
+  const routes = nodes.slice(1).map(() => el('line', { class: 'route' }, svg));   // the whole way, faint
+  const lines = nodes.slice(1).map(() => el('line', { class: 'thread' }, svg));   // the links already made
+  const guide = el('line', { class: 'guide' }, svg);                              // from here to the next point
+  const live = el('line', { class: 'thread live' }, svg);                         // following the finger
+  const dots = nodes.map(() => {
+    const g = el('g', { class: 'node' }, svg);
+    const halo = el('circle', { class: 'halo', r: 30, fill: 'url(#cglow)' }, g);
+    const back = el('circle', { class: 'back' }, g);
+    const ripple = el('circle', { class: 'ripple' }, g);
+    const ring = el('circle', { class: 'ring' }, g);
+    const core = el('circle', { class: 'core' }, g);
+    return { g, halo, back, ripple, ring, core, arrive: 0 };
+  });
   const s = { kind: 'connect', linked: 0, pressed: false, x: 0, y: 0, dragging: false, assist: false, assistT: 0, done: false };
   const scr = nodes.map(() => ({}));
   let resolveDone; const done = new Promise((r) => { resolveDone = r; });
+  function linkTo(i) {
+    s.linked = i; dots[i].arrive = 0.9; // a short ring of light where the link lands
+    onLink?.(i, nodes[i]);
+  }
   return {
     s, done,
     onDown(x, y) {
@@ -194,24 +223,31 @@ export function createConnect({ camera, nodes, attention, onLink }) {
     onUp() { s.pressed = false; s.dragging = false; },
     update(dt) {
       nodes.forEach((n, i) => project(camera, n.world, scr[i]));
-      if (s.assist && !s.done) { s.assistT += dt; if (s.assistT > 1.1) { s.assistT = 0; s.linked++; onLink?.(s.linked, nodes[s.linked]); } }
+      if (s.assist && !s.done) { s.assistT += dt; if (s.assistT > 1.1) { s.assistT = 0; linkTo(s.linked + 1); } }
       if (s.dragging && s.linked < nodes.length - 1) {
         const nx = scr[s.linked + 1];
-        if (Math.hypot(nx.x - s.x, nx.y - s.y) < tol()) { s.linked++; onLink?.(s.linked, nodes[s.linked]); }
+        if (Math.hypot(nx.x - s.x, nx.y - s.y) < tol()) linkTo(s.linked + 1);
       }
-      const r = isDirect() ? 12 : 9; // a little larger under a finger
+      const r = isDirect() ? 11 : 8.5; // a little larger under a finger
       dots.forEach((d, i) => {
-        d.setAttribute('cx', scr[i].x.toFixed(1)); d.setAttribute('cy', scr[i].y.toFixed(1)); d.setAttribute('r', r);
-        d.setAttribute('class', `node${i <= s.linked ? ' lit' : ''}${i === s.linked + 1 ? ' next' : ''}${i === s.linked && !s.done ? ' from' : ''}`);
+        const next = i === s.linked + 1 && !s.done, from = i === s.linked && !s.done, lit = i <= s.linked, future = i > s.linked + 1;
+        const k = next ? 1.3 : from ? 1.1 : future ? 0.72 : 0.85;
+        d.arrive = Math.max(0, d.arrive - dt);
+        d.g.setAttribute('transform', `translate(${scr[i].x.toFixed(1)} ${scr[i].y.toFixed(1)})`);
+        d.back.setAttribute('r', (r * k + 5).toFixed(1)); d.ring.setAttribute('r', (r * k).toFixed(1));
+        d.core.setAttribute('r', (r * k * (lit || next ? 0.5 : 0.32)).toFixed(1)); d.ripple.setAttribute('r', (r * k).toFixed(1));
+        d.halo.setAttribute('r', (r * (next ? 3.4 : 2.6)).toFixed(1));
+        d.g.setAttribute('class', `node${lit ? ' lit' : ''}${next ? ' next' : ''}${from ? ' from' : ''}${future ? ' future' : ''}${d.arrive > 0 ? ' arrive' : ''}`);
       });
+      const set = (l, a, b) => { l.setAttribute('x1', a.x); l.setAttribute('y1', a.y); l.setAttribute('x2', b.x); l.setAttribute('y2', b.y); };
       lines.forEach((l, i) => {
         const a = scr[i], b = scr[i + 1], on = i < s.linked;
-        l.setAttribute('x1', a.x); l.setAttribute('y1', a.y); l.setAttribute('x2', on ? b.x : a.x); l.setAttribute('y2', on ? b.y : a.y);
-        l.setAttribute('class', `thread${on ? ' on' : ''}`);
+        set(l, a, on ? b : a); l.setAttribute('class', `thread${on ? ' on' : ''}`);
+        set(routes[i], a, b); routes[i].style.opacity = i > s.linked ? 1 : 0;
       });
       const from = scr[s.linked];
-      if (s.dragging && !s.done) { live.setAttribute('x1', from.x); live.setAttribute('y1', from.y); live.setAttribute('x2', s.x); live.setAttribute('y2', s.y); live.style.opacity = 1; }
-      else live.style.opacity = 0;
+      if (!s.done && s.linked < nodes.length - 1) { set(guide, from, scr[s.linked + 1]); guide.style.opacity = s.dragging ? 0.55 : 1; } else guide.style.opacity = 0;
+      if (s.dragging && !s.done) { set(live, from, s); live.style.opacity = 1; } else live.style.opacity = 0;
       attention.moveTo(s.x, s.y); attention.show(s.pressed); attention.set('trace', s.dragging);
       if (!s.done && s.linked >= nodes.length - 1) { s.done = true; s.dragging = false; resolveDone(); }
     },

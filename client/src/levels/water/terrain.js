@@ -30,7 +30,28 @@ export const M = CONFIG.meadow;
 export const channelX = (z) => 9 * Math.sin(z * 0.028) + 4 * Math.sin(z * 0.071 + 1.3);
 export const CHANNEL = { zStart: -118, zEnd: 140, halfWidth: 2.6 };
 
-export function heightAt(x, z) {
+// The pool: where the stream comes to rest at the meadow, a small shallow round of water gathered in the land
+// (it replaces the stream running on into the distance, which read as a thin white line). Its edge is organic:
+// the radius varies with the angle (poolRadius), the same function in JS and GLSL.
+const POOL_Z = 24;
+export const POOL = { x: channelX(POOL_Z), z: POOL_Z, r: 5.0, depth: 1.0, y: 0 };
+export function poolRadius(th) { return POOL.r * (1 + 0.14 * Math.sin(3 * th + 1.1) + 0.08 * Math.sin(5 * th + 2.3) + 0.05 * Math.sin(8 * th)); }
+export const POOL_GLSL = /* glsl */`
+uniform vec4 uPool; // x, z, base radius, fill
+float poolRadius(float th){ return uPool.z * (1.0 + 0.14 * sin(3.0 * th + 1.1) + 0.08 * sin(5.0 * th + 2.3) + 0.05 * sin(8.0 * th)); }
+float poolDist(vec2 xz, out float R){ vec2 d = xz - uPool.xy; R = poolRadius(atan(d.y, d.x + 1e-4)); return length(d); }`;
+/** 0 outside, 1 at the centre: the shallow bowl of the pool. */
+function poolBowl(x, z) {
+  const dx = x - POOL.x, dz = z - POOL.z, d = Math.hypot(dx, dz);
+  if (d > POOL.r * 2) return 0;
+  const R = poolRadius(Math.atan2(dz, dx + 1e-4));
+  return 1 - smooth(R * 0.45, R * 1.25, d);
+}
+/** Distance from the pool's edge in units of its radius (negative inside). */
+export function poolEdge(x, z) { const dx = x - POOL.x, dz = z - POOL.z; return Math.hypot(dx, dz) / poolRadius(Math.atan2(dz, dx + 1e-4)) - 1; }
+
+export function heightAt(x, z) { return baseHeight(x, z) - POOL.depth * poolBowl(x, z); }
+function baseHeight(x, z) {
   let h = -z * 0.035;                                         // the basin falls gently to the south
   h += Math.pow(smooth(46, 128, x), 1.5) * 36;                // east slope: where clouds gather
   h += smooth(-70, -130, x) * 26;                             // west wall
@@ -50,7 +71,8 @@ export function normalAt(x, z, out = new THREE.Vector3()) {
   return out.set(heightAt(x - e, z) - heightAt(x + e, z), 2 * e, heightAt(x, z - e) - heightAt(x, z + e)).normalize();
 }
 /** Water surface height along the channel. */
-export const waterY = (z) => heightAt(channelX(z), z) + 0.42;
+export const waterY = (z) => baseHeight(channelX(z), z) + 0.42;
+POOL.y = baseHeight(POOL.x, POOL.z) + 0.44;
 
 // ------------------------------------------------------------------ ray queries (input, Dalil hit tests)
 const _p = new THREE.Vector3();
@@ -120,6 +142,7 @@ void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vN = normal
 const terrainFS = /* glsl */`
 ${NOISE}${FIELD}${LIGHT}
 uniform float uTime, uFlow; uniform vec2 uMeadow; uniform float uMeadowR; uniform vec4 uDalil;
+${POOL_GLSL}
 varying vec3 vW; varying vec3 vN;
 vec2 hash22(vec2 p){ p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3))); return fract(sin(p) * 43758.5453); }
 // distance to the nearest crack: F2 - F1 of a jittered grid
@@ -146,8 +169,11 @@ void main(){
   dry *= 0.75 + 0.5 * smoothstep(0.2, 0.8, n0);
   vec3 wet = mix(vec3(0.07, 0.05, 0.035), vec3(0.1, 0.072, 0.05), n1);
   vec3 col = mix(dry, wet, smoothstep(0.04, 0.55, sm));
-  float cw = mix(0.07, 0.0, smoothstep(0.08, 0.42, sm)) * (0.7 + 0.6 * n2);
-  float cd0 = crackDist(vW.xz * 0.95);
+  float cw = mix(0.07, 0.0, smoothstep(0.08, 0.42, sm)) * (0.7 + 0.6 * n2) * (0.6 + 0.8 * vnoise(vW.xz * 0.45 + 2.0));
+  // the clay cracks along wandering lines, into plates of uneven size (a warped cell pattern, not tiles)
+  vec2 cq = vW.xz * 0.95;
+  vec2 warp = vec2(vnoise(cq * 0.55 + 3.1) + 0.5 * vnoise(cq * 1.3 + 9.4), vnoise(cq * 0.55 + 8.7) + 0.5 * vnoise(cq * 1.3 + 1.7)) - 0.75;
+  float cd0 = crackDist(cq + warp * 0.9);
   float crack = 1.0 - smoothstep(cw * 0.4, cw, cd0);
   // the plates' lips catch the light where the clay has curled up beside a crack
   float lip = (smoothstep(cw * 0.9, cw * 1.4, cd0) - smoothstep(cw * 1.4, cw * 2.8, cd0)) * (1.0 - smoothstep(0.08, 0.42, sm));
@@ -165,6 +191,12 @@ void main(){
   float dc = abs(vW.x - channelX(vW.z));
   float bed = 1.0 - smoothstep(2.2, 4.6, dc);
   col = mix(col, mix(vec3(0.22, 0.2, 0.17), vec3(0.09, 0.08, 0.065), uFlow) * (0.75 + 0.5 * n2), bed * 0.85);
+  // the pool: silt under the water and a dark wet shore, then a ring of fresher green where the ground stays moist
+  float pR; float pd = poolDist(vW.xz, pR);
+  float shore = 1.0 - smoothstep(pR * 0.95, pR * 1.5, pd);
+  col = mix(col, col * 0.5 + vec3(0.018, 0.022, 0.012), shore * uPool.w);
+  float lush = smoothstep(pR * 1.15, pR * 1.55, pd) * (1.0 - smoothstep(pR * 1.6, pR * 2.5, pd));
+  col = mix(col, green * 1.15, lush * uPool.w * 0.5);
   // wet sheen while it rains
   vec3 V = normalize(cameraPosition - vW);
   float shade = mix(0.38, 1.0, sun);
@@ -183,7 +215,7 @@ void main(){
 }`;
 
 export function createTerrain(scene) {
-  const uniforms = { ...U, uFlow: { value: 0 }, uMeadow: { value: new THREE.Vector2(M.x, M.z) }, uMeadowR: { value: M.r } };
+  const uniforms = { ...U, uFlow: { value: 0 }, uMeadow: { value: new THREE.Vector2(M.x, M.z) }, uMeadowR: { value: M.r }, uPool: { value: new THREE.Vector4(POOL.x, POOL.z, POOL.r, 0) } };
   const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: terrainVS, fragmentShader: terrainFS });
   const inner = new THREE.Mesh(displacedPlane(300, CONFIG.terrainSegments), mat);
   const outer = new THREE.Mesh(outerRing(140, 380, 20, 160, 150), mat); // beyond this the ridge layers take over

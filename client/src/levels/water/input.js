@@ -4,6 +4,7 @@
 // Hit priority: Dalil first (a tap asks him), then the active gesture.
 // Keyboard: hold Space to follow with assistance; / asks Dalil; W/S walk; Esc menu.
 import * as THREE from 'three';
+import { claimGestures } from '../../core/gesture-surface.js';
 
 export function createInput({ canvas, getDalilScreen, onAsk, onMenu, onWalk }) {
   const G = { active: null, enabled: false, lastGestureT: -1e9, firstGestureT: null, keyboard: false, assist: false, pointerType: 'mouse' };
@@ -11,7 +12,7 @@ export function createInput({ canvas, getDalilScreen, onAsk, onMenu, onWalk }) {
   let now = 0, downOnDalil = false;
   const pos = (e) => { const r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top, ((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1]; };
 
-  canvas.style.touchAction = 'none';
+  claimGestures(canvas); // touch + hold + drag stays a gesture: no iOS selection popup over the game
   let downAt = null; // a press that began on Dalil: a short tap asks him, a drag is a gesture
   canvas.addEventListener('pointerdown', (e) => {
     if (e.button > 0) return;

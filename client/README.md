@@ -27,7 +27,7 @@ npm run build:server    # ../server/dist/fitrah-server.mjs, then `npm run serve:
 ```
 
 Routes: `fitrah.html` (the menu), `#tafakor/en` (the Tafakor list), `#fitrah/en`, `#water/ar` (a level directly), `#menu/ar`.
-URL options: `?q=cinematic|high|balanced|performance` (force a quality profile; `?q=low` is the lightest), `?debug` (readout), `?speed=4` (hurry pauses and reading times, for review), `?depth=learning` (Fitrah: skip the depth question), `?final=30:50` (The Water: the alternative final verse).
+URL options: `?q=cinematic|high|mobile|balanced|performance` (force a quality profile; `?q=low` is the lightest), `?review` (reviewers' tools: jumps, decisions for review, Dalil's status, first-version notes), `?debug` (readout), `?speed=4` (hurry pauses and reading times, for review), `?depth=learning` (Fitrah: skip the depth question), `?final=30:50` (The Water: the alternative final verse).
 
 - `src/shell/` – the menu (main list and the Tafakor list, the same atmosphere, type and motion), the veil between menu and scene, routing. No WebGL: a level's code loads only when it is chosen. A Tafakor world returns to the Tafakor list.
 - `src/levels/registry.js` – the paths and the level definitions (id, category, title, status, scene loader, still). Adding a world is one entry here plus one folder whose entry module exports `mount(ctx)`.
@@ -38,6 +38,9 @@ URL options: `?q=cinematic|high|balanced|performance` (force a quality profile; 
 - `src/core/help/talk.js` – "Talk to someone", read from `data/config/human-help.json`: honest while no destination is verified, with consent before anything is shared once one is.
 - `src/core/device.js`, `src/core/framing.js` – how the player touches the screen, the safe interaction region (minus the dialogue panel's band), and camera framing that keeps a set of world points inside it.
 - `src/core/scene.js` – renderer, quality profiles (cinematic / high / balanced / performance, chosen from screen, memory and GPU), dynamic resolution, and the post chain: render → guard pass (replaces NaN/infinite pixels, the cause of the mobile black screen) → bloom → output.
+- `src/core/lens.js` – one composition for every screen: shots are composed for 16:9 and adapted to the screen in hand (a wider lens up to a natural limit, then a step back), so a phone held upright sees the same scene, not a crop of its middle.
+- `src/core/gesture-surface.js` – the canvas owns its touches: touch + hold + drag never starts a text selection or the iOS "Copy / Translate" bar; selection elsewhere (verses, explanations) is untouched.
+- `validateTargets()` in `src/core/framing.js` – checks interaction targets as the player sees them (on screen, inside the safe region, clear of the interface, far enough apart).
 - `src/core/figures.js` – the player and Dalil as rim-lit silhouettes (no faces), with arm, lantern, walking and speaking poses and a floor reflection.
 - `src/core/ui/caption.js` – the one dialogue panel used by every level: bottom edge, RTL/LTR per line, safe areas, lifts above buttons and cards.
 - `src/core/analytics.js` – anonymous events, sent only when the host page declares an endpoint (the production server does with `ANALYTICS=1`).

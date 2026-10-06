@@ -13,11 +13,13 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: #07080f; color: var(--ink); font-family: var(--ui); -webkit-font-smoothing: antialiased; }
-#stage { position: fixed; inset: 0; }
+#stage { position: fixed; inset: 0; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 #stage canvas { display: block; width: 100%; height: 100%; cursor: default; touch-action: none; }
 #ui, #verse-layer { position: fixed; inset: 0; pointer-events: none; user-select: none; -webkit-user-select: none; }
 #ui > * { pointer-events: auto; }
 .ask-input { user-select: text; -webkit-user-select: text; }
+/* the verse and its translation are there to be read: they can be selected (and copied) while shown */
+.verse.in .ayah, .verse.in .translation, .verse.in .explain-text { pointer-events: auto; user-select: text; -webkit-user-select: text; -webkit-touch-callout: default; cursor: text; }
 button { font-family: inherit; cursor: pointer; }
 .sr-only { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -133,7 +135,7 @@ svg.connect .thread.live { stroke: rgba(255, 236, 200, 0.7); stroke-width: 1.6; 
 /* ------------------------------------------------------------------ the corner menu */
 .menu-btn { position: fixed; top: max(14px, env(safe-area-inset-top)); inset-inline-end: 14px; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--glass); display: grid; place-content: center; gap: 4px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 7; }
 .menu-btn span { display: block; width: 16px; height: 1.5px; background: var(--ink); border-radius: 2px; }
-.panel { position: fixed; top: calc(max(14px, env(safe-area-inset-top)) + 50px); inset-inline-end: 14px; width: min(440px, calc(100vw - 28px)); max-height: calc(100vh - 84px); overflow: auto; padding: 16px 18px; border-radius: 18px; background: rgba(14, 14, 20, 0.86); border: 1px solid var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); opacity: 0; transform: translateY(-8px); pointer-events: none !important; transition: opacity 0.3s, transform 0.3s; z-index: 7; font-size: 14px; }
+.panel { position: fixed; top: calc(max(14px, env(safe-area-inset-top)) + 50px); inset-inline-end: 14px; width: min(440px, calc(100vw - 28px)); max-height: calc(100vh - 84px); max-height: calc(100dvh - 84px); overflow: auto; padding: 16px 18px; border-radius: 18px; background: rgba(14, 14, 20, 0.86); border: 1px solid var(--line); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); opacity: 0; transform: translateY(-8px); pointer-events: none !important; transition: opacity 0.3s, transform 0.3s; z-index: 7; font-size: 14px; }
 .panel.on { opacity: 1; transform: none; pointer-events: auto !important; }
 .panel h2 { font-size: 16px; margin: 0 0 12px; color: var(--gold); font-weight: 600; }
 .panel h3 { font-size: 13px; margin: 16px 0 8px; color: var(--dim); font-weight: 600; letter-spacing: 0.5px; }
@@ -157,7 +159,7 @@ svg.connect .thread.live { stroke: rgba(255, 236, 200, 0.7); stroke-width: 1.6; 
 .end .end-exit { margin-top: 8px; border-color: transparent; }
 
 /* ------------------------------------------------------------------ the verse and the hadith reference */
-.verse { position: fixed; left: 50%; top: 44%; transform: translate(-50%, -50%); width: min(860px, 92vw); max-height: 92vh; overflow-y: auto; scrollbar-width: none; text-align: center; opacity: 0; transition: opacity 1.6s ease; pointer-events: none; isolation: isolate; z-index: 5; }
+.verse { position: fixed; left: 50%; top: 44%; transform: translate(-50%, -50%); width: min(860px, 92vw); max-height: 92vh; max-height: 92dvh; overflow-y: auto; scrollbar-width: none; text-align: center; opacity: 0; transition: opacity 1.6s ease; pointer-events: none; isolation: isolate; z-index: 5; }
 .verse.in { opacity: 1; }
 .verse.out { opacity: 0; transition: opacity 1.1s ease; }
 .verse::before { content: ''; position: absolute; inset: -40px -60px; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at center, rgba(8, 8, 14, 0.62) 0%, rgba(8, 8, 14, 0.4) 45%, rgba(8, 8, 14, 0) 75%); }
@@ -169,6 +171,7 @@ svg.connect .thread.live { stroke: rgba(255, 236, 200, 0.7); stroke-width: 1.6; 
 .verse .translation { font-size: clamp(16px, 1.45vw, 20px); line-height: 1.6; color: var(--ink); margin: 10px auto 0; max-width: 720px; opacity: 0; transition: opacity 1.2s ease; text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6); }
 .verse .translation .num { color: var(--gold); font-size: 0.8em; }
 .verse .ref { font-size: 14px; color: var(--gold); margin: 10px 0 0; opacity: 0; transition: opacity 1.2s ease; text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6); }
+.verse .tags:empty { display: none; }
 .verse .tags { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; opacity: 0; transition: opacity 1.2s ease; }
 .verse .tag { font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: rgba(12, 12, 18, 0.45); color: var(--dim); }
 .verse .tag.prov { border-color: rgba(240, 194, 122, 0.55); color: var(--gold); }
@@ -236,3 +239,17 @@ svg.connect .thread.live { stroke: rgba(255, 236, 200, 0.7); stroke-width: 1.6; 
 
 /* debug HUD (?debug) */
 .hud { position: fixed; top: 12px; inset-inline-start: 12px; margin: 0; padding: 8px 10px; background: rgba(0, 0, 0, 0.5); color: #d8f5e8; font: 11px/1.45 ui-monospace, monospace; border-radius: 8px; direction: ltr; text-align: left; pointer-events: none !important; z-index: 8; }
+
+/* the verse: room to read. A hairline of gold between the Arabic and the meaning, a calmer reference line,
+   and the translation set a little apart, so the eye stops on the verse first */
+.verse .ayah { letter-spacing: 0; word-spacing: 0.04em; }
+.verse .ref { letter-spacing: 0.3px; }
+.verse .translation-layer::before { content: ''; display: block; width: 46px; height: 1px; margin: 6px auto 12px; background: linear-gradient(90deg, rgba(240, 194, 122, 0), rgba(240, 194, 122, 0.6), rgba(240, 194, 122, 0)); }
+.verse .translation { line-height: 1.7; }
+
+/* on a phone held upright the question names take two short lines, so neighbours never run together */
+@media (max-width: 520px) and (orientation: portrait) {
+  .wlabel.qlabel { white-space: normal; width: max-content; max-width: 92px; line-height: 1.2; }
+  .wlabel.qlabel .wl-main { font-size: 13px; }
+  .wlabel.qlabel.answered .wl-sub { font-size: 14px; }
+}

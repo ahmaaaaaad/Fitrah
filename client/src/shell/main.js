@@ -11,7 +11,7 @@
 import '../fonts.css';
 import './shell.css';
 import { i18n } from '../core/i18n.js';
-import { LEVELS, PATHS, levelById, levelsIn, isPlayable } from '../levels/registry.js';
+import { LEVELS, PATHS, levelById, levelsIn, isPlayable, PORTRAIT_STILL } from '../levels/registry.js';
 import { track } from '../core/analytics.js';
 
 // WebGL 2 is required by every level; without it the menu explains instead of failing
@@ -173,14 +173,22 @@ function tafakorItems() {
   }));
 }
 
-function showStill(url) {
-  if (!state.menu || !url || url === state.still) return;
+// on a tall screen the backdrop is the still rendered for it (sharp, composed upright)
+const tall = () => window.innerHeight > window.innerWidth * 1.1;
+const stillFor = (url) => (tall() && PORTRAIT_STILL.get(url)) || url;
+let stillShown = null;
+function showStill(url, force = false) {
+  if (!state.menu || !url || (url === state.still && !force)) return;
   state.still = url;
+  const src = stillFor(url);
+  if (src === stillShown) return;
+  stillShown = src;
   const [a, b] = state.menu.querySelectorAll('.fm-img');
   const next = a.classList.contains('on') ? b : a, prev = next === a ? b : a;
-  next.style.backgroundImage = `url("${url}")`;
+  next.style.backgroundImage = `url("${src}")`;
   next.classList.add('on'); prev.classList.remove('on');
 }
+window.addEventListener('resize', () => { if (state.still) showStill(state.still, true); });
 
 function showView(view, { instant = false } = {}) {
   if (!state.menu || state.busy) return;
@@ -223,11 +231,11 @@ function renderMenu({ intro, view = 'main' }) {
       h('header', { class: 'fm-head' }, h('p', { class: 'fm-kicker' }, 'FITRAH'), h('h1', { class: 'fm-title', lang: 'ar' }, 'فطرة')),
       nav,
       h('footer', { class: 'fm-foot' },
-        T(h('p'), { ar: 'نموذج تجريبي قابل للعب — للمراجعة', en: 'Playable prototype — for review' }),
+        T(h('p'), { ar: 'رحلة تفاعلية في الأسئلة الأربعة', en: 'An interactive journey through the four questions' }),
         T(h('p'), { ar: 'يُفضَّل الاستماع بسمّاعات', en: 'Best with headphones' }))),
   );
   shell.replaceChildren(menu);
-  state.menu = menu;
+  state.menu = menu; state.still = null; stillShown = null; // a new menu: its backdrop is set afresh
   state.motes = createMotes(motesCanvas);
   showView(view, { instant: true });
 
@@ -378,7 +386,7 @@ if (isPlayable(target)) {
     const img = new Image();
     let shown = false;
     const once = () => { if (!shown) { shown = true; show(); } };
-    img.onload = once; img.onerror = once; img.src = still;
+    img.onload = once; img.onerror = once; img.src = stillFor(still);
     setTimeout(once, 1500);
   } else show();
 }

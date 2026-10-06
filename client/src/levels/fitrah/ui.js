@@ -8,7 +8,7 @@ import { h } from '../../ui/dom.js';
 import { CT } from '../../core/sacred/content-types.js';
 import { createCaption } from '../../core/ui/caption.js';
 import { C } from './content.js';
-import { DEBUG } from './config.js';
+import { DEBUG, REVIEW } from './config.js';
 
 const tracked = [];
 function T(el, obj) { el.textContent = i18n.t(obj); tracked.push([el, obj]); return el; }
@@ -144,7 +144,7 @@ export function createUI({ camera }) {
     chap.replaceChildren(...[
       h('p', { class: 'ch-n' }, `${num(n)} / ${num(4)}`),
       tx(question, 'h2', { class: 'ch-q' }),
-      draft ? tx({ ar: 'نسخة أولى — تفاعل هذا الفصل قيد البناء', en: 'First version — this chapter’s interaction is still being built' }, 'p', { class: 'ch-draft' }) : null].filter(Boolean));
+      draft && REVIEW ? tx({ ar: 'نسخة أولى — تفاعل هذا الفصل قيد البناء', en: 'First version — this chapter’s interaction is still being built' }, 'p', { class: 'ch-draft' }) : null].filter(Boolean));
     chap.classList.add('on');
     chapT = setTimeout(() => chap.classList.remove('on'), hold * 1000);
   }
@@ -209,22 +209,24 @@ export function createUI({ camera }) {
   ].map(([k, l]) => btn(l, () => { toggleMenu(false); cb.onJump?.(k); }, 'small'));
   const R = C.review;
   const provList = h('ul', { class: 'prov' },
-    ...R.additions.map((a) => h('li', {}, h('strong', {}, i18n.t(refLabel(a.ref))), ' — ', tx(a.role), ' ', tx({ ar: '(أُضيف، بانتظار المراجعة)', en: '(added, pending review)' }, 'em'))),
+    ...R.additions.map((a) => h('li', {}, h('strong', {}, i18n.t(refLabel(a.ref))), ' — ', tx(a.role), ' ', tx({ ar: '(أُضيف)', en: '(added)' }, 'em'))),
     ...R.pairings.map((p) => h('li', {}, tx(p.chapter === 'ending' ? { ar: 'الختام', en: 'Ending' } : { ar: `الفصل ${arDigits(p.chapter.slice(2))}`, en: `Chapter ${p.chapter.slice(2)}` }, 'strong'), ': ',
       h('span', {}, p.refs.map((r) => i18n.t(refLabel(r))).join(' · ')))),
     ...R.notes.map((n) => h('li', {}, tx(n))));
-  panel.append(
-    tx({ ar: 'فطرة · الأسئلة الأربعة — نموذج تجريبي', en: 'Fitrah · The Four Questions — prototype' }, 'h2'),
+  // the player's menu: language, explanations, sound, reading, a person to talk to. The reviewers' tools
+  // (chapter jumps, the list of additions, Dalil's status) appear with ?review.
+  panel.append(...[
+    tx({ ar: 'فطرة · الأسئلة الأربعة', en: 'Fitrah · The Four Questions' }, 'h2'),
     row({ ar: 'اللغة', en: 'Language' }, langAr, langEn),
     row({ ar: 'أسلوب الشرح', en: 'Explanations' }, ...depthBtns),
     row({ ar: 'الصوت', en: 'Sound' }, soundBtn),
     row({ ar: 'الآية', en: 'Verse' }, readBtn),
-    row({ ar: 'الفصول (للمراجعة)', en: 'Chapters (review)' }, ...jumps),
+    REVIEW ? row({ ar: 'الفصول (للمراجعة)', en: 'Chapters (review)' }, ...jumps) : null,
     h('div', { class: 'row' }, btn({ ar: 'تحدّث مع إنسان', en: 'Talk to someone' }, () => { toggleMenu(false); cb.onTalk?.(); }, 'small')),
-    tx({ ar: 'بانتظار المراجعة الشرعية', en: 'Pending Sharia review' }, 'h3'), tx(R.status, 'p', { class: 'prov-status' }), provList,
-    tx({ ar: 'حالة دليل', en: 'Dalil status' }, 'h3'), statusBox,
+    REVIEW ? tx({ ar: 'للمراجعة', en: 'For review' }, 'h3') : null, REVIEW ? tx(R.status, 'p', { class: 'prov-status' }) : null, REVIEW ? provList : null,
+    REVIEW ? tx({ ar: 'حالة دليل', en: 'Dalil status' }, 'h3') : null, REVIEW ? statusBox : null,
     h('div', { class: 'panel-end' }, btn({ ar: 'متابعة', en: 'Continue' }, () => toggleMenu(false)), exitBtn()),
-  );
+  ].filter(Boolean));
   function exitBtn(cls = '') {
     const b = btn({ ar: 'العودة إلى البداية', en: 'Back to the beginning' }, () => cb.onExit?.(), `quiet ${cls}`);
     b.dataset.exit = ''; b.hidden = !cb.onExit;
@@ -251,8 +253,6 @@ export function createUI({ camera }) {
         h('p', { class: 'kicker' }, 'FITRAH · فطرة'),
         h('h1', { lang: 'ar' }, 'فطرة'),
         h('p', { class: 'sub' }, 'The Four Questions · الأسئلة الأربعة'),
-        h('p', { class: 'note', lang: 'ar', dir: 'rtl' }, 'نموذج تجريبي قابل للعب — للمراجعة'),
-        h('p', { class: 'note' }, 'Playable prototype — for review'),
         h('div', { class: 'langs' },
           h('button', { type: 'button', class: 'pill big', lang: 'ar', onClick: () => begin('ar') }, 'ابدأ بالعربية'),
           h('button', { type: 'button', class: 'pill big', onClick: () => begin('en') }, 'Begin in English'))));
@@ -284,7 +284,12 @@ export function createUI({ camera }) {
       _v.copy(L.world).project(camera);
       const vis = _v.z < 1 && Math.abs(_v.x) < 1.2 && Math.abs(_v.y) < 1.2;
       L.el.style.visibility = vis ? '' : 'hidden';
-      if (vis) L.el.style.transform = `translate(${Math.round((_v.x * 0.5 + 0.5) * W)}px, ${Math.round((-_v.y * 0.5 + 0.5) * H + L.dy)}px) translate(-50%, 0)`;
+      if (!vis) continue;
+      // a name never runs off the edge of the screen (measured once it has its font)
+      const txt = L.el.textContent;
+      if (!L.w || L.wAt !== W || L.txt !== txt) { L.w = L.el.offsetWidth; L.wAt = W; L.txt = txt; }
+      const half = L.w / 2 + 10, x = Math.min(W - half, Math.max(half, (_v.x * 0.5 + 0.5) * W));
+      L.el.style.transform = `translate(${Math.round(x)}px, ${Math.round((-_v.y * 0.5 + 0.5) * H + L.dy)}px) translate(-50%, 0)`;
     }
     if (hud && cb.getStatus) hud.textContent = Object.entries(cb.getStatus(true)).map(([k, v]) => `${k}: ${v}`).join('\n');
   }

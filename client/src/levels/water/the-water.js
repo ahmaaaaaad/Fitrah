@@ -41,6 +41,7 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
   cinematic.uniforms.uVignette.value = 0.62;
   cinematic.uniforms.uGrain.value = 0.022;
   cinematic.uniforms.uCA.value = 0.001;
+  cinematic.uniforms.uLift.value.set(0, 0, 0);
   bloomPass.threshold = 0.85; bloomPass.strength = 0.55; bloomPass.radius = 0.5;
   camera.far = 5000; camera.near = 0.08; camera.updateProjectionMatrix();
 
@@ -119,6 +120,7 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
     motes.update(dt, camera, renderer);
     phenomena.update(dt);
     terrain.uniforms.uFlow.value += ((water.uniforms.uFront.value > 1 ? 1 : 0) - terrain.uniforms.uFlow.value) * dt * 0.3;
+    water.update(dt, director.D.waterFull); terrain.uniforms.uPool.value.w = water.poolFill(); // the pool fills once the stream reaches it
     ui.update();
   });
 

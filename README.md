@@ -38,6 +38,6 @@ ANTHROPIC_API_KEY=... PORT=8080 npm run serve:prod
 
 `client/dist-fitrah` also works on any static host; Dalil then answers from reviewed content only. The AI key is never part of the client build. See [`server/README.md`](server/README.md) for the variables, HTTPS and caching.
 
-Every verse, translation and the hadith reference is labelled "Pending Sharia review" until reviewed.
+The verses used in the game are confirmed by the project and shown from verified records. The hadith reference shows no hadith text and keeps its numbering marked "to be confirmed".
 
 See [`START_VERSION.md`](START_VERSION.md) for what existed before the challenge days (4–6 October 2026) and [`docs/CHALLENGE_LOG.md`](docs/CHALLENGE_LOG.md) for what was done on each day.

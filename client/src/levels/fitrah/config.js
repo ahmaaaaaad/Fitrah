@@ -6,6 +6,8 @@ const params = new URLSearchParams(location.search);
 
 export { QUALITY };
 export const DEBUG = params.has('debug');
+/** ?review shows the reviewers' tools: chapter jumps, the list of additions, Dalil's status, first-version notes */
+export const REVIEW = params.has('review') || DEBUG;
 /** ?speed=4 hurries every pause and reading time (review and headless tests only) */
 export const SPEED = Math.max(0.25, Math.min(20, Number(params.get('speed')) || 1));
 /** ?depth=learning starts at a depth without asking (tests, demos) */

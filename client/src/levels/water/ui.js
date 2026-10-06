@@ -3,7 +3,7 @@
 // panel that lists every provisional decision.
 import { i18n, arDigits } from '../../core/i18n.js';
 import { h } from '../../ui/dom.js';
-import { PROVISIONAL, DEBUG, CONFIG } from './config.js';
+import { PROVISIONAL, DEBUG, CONFIG, REVIEW } from './config.js';
 import { CT } from './events.js';
 import { createCaption } from '../../core/ui/caption.js';
 
@@ -97,8 +97,8 @@ export function createUI() {
   const altOf = (k) => (k === '57:17' ? '30:50' : '57:17');
   const provItems = () => [
     [{ ar: 'الماء كأول مشاهد فطرة', en: 'The Water as Fitrah’s first scene' }, { ar: 'يُختبر عبر هذا النموذج', en: 'validated through this prototype' }],
-    [{ ar: `آية الماء: ${arDigits(P.verses.revival)}`, en: `Water verse: ${P.verses.revival}` }, { ar: 'بانتظار المراجعة الشرعية', en: 'pending Sharia review' }],
-    [{ ar: `الآية الأخيرة: ${arDigits(P.verses.final)} (البديل ${arDigits(altOf(P.verses.final))})`, en: `Final verse: ${P.verses.final} (alternative ${altOf(P.verses.final)})` }, { ar: 'مؤقّت — يحتاج إلى تحقّق ومراجعة قبل اعتماده', en: 'provisional — requires verification and review before it is canonical' }],
+    [{ ar: `آية الماء: ${arDigits(P.verses.revival)}`, en: `Water verse: ${P.verses.revival}` }, { ar: 'معتمدة', en: 'confirmed' }],
+    [{ ar: `الآية الأخيرة: ${arDigits(P.verses.final)} (البديل ${arDigits(altOf(P.verses.final))})`, en: `Final verse: ${P.verses.final} (alternative ${altOf(P.verses.final)})` }, { ar: 'معتمدة', en: 'confirmed' }],
     [{ ar: 'الموسيقى', en: 'Music' }, { ar: 'القناة موجودة ومعطّلة حتى المراجعة الإبداعية والشرعية', en: 'bus exists, disabled until the creative and Sharia review' }],
     [{ ar: 'التلاوة', en: 'Recitation' }, { ar: P.audio.recitation.src ? 'ملف مرخّص مُعدّ' : 'لا يوجد ملف مرخّص بعد', en: P.audio.recitation.src ? 'licensed file configured' : 'no licensed file configured yet' }],
     [{ ar: 'هيئة دليل: نورٌ يمشي', en: 'Dalil’s form: a walking light' }, { ar: 'بانتظار صاحب المشروع والمراجعة', en: 'pending project owner and review' }],
@@ -112,18 +112,20 @@ export function createUI() {
   const altLabel = () => ({ ar: `اعرض الآية البديلة (${arDigits(altOf(P.verses.final))}) عند النهاية`, en: `Show the alternative (${altOf(P.verses.final)}) at the end` });
   T(altBtn, altLabel());
   altBtn.addEventListener('click', () => { P.verses.final = altOf(P.verses.final); renderProv(); T(altBtn, altLabel()); refreshStatus(); });
-  panel.append(
-    tx({ ar: 'فطرة · الماء — نموذج تجريبي', en: 'Fitrah · The Water — prototype' }, 'h2'),
+  // the player's menu: language, sound, reading. The reviewers' tools (beat jumps, provisional
+  // decisions, Dalil's status) appear with ?review.
+  panel.append(...[
+    tx({ ar: 'تفكّر · الماء', en: 'Tafakor · The Water' }, 'h2'),
     row({ ar: 'اللغة', en: 'Language' }, langAr, langEn),
     row({ ar: 'الصوت', en: 'Sound' }, soundBtn),
     row({ ar: 'الآية', en: 'Verse' }, readBtn),
-    row({ ar: 'انتقال للمراجعة', en: 'Jump (review)' }, ...jumps),
-    tx({ ar: 'قرارات مؤقّتة', en: 'Provisional decisions' }, 'h3'), provList, altBtn,
-    tx({ ar: 'حالة دليل', en: 'Dalil status' }, 'h3'), statusBox,
+    REVIEW ? row({ ar: 'انتقال للمراجعة', en: 'Jump (review)' }, ...jumps) : null,
+    REVIEW ? tx({ ar: 'قرارات للمراجعة', en: 'Decisions for review' }, 'h3') : null, REVIEW ? provList : null, REVIEW ? altBtn : null,
+    REVIEW ? tx({ ar: 'حالة دليل', en: 'Dalil status' }, 'h3') : null, REVIEW ? statusBox : null,
     h('div', { class: 'panel-end' },
       btn({ ar: 'متابعة', en: 'Continue' }, () => toggleMenu(false)),
       exitBtn()),
-  );
+  ].filter(Boolean));
   // back to the menu of scenes (only when the level was opened by the shell)
   function exitBtn(cls = '') {
     const b = btn({ ar: 'العودة إلى المشاهد', en: 'Back to the scenes' }, () => cb.onExit?.(), `quiet ${cls}`);
@@ -154,8 +156,6 @@ export function createUI() {
         h('p', { class: 'kicker' }, 'FITRAH · فطرة'),
         h('h1', { lang: 'ar' }, 'الماء'),
         h('p', { class: 'sub' }, 'The Water'),
-        h('p', { class: 'note', lang: 'ar', dir: 'rtl' }, 'نموذج تجريبي قابل للعب — للمراجعة'),
-        h('p', { class: 'note' }, 'Playable prototype — for review'),
         h('div', { class: 'langs' },
           h('button', { type: 'button', class: 'pill big', lang: 'ar', onClick: () => begin('ar') }, 'ابدأ بالعربية'),
           h('button', { type: 'button', class: 'pill big', onClick: () => begin('en') }, 'Begin in English')),
@@ -171,7 +171,7 @@ export function createUI() {
     const card = h('div', { class: 'end' },
       tx({ ar: 'الماء · اكتمل المشهد', en: 'The Water · the scene is complete' }, 'p', { class: 'kicker' }),
       tx({ ar: 'يمكنك البقاء في المرج، أو سؤال دليل عمّا رأيت، أو العودة إلى المشاهد.', en: 'Stay in the meadow, ask Dalil about what you saw, or return to the scenes.' }, 'p'),
-      h('div', { class: 'langs' }, btn({ ar: 'إعادة', en: 'Play again' }, onReplay), btn({ ar: 'القرارات المؤقّتة', en: 'Provisional decisions' }, () => toggleMenu(true))),
+      h('div', { class: 'langs' }, ...[btn({ ar: 'إعادة', en: 'Play again' }, onReplay), REVIEW ? btn({ ar: 'قرارات للمراجعة', en: 'Decisions for review' }, () => toggleMenu(true)) : null].filter(Boolean)),
       exitBtn('end-exit'));
     root.append(card);
     requestAnimationFrame(() => card.classList.add('on'));

@@ -45,9 +45,9 @@ export const LINES = {
   chain_prompt: {
     type: N,
     by: hold(
-      { en: 'Follow the way it came. Click and hold on the cloud, then drag from point to point down to the flower.', ar: 'تتبّع الطريق الذي جاء منه… انقر مع الاستمرار على السحاب، ثم اسحب من نقطة إلى نقطة حتى الزهرة.' },
-      { en: 'Follow the way it came. Touch and hold on the cloud, then drag from point to point down to the flower.', ar: 'تتبّع الطريق الذي جاء منه… المس السحاب مطوّلًا، ثم اسحب من نقطة إلى نقطة حتى الزهرة.' },
-      { en: 'Follow the way it came. Press and hold on the cloud, then drag from point to point down to the flower.', ar: 'تتبّع الطريق الذي جاء منه… اضغط على السحاب مطوّلًا، ثم اسحب من نقطة إلى نقطة حتى الزهرة.' }),
+      { en: 'Follow the way it came. Click and hold the glowing point on the cloud, then drag along the path to the next point, and on down to the flower.', ar: 'تتبّع الطريق الذي جاء منه… انقر مع الاستمرار على النقطة المضيئة عند السحاب، ثم اسحب على المسار إلى النقطة التالية، حتى تبلغ الزهرة.' },
+      { en: 'Follow the way it came. Touch and hold the glowing point on the cloud, then drag along the path to the next point, and on down to the flower.', ar: 'تتبّع الطريق الذي جاء منه… المس النقطة المضيئة عند السحاب مطوّلًا، ثم اسحب بإصبعك على المسار إلى النقطة التالية، حتى تبلغ الزهرة.' },
+      { en: 'Follow the way it came. Press and hold the glowing point on the cloud, then drag along the path to the next point, and on down to the flower.', ar: 'تتبّع الطريق الذي جاء منه… اضغط بالقلم مطوّلًا على النقطة المضيئة عند السحاب، ثم اسحب على المسار إلى النقطة التالية، حتى تبلغ الزهرة.' }),
   },
   chain_explain: { type: E, en: 'Cloud, rain, soil, water, flower. Each one needs the one before it, and none of them is the source of the others.', ar: 'سحاب، فمطر، فتربة، فماء، فزهرة. كلٌّ منها يحتاج إلى ما قبله، ولا شيء منها مصدرٌ لغيره.' },
   light_notice: {
@@ -79,9 +79,9 @@ export const LINES = {
   stall_connect: {
     type: N,
     by: hold(
-      { en: 'Start at the cloud: hold the button down and drag to the next point.', ar: 'ابدأ من السحاب: أبقِ الزر مضغوطًا واسحب إلى النقطة التالية.' },
-      { en: 'Start at the cloud: keep your finger down and drag to the next point.', ar: 'ابدأ من السحاب: أبقِ إصبعك على الشاشة واسحب إلى النقطة التالية.' },
-      { en: 'Start at the cloud: keep the pen down and drag to the next point.', ar: 'ابدأ من السحاب: أبقِ القلم على الشاشة واسحب إلى النقطة التالية.' }),
+      { en: 'Start at the glowing point on the cloud: hold the button down and drag along the path to the brighter point.', ar: 'ابدأ من النقطة المضيئة عند السحاب: أبقِ الزر مضغوطًا واسحب على المسار إلى النقطة الأكثر إضاءة.' },
+      { en: 'Start at the glowing point on the cloud: keep your finger down and drag along the path to the brighter point.', ar: 'ابدأ من النقطة المضيئة عند السحاب: أبقِ إصبعك على الشاشة واسحب على المسار إلى النقطة الأكثر إضاءة.' },
+      { en: 'Start at the glowing point on the cloud: keep the pen down and drag along the path to the brighter point.', ar: 'ابدأ من النقطة المضيئة عند السحاب: أبقِ القلم على الشاشة واسحب على المسار إلى النقطة الأكثر إضاءة.' }),
   },
   stall_align: {
     type: N,
@@ -105,7 +105,7 @@ export const EXPLAIN = {
   '56:68-70': {
     type: X,
     en: 'We have just watched rain reach the earth. These verses turn our attention to that same water: who brings it down from the clouds? Not us. They add that it could have been made bitter, and close by asking why we are not grateful.',
-    ar: 'رأينا قبل قليل المطر يصل إلى الأرض. وهذه الآيات تلفت نظرنا إلى هذا الماء نفسه: من الذي يُنزله من السحاب؟ لسنا نحن. وتذكّر بأنه كان يمكن أن يكون مُرًّا لا يُشرب، ثم تسألنا عن الشكر.',
+    ar: 'رأينا قبل قليل المطر يصل إلى الأرض. وهذه الآيات تلفت نظرنا إلى هذا الماء نفسه: من الذي يُنزله من السحاب؟ لسنا نحن. وتذكّر بأنه كان يمكن أن يكون مُرًّا لا يُشرب، ثم يسألنا الشكر.',
   },
   '57:17': {
     type: X,

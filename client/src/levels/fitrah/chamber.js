@@ -47,15 +47,22 @@ export const STATES = {
   arrive:   { fog: '#07060a', fogD: 0.03,  sky: '#020204', skyHi: '#0b0710', glow: '#ff9a3c', amb: 0.06, hemi: 0.06, key: '#ffcf8c', keyI: 0.25, floor: '#050407', ring: 0.08, fragI: 0.25, shaftI: 0.0,  shaftAt: [0, 0], center: 0.0, player: 0.6, qlights: 0.0, threshold: 0.0, spiral: 0.45, aperture: 0.35, rings: 0.25, beam: 0.15, exposure: 0.95 },
   opening:  { fog: '#0a0709', fogD: 0.026, sky: '#030305', skyHi: '#120a10', glow: '#ffa448', amb: 0.1,  hemi: 0.1,  key: '#ffd49a', keyI: 0.5,  floor: '#07060a', ring: 0.22, fragI: 0.5,  shaftI: 0.15, shaftAt: [0, 0], center: 0.15, player: 1.0, qlights: 0.0, threshold: 0.0, spiral: 0.9,  aperture: 0.75, rings: 0.6,  beam: 0.35, exposure: 1.0 },
   four:     { fog: '#0b080b', fogD: 0.026, sky: '#030305', skyHi: '#130b10', glow: '#ffa64c', amb: 0.12, hemi: 0.12, key: '#ffd8a2', keyI: 0.55, floor: '#08070a', ring: 0.25, fragI: 0.5,  shaftI: 0.18, shaftAt: [0, 0], center: 0.2,  player: 1.0, qlights: 1.0, threshold: 0.0, spiral: 0.95, aperture: 0.8,  rings: 0.65, beam: 0.35, exposure: 1.0 },
-  creation: { fog: '#0c090c', fogD: 0.025, sky: '#030305', skyHi: '#140c12', glow: '#ffb259', amb: 0.13, hemi: 0.14, key: '#ffe2b8', keyI: 0.7,  floor: '#08070a', ring: 0.25, fragI: 0.65, shaftI: 0.22, shaftAt: [0, 0], center: 0.25, player: 1.0, qlights: 0.3,  threshold: 0.0, spiral: 1.0,  aperture: 0.85, rings: 0.7,  beam: 0.4,  exposure: 1.0 },
-  created:  { fog: '#140f0d', fogD: 0.022, sky: '#050404', skyHi: '#1c120c', glow: '#ffc06a', amb: 0.2,  hemi: 0.22, key: '#fff0d4', keyI: 1.1,  floor: '#0c0a0b', ring: 0.55, fragI: 0.9,  shaftI: 0.5,  shaftAt: [0, 0], center: 0.85, player: 0.9, qlights: 0.35, threshold: 0.0, spiral: 1.25, aperture: 1.1,  rings: 1.0,  beam: 0.7,  exposure: 1.03 },
-  purpose:  { fog: '#16100b', fogD: 0.024, sky: '#050403', skyHi: '#1d130b', glow: '#ffb050', amb: 0.18, hemi: 0.2,  key: '#ffe2b4', keyI: 0.95, floor: '#0d0a08', ring: 0.3,  fragI: 0.8,  shaftI: 0.7,  shaftAt: [0, -9], center: 0.2, player: 0.9, qlights: 0.35, threshold: 0.0, spiral: 1.15, aperture: 1.0,  rings: 0.75, beam: 0.95, exposure: 1.01 },
-  practice: { fog: '#1a110a', fogD: 0.024, sky: '#060403', skyHi: '#20140a', glow: '#ffa640', amb: 0.22, hemi: 0.22, key: '#ffd08a', keyI: 1.1,  floor: '#110c08', ring: 0.4,  fragI: 0.85, shaftI: 0.35, shaftAt: [0, 0], center: 0.3,  player: 0.9, qlights: 0.35, threshold: 0.0, spiral: 1.1,  aperture: 1.0,  rings: 0.85, beam: 0.6,  exposure: 1.02 },
-  return:   { fog: '#07100f', fogD: 0.028, sky: '#020404', skyHi: '#071413', glow: '#9fd6d0', amb: 0.12, hemi: 0.14, key: '#c8eaee', keyI: 0.65, floor: '#040c0d', ring: 0.25, fragI: 0.55, shaftI: 0.12, shaftAt: [0, -9], center: 0.12, player: 1.0, qlights: 0.35, threshold: 1.0, spiral: 0.7,  aperture: 0.6,  rings: 0.5,  beam: 0.25, exposure: 0.98 },
-  dawn:     { fog: '#16110f', fogD: 0.024, sky: '#050404', skyHi: '#1d1410', glow: '#ffcf8a', amb: 0.22, hemi: 0.24, key: '#ffe6c4', keyI: 1.05, floor: '#0d0d0e', ring: 0.4,  fragI: 0.8,  shaftI: 0.45, shaftAt: [0, -9], center: 0.35, player: 1.0, qlights: 0.35, threshold: 0.7, spiral: 1.15, aperture: 1.0,  rings: 0.85, beam: 0.7,  exposure: 1.02 },
+  creation: { fog: '#0c090c', fogD: 0.025, sky: '#030305', skyHi: '#140c12', glow: '#ffb259', amb: 0.13, hemi: 0.14, key: '#ffe2b8', keyI: 0.7,  floor: '#08070a', ring: 0.25, fragI: 0.65, shaftI: 0.22, shaftAt: [0, 0], center: 0.25, player: 1.0, qlights: 0.22, threshold: 0.0, spiral: 1.0,  aperture: 0.85, rings: 0.7,  beam: 0.4,  exposure: 1.0 },
+  created:  { fog: '#140f0d', fogD: 0.022, sky: '#050404', skyHi: '#1c120c', glow: '#ffc06a', amb: 0.2,  hemi: 0.22, key: '#fff0d4', keyI: 1.1,  floor: '#0c0a0b', ring: 0.55, fragI: 0.9,  shaftI: 0.5,  shaftAt: [0, 0], center: 0.85, player: 0.9, qlights: 0.22, threshold: 0.0, spiral: 1.25, aperture: 1.1,  rings: 1.0,  beam: 0.7,  exposure: 1.03 },
+  purpose:  { fog: '#16100b', fogD: 0.024, sky: '#050403', skyHi: '#1d130b', glow: '#ffb050', amb: 0.18, hemi: 0.2,  key: '#ffe2b4', keyI: 0.95, floor: '#0d0a08', ring: 0.3,  fragI: 0.8,  shaftI: 0.7,  shaftAt: [0, -9], center: 0.2, player: 0.9, qlights: 0.22, threshold: 0.0, spiral: 1.15, aperture: 1.0,  rings: 0.75, beam: 0.95, exposure: 1.01 },
+  practice: { fog: '#1a110a', fogD: 0.024, sky: '#060403', skyHi: '#20140a', glow: '#ffa640', amb: 0.22, hemi: 0.22, key: '#ffd08a', keyI: 1.1,  floor: '#110c08', ring: 0.4,  fragI: 0.85, shaftI: 0.35, shaftAt: [0, 0], center: 0.3,  player: 0.9, qlights: 0.22, threshold: 0.0, spiral: 1.1,  aperture: 1.0,  rings: 0.85, beam: 0.6,  exposure: 1.02 },
+  return:   { fog: '#07100f', fogD: 0.028, sky: '#020404', skyHi: '#071413', glow: '#9fd6d0', amb: 0.12, hemi: 0.14, key: '#c8eaee', keyI: 0.65, floor: '#040c0d', ring: 0.25, fragI: 0.55, shaftI: 0.12, shaftAt: [0, -9], center: 0.12, player: 1.0, qlights: 0.22, threshold: 1.0, spiral: 0.7,  aperture: 0.6,  rings: 0.5,  beam: 0.25, exposure: 0.98 },
+  dawn:     { fog: '#16110f', fogD: 0.024, sky: '#050404', skyHi: '#1d1410', glow: '#ffcf8a', amb: 0.22, hemi: 0.24, key: '#ffe6c4', keyI: 1.05, floor: '#0d0d0e', ring: 0.4,  fragI: 0.8,  shaftI: 0.45, shaftAt: [0, -9], center: 0.35, player: 1.0, qlights: 0.22, threshold: 0.7, spiral: 1.15, aperture: 1.0,  rings: 0.85, beam: 0.7,  exposure: 1.02 },
   ending:   { fog: '#15100e', fogD: 0.022, sky: '#050404', skyHi: '#1e140e', glow: '#ffc472', amb: 0.24, hemi: 0.24, key: '#ffead0', keyI: 1.15, floor: '#0e0b0b', ring: 0.6,  fragI: 0.95, shaftI: 0.5,  shaftAt: [0, 0], center: 0.6,  player: 1.0, qlights: 1.0, threshold: 0.0, spiral: 1.3,  aperture: 1.15, rings: 1.0,  beam: 0.8,  exposure: 1.03 },
 };
 STATES.dark = STATES.arrive; // older name, kept for review jumps
+// Deep, never crushed: the darkest colours of every state are lifted a little toward a
+// warm dark, so the hall reads as space and atmosphere rather than as an empty black.
+{
+  const LIFT = { fog: [0.0028, 0.0021, 0.0018], sky: [0.0009, 0.0007, 0.0006], skyHi: [0.0014, 0.001, 0.0008], floor: [0.0022, 0.0017, 0.0014] };
+  const c = new THREE.Color();
+  for (const st of new Set(Object.values(STATES))) for (const [k, l] of Object.entries(LIFT)) { c.set(st[k]); c.r += l[0]; c.g += l[1]; c.b += l[2]; st[k] = `#${c.getHexString()}`; }
+}
 
 // the four question lights stand at the far side of the hall, before the aperture
 export const QUESTION_POS = [new THREE.Vector3(-7.2, 2.6, -1.8), new THREE.Vector3(-2.8, 3.6, -5.6), new THREE.Vector3(2.8, 3.6, -5.6), new THREE.Vector3(7.2, 2.6, -1.8)];
@@ -150,7 +157,7 @@ function spiralGeometry(n, R) {
     const thick = (1 - t) * R * 0.035 + R * 0.004;
     pos[i * 3] = Math.cos(ang) * rad; pos[i * 3 + 1] = g() * thick; pos[i * 3 + 2] = Math.sin(ang) * rad;
     if (t < 0.18) tmp.copy(cCore).lerp(cGold, t / 0.18); else if (t < 0.55) tmp.copy(cGold).lerp(cAmber, (t - 0.18) / 0.37); else tmp.copy(cAmber).lerp(cDeep, Math.min(1, (t - 0.55) / 0.45));
-    const b = (halo ? 0.3 : 1.0) * (0.55 + 0.45 * Math.sin(Math.min(1, t * 2.2) * 1.57)) * (1.05 - t * 0.55) * (0.55 + r() * 0.55) * 0.42;
+    const b = (halo ? 0.3 : 1.0) * (0.55 + 0.45 * Math.sin(Math.min(1, t * 2.2) * 1.57)) * (1.05 - t * 0.55) * (0.55 + r() * 0.55) * 0.42 * (0.55 + 0.45 * Math.min(1, t / 0.16));
     col[i * 3] = tmp.r * b; col[i * 3 + 1] = tmp.g * b; col[i * 3 + 2] = tmp.b * b;
     size[i] = (0.5 + Math.pow(r(), 3) * 2.2) * (1.5 - t * 0.7) * (halo ? 0.8 : 1);
     seed[i] = r();
@@ -211,7 +218,7 @@ export function createChamber(scene) {
         vec3 c = mix(uSky, uHi, smoothstep(-0.05, 0.5, d.y));
         float a = max(dot(d, uDir), 0.0);
         float neb = n3(d * 4.0 + vec3(0.0, uTime * 0.004, 0.0)) * 0.6 + n3(d * 9.0) * 0.4;
-        c += uGlow * (pow(a, 10.0) * 0.022 + pow(a, 90.0) * 0.06) * uGlowI * (0.7 + 0.6 * neb);
+        c += uGlow * (pow(a, 4.0) * 0.007 + pow(a, 12.0) * 0.024 + pow(a, 90.0) * 0.05) * uGlowI * (0.7 + 0.6 * neb);
         gl_FragColor = vec4(c, 1.0); }`,
   });
   const sky = new THREE.Mesh(new THREE.SphereGeometry(500, 48, 24), skyMat); sky.renderOrder = -20; sky.frustumCulled = false;
@@ -233,58 +240,90 @@ export function createChamber(scene) {
   root.add(core2, core1);
 
   // ------------------------------------------------ the hall: a vast curved wall with one circular aperture
+  // the aperture is a circle in (arc length, height) on the curved wall
+  const AP_GLSL = /* glsl */`
+    float apDist(vec3 w, float mirror, out float y){
+      y = w.y * mirror;
+      float az = atan(w.x, -w.z);                     // 0 straight ahead (toward -z)
+      return length(vec2(az * ${HALL.toFixed(1)}, y - ${AP.y.toFixed(1)})) - ${AP.r.toFixed(1)};
+    }
+    float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+      float a = fract(sin(dot(i, vec2(127.1, 311.7))) * 43758.5453), b = fract(sin(dot(i + vec2(1.0, 0.0), vec2(127.1, 311.7))) * 43758.5453);
+      float c = fract(sin(dot(i + vec2(0.0, 1.0), vec2(127.1, 311.7))) * 43758.5453), d = fract(sin(dot(i + vec2(1.0, 1.0), vec2(127.1, 311.7))) * 43758.5453);
+      return mix(mix(a, b, f.x), mix(c, d, f.x), f.y); }`;
   const wallMat = new THREE.ShaderMaterial({
-    side: THREE.BackSide, transparent: false, fog: false,
-    uniforms: { uFog: { value: P.fog.clone() }, uGlow: { value: P.glow.clone() }, uAp: { value: 0 }, uMirror: { value: 1 }, uTime: { value: 0 } },
+    side: THREE.BackSide, transparent: true, depthWrite: true, fog: false,
+    uniforms: { uFog: { value: P.fog.clone() }, uHaze: { value: P.fog.clone() }, uGlow: { value: P.glow.clone() }, uAp: { value: 0 }, uMirror: { value: 1 }, uTime: { value: 0 } },
     vertexShader: /* glsl */`varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
-    fragmentShader: /* glsl */`uniform vec3 uFog, uGlow; uniform float uAp, uMirror, uTime; varying vec3 vW;
+    fragmentShader: /* glsl */`uniform vec3 uFog, uHaze, uGlow; uniform float uAp, uMirror, uTime; varying vec3 vW;
+      ${AP_GLSL}
       void main(){
-        float y = vW.y * uMirror;
-        float az = atan(vW.x, -vW.z);                  // 0 straight ahead (toward -z)
-        vec2 q = vec2(az * ${HALL.toFixed(1)}, y - ${AP.y.toFixed(1)});
-        float d = length(q) - ${AP.r.toFixed(1)};
-        if (d < 0.0) discard;                          // the aperture: the spiral shows through
-        // dark warm stone; broad bands and seams, barely there
-        vec3 c = vec3(0.022, 0.018, 0.02);
-        float band = smoothstep(0.06, 0.0, abs(fract(y / 7.0) - 0.5) - 0.44) * 0.35;
-        float seam = smoothstep(0.08, 0.0, abs(fract(az * ${(HALL / 9).toFixed(3)}) - 0.5) - 0.46) * 0.25;
-        c *= 1.0 + band + seam;
-        // the warm light of the aperture on the wall around it, and the bright rim itself
-        float bounce = exp(-d / 7.0) * 0.4 + exp(-d / 24.0) * 0.12;
-        float rim = smoothstep(0.9, 0.0, d) + smoothstep(3.5, 0.0, d) * 0.25;
-        c += uGlow * (bounce * 0.16 + rim * 0.9) * uAp;
-        // concentric rings carved around the aperture
-        float rings = smoothstep(0.12, 0.0, abs(fract(d / 3.2 + 0.1) - 0.5) - 0.45) * exp(-d / 12.0);
-        c += uGlow * rings * 0.05 * uAp;
-        // haze near the floor
-        c = mix(c, uFog, 0.25 + 0.5 * smoothstep(9.0, 0.0, y));
-        gl_FragColor = vec4(c, 1.0);
+        float y; float d = apDist(vW, uMirror, y);
+        // the wall thins softly into the opening: no hard cut-out edge
+        float alpha = smoothstep(-0.2, 1.1, d);
+        if (alpha <= 0.002) discard;
+        // dark warm stone, its tone varying broadly and slowly (no lines, no seams)
+        float az = atan(vW.x, -vW.z);
+        float m = vn(vec2(az * 3.0, y * 0.09)) * 0.6 + vn(vec2(az * 8.0, y * 0.23) + 7.0) * 0.4;
+        vec3 c = vec3(0.028, 0.022, 0.021) * (0.75 + 0.5 * m);
+        // the aperture's light on the wall around it: a broad warm gradient and a soft luminous lip
+        float dd = max(d, 0.0);
+        float bounce = exp(-dd / 8.0) * 0.55 + exp(-dd / 26.0) * 0.16;
+        float lip = exp(-dd / 0.9);
+        c += uGlow * (bounce * 0.1 + lip * 0.42) * uAp;
+        // low haze, the same colour as the far floor, so the wall and the floor meet softly
+        c = mix(c, uHaze, 0.12 + 0.6 * smoothstep(11.0, 0.0, y));
+        gl_FragColor = vec4(c, alpha);
       }`,
   });
   const wallGeo = new THREE.CylinderGeometry(HALL, HALL, 72, 160, 1, true); wallGeo.translate(0, 36, 0);
-  const wall = new THREE.Mesh(wallGeo, wallMat); root.add(wall);
+  // drawn right after the sky and the spiral (its soft edge blends over them), before every light in the hall
+  const wall = new THREE.Mesh(wallGeo, wallMat); wall.renderOrder = -6; root.add(wall);
   const wallMirrorMat = wallMat.clone(); wallMirrorMat.uniforms = { ...wallMat.uniforms, uMirror: { value: -1 } }; wallMirrorMat.side = THREE.FrontSide;
-  const wallMirror = new THREE.Mesh(wallGeo, wallMirrorMat); wallMirror.scale.y = -1; root.add(wallMirror);
+  const wallMirror = new THREE.Mesh(wallGeo, wallMirrorMat); wallMirror.scale.y = -1; wallMirror.renderOrder = -6; root.add(wallMirror);
+
+  // ------------------------------------------------ the light at the aperture's edge: a soft halo on both sides of the rim,
+  // and a faint haze inside the opening near it (the air in front of the spiral catching the light)
+  const haloMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false,
+    uniforms: { uGlow: { value: P.glow.clone() }, uAp: { value: 0 }, uMirror: { value: 1 } },
+    vertexShader: wallMat.vertexShader,
+    fragmentShader: /* glsl */`uniform vec3 uGlow; uniform float uAp, uMirror; varying vec3 vW;
+      ${AP_GLSL}
+      void main(){
+        float y; float d = apDist(vW, uMirror, y);
+        float a = exp(-abs(d) / 1.6) * 0.13 + exp(-max(-d, 0.0) / 4.0) * step(d, 0.0) * 0.012;
+        gl_FragColor = vec4(uGlow * a * uAp, 1.0);
+      }`,
+  });
+  const haloGeo = new THREE.CylinderGeometry(HALL - 0.5, HALL - 0.5, 52, 96, 1, true, Math.PI - 1.15, 2.3); haloGeo.translate(0, 26, 0);
+  const apHalo = new THREE.Mesh(haloGeo, haloMat); apHalo.renderOrder = 0.5; root.add(apHalo);
+  const haloMirrorMat = haloMat.clone(); haloMirrorMat.uniforms = { ...haloMat.uniforms, uMirror: { value: -1 }, uAp: { value: 0 } }; haloMirrorMat.side = THREE.FrontSide;
+  const apHaloMirror = new THREE.Mesh(haloGeo, haloMirrorMat); apHaloMirror.scale.y = -1; apHaloMirror.renderOrder = 0.5; root.add(apHaloMirror);
 
   // ------------------------------------------------ the floor: dark and polished, concentric inlays of light
   const floorMat = new THREE.ShaderMaterial({
     transparent: true, depthWrite: true,
-    uniforms: { uColor: { value: new THREE.Color('#06070c') }, uRing: { value: 0 }, uRingColor: { value: new THREE.Color('#f0c27a') }, uTime: { value: 0 }, uFog: { value: new THREE.Color('#05060b') } },
+    uniforms: { uColor: { value: new THREE.Color('#06070c') }, uRing: { value: 0 }, uRingColor: { value: new THREE.Color('#f0c27a') }, uTime: { value: 0 }, uFog: { value: new THREE.Color('#05060b') }, uGlow: { value: new THREE.Color('#ffa64c') }, uPool: { value: 0 } },
     vertexShader: /* glsl */`varying vec3 vW; void main(){ vec4 w = modelMatrix * vec4(position,1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
     fragmentShader: /* glsl */`
-      uniform vec3 uColor, uRingColor, uFog; uniform float uRing, uTime; varying vec3 vW;
-      float h(vec2 p){ return fract(sin(dot(p, vec2(41.3, 289.1))) * 43758.5); }
+      uniform vec3 uColor, uRingColor, uFog, uGlow; uniform float uRing, uTime, uPool; varying vec3 vW;
+      float band(float r, float at, float w){ float x = (r - at) / w; return exp(-x * x); }
       void main(){
         float r = length(vW.xz);
-        float rings = 0.0;
-        for (int i = 1; i <= 5; i++) { float rr = float(i) * 2.0; rings += smoothstep(0.035, 0.0, abs(r - rr)) * (1.0 - float(i) * 0.12); }
-        rings += smoothstep(0.06, 0.0, abs(r - 15.0)) * 0.5 + smoothstep(0.08, 0.0, abs(r - 24.0)) * 0.3;
-        float spokes = smoothstep(0.02, 0.0, abs(sin(atan(vW.z, vW.x + 1e-4) * 2.5))) * smoothstep(10.5, 2.0, r) * step(1.9, r) * 0.35;
-        vec3 c = uColor * (1.0 + 0.05 * h(floor(vW.xz * 18.0)));
-        float flow = 0.6 + 0.4 * sin(uTime * 0.4 - r * 0.7);
-        c += uRingColor * (rings + spokes) * uRing * flow;
-        c = mix(c, uFog, smoothstep(14.0, 33.0, r) * 0.8);
-        gl_FragColor = vec4(c, mix(0.8, 0.94, smoothstep(6.0, 30.0, r)));
+        // two quiet circles: the ground the figures stand on, and the edge of the inner hall
+        float rings = band(r, 2.0, 0.05) * 0.55 + band(r, 6.0, 0.07) * 0.4 + band(r, 15.0, 0.14) * 0.12;
+        vec3 c = uColor;
+        // the fall of light from the aperture pools warmly before the player
+        vec2 pc = vW.xz - vec2(0.0, 2.5);
+        float pool = exp(-dot(pc, pc) / 70.0);
+        // the polished floor carries the aperture's light toward the viewer
+        float refl = exp(-vW.x * vW.x / 110.0) * smoothstep(10.0, -28.0, vW.z);
+        c += uGlow * (pool * 0.085 + refl * 0.05) * uPool;
+        float flow = 0.75 + 0.25 * sin(uTime * 0.35 - r * 0.6);
+        c += uRingColor * rings * uRing * flow;
+        c = mix(c, uFog, smoothstep(7.0, 26.0, r) * 0.9);
+        gl_FragColor = vec4(c, mix(0.87, 0.955, smoothstep(5.0, 26.0, r)));
       }`,
   });
   const floor = new THREE.Mesh(new THREE.CircleGeometry(HALL, 160), floorMat);
@@ -292,11 +331,9 @@ export function createChamber(scene) {
   root.add(floor);
 
   // ------------------------------------------------ rings of light in the air (orbits, slowly turning)
+  // one orbit, high above the hall: the circular composition without lines across the opening or the figures
   const ringDefs = [
-    { R: 9.5, w: 0.07, y: 8.2, rx: 1.42, ry: 0.0, rz: 0.06, speed: 0.025, beads: 2 },
-    { R: 15, w: 0.09, y: 12.5, rx: 1.3, ry: 0.5, rz: -0.08, speed: -0.016, beads: 3 },
-    { R: 6.2, w: 0.05, y: 6.0, rx: 1.5, ry: 0.0, rz: -0.1, speed: 0.04, beads: 1 },
-    { R: 23, w: 0.12, y: 18, rx: 1.48, ry: 0.0, rz: 0.03, speed: 0.008, beads: 4 },
+    { R: 23, w: 0.1, y: 19, rx: 1.48, ry: 0.0, rz: 0.03, speed: 0.008, beads: 3 },
   ];
   const ringMats = [];
   const rings = ringDefs.map((d) => {
@@ -307,7 +344,7 @@ export function createChamber(scene) {
       fragmentShader: /* glsl */`uniform float uI, uTime, uBeads, uSpeed; uniform vec3 uColor; varying vec2 vUv; varying vec3 vP;
         void main(){ float r = length(vP.xy); float a = atan(vP.y, vP.x);
           float edge = fract(vUv.x * 0.0 + 0.0);
-          float bead = pow(max(0.5 + 0.5 * cos(a * uBeads - uTime * uSpeed), 0.0), 30.0);
+          float bead = pow(max(0.5 + 0.5 * cos(a * uBeads - uTime * uSpeed), 0.0), 24.0) * 0.5;
           gl_FragColor = vec4(uColor * (0.55 + bead * 1.6) * uI, 1.0); }`,
     });
     // a soft-edged band: the glow falls off across its width
@@ -392,8 +429,8 @@ export function createChamber(scene) {
   // ------------------------------------------------ the four question lights
   const qlights = QUESTION_POS.map((p) => {
     const g = new THREE.Group(); g.position.copy(p);
-    const halo = glowSprite('#dfe4ff', 2.1, 0), core = glowSprite('#ffffff', 0.42, 0);
-    const mirror = glowSprite('#dfe4ff', 1.2, 0); mirror.position.y = -p.y * 2;
+    const halo = glowSprite('#ece6f0', 1.8, 0), core = glowSprite('#ffffff', 0.38, 0);
+    const mirror = glowSprite('#ece6f0', 1.0, 0); mirror.position.y = -p.y * 2;
     g.add(halo, core, mirror); root.add(g);
     return { group: g, halo, core, mirror, lit: 0, litT: 0, shown: 1, shownT: 1, focus: 0, focusT: 0 };
   });
@@ -416,7 +453,7 @@ export function createChamber(scene) {
   const thrMirror = new THREE.Mesh(threshold.geometry, thrMat); thrMirror.position.set(0, -4.3, -10.6); thrMirror.scale.y = -1; root.add(thrMirror);
 
   // ---------------------------------------------------------------- update
-  const tmpC = new THREE.Color(), rimC = new THREE.Color();
+  const tmpC = new THREE.Color(), rimC = new THREE.Color(), haze = new THREE.Color();
   function setState(name, seconds = 6) { target = STATES[name] || STATES.arrive; tau = Math.max(0.05, seconds / 3); P.name = name; }
   function lerpTo(dt) {
     const k = 1 - Math.exp(-dt / tau);
@@ -442,15 +479,18 @@ export function createChamber(scene) {
     spiralUniforms.uScale.value = H / (2 * Math.tan((fov * Math.PI) / 360));
     spiralUniforms.uRot.value = t * 0.0045; spiralUniforms.uTime.value = t; spiralUniforms.uI.value = P.spiral;
     spiralMirrorUniforms.uI.value = P.spiral * 0.07;
-    core1.material.opacity = P.spiral * 0.16; core2.material.opacity = P.spiral * 0.025;
+    core1.material.opacity = P.spiral * 0.09; core2.material.opacity = P.spiral * 0.018;
     core1.material.color.copy(P.glow).lerp(tmpC.set('#ffffff'), 0.55); core2.material.color.copy(P.glow);
-    wallMat.uniforms.uFog.value.copy(P.fog); wallMat.uniforms.uGlow.value.copy(P.glow); wallMat.uniforms.uAp.value = P.aperture;
-    floorMat.uniforms.uColor.value.copy(P.floor); floorMat.uniforms.uRing.value = P.ring; floorMat.uniforms.uTime.value = t; floorMat.uniforms.uFog.value.copy(P.fog);
+    haze.copy(P.fog).lerp(P.glow, 0.03);
+    wallMat.uniforms.uFog.value.copy(P.fog); wallMat.uniforms.uHaze.value.copy(haze); wallMat.uniforms.uGlow.value.copy(P.glow); wallMat.uniforms.uAp.value = P.aperture;
+    haloMat.uniforms.uGlow.value.copy(P.glow); haloMat.uniforms.uAp.value = P.aperture; haloMirrorMat.uniforms.uAp.value = P.aperture * 0.25;
+    floorMat.uniforms.uGlow.value.copy(P.glow); floorMat.uniforms.uPool.value = 0.35 + P.beam;
+    floorMat.uniforms.uColor.value.copy(P.floor); floorMat.uniforms.uRing.value = P.ring; floorMat.uniforms.uTime.value = t; floorMat.uniforms.uFog.value.copy(haze);
     floorMat.uniforms.uRingColor.value.copy(P.glow).lerp(tmpC.set('#ffe0a8'), 0.5);
     for (const rg of rings) {
       rg.mesh.rotation.z = t * rg.d.speed;
       rg.halo.rotation.z = rg.mesh.rotation.z;
-      rg.mesh.material.uniforms.uI.value = P.rings * 0.85; rg.halo.material.uniforms.uI.value = P.rings * 0.07;
+      rg.mesh.material.uniforms.uI.value = P.rings * 0.32; rg.halo.material.uniforms.uI.value = P.rings * 0.05;
       rg.mesh.material.uniforms.uTime.value = t;
       rg.mesh.material.uniforms.uColor.value.copy(P.glow).lerp(tmpC.set('#ffe6b8'), 0.45);
     }
@@ -475,10 +515,10 @@ export function createChamber(scene) {
       ql.litT += (ql.lit - ql.litT) * kk; ql.shownT += (ql.shown - ql.shownT) * kk; ql.focusT += (ql.focus - ql.focusT) * kk;
       const b = P.qlights * ql.shownT * (0.8 + 0.2 * Math.sin(t * 0.9 + ql.group.position.x)) * (1 + ql.focusT * 0.35 * (0.6 + 0.4 * Math.sin(t * 2.2)));
       const warm = ql.litT * ql.shownT;
-      ql.halo.material.color.set('#dfe4ff').lerp(tmpC.set('#f6c77d'), ql.litT);
+      ql.halo.material.color.set('#ece6f0').lerp(tmpC.set('#f6c77d'), ql.litT);
       ql.halo.material.opacity = Math.max(b, warm * 0.9) * 0.85; ql.core.material.opacity = Math.min(1, Math.max(b, warm));
-      ql.halo.scale.setScalar(2.1 * (1 + ql.focusT * 0.25));
-      ql.mirror.material.opacity = Math.max(b, warm) * 0.25;
+      ql.halo.scale.setScalar(1.8 * (1 + ql.focusT * 0.25));
+      ql.mirror.material.opacity = Math.max(b, warm) * 0.16;
       ql.mirror.material.color.copy(ql.halo.material.color);
     }
     if (renderer) renderer.toneMappingExposure = P.exposure;
@@ -490,8 +530,10 @@ export function createChamber(scene) {
     get layout() { return layoutName; },
     /** on a narrow screen the four question lights stand closer together, so all four fit */
     fitQuestions(aspect) {
-      const k = aspect < 0.8 ? 0.5 : aspect < 1.2 ? 0.75 : 1;
-      QUESTION_POS.forEach((p, i) => { p.x = QX[i] * k; qlights[i].group.position.x = p.x; });
+      // the camera now keeps most of the 16:9 width on narrow screens (core/lens.js): the lights draw in only a little
+      // (the outer pair draws in, the inner pair keeps its spacing so their names do not run into each other)
+      const k = aspect < 0.8 ? 0.78 : aspect < 1.2 ? 0.88 : 1;
+      QUESTION_POS.forEach((p, i) => { p.x = QX[i] * (i === 1 || i === 2 ? Math.max(k, 1) : k); qlights[i].group.position.x = p.x; });
     },
     /** the player's figure stands on the side away from Dalil (1 = right, -1 = left) */
     setPlayerSide(s) { playerSide = s; },

@@ -73,8 +73,6 @@ export async function revealVerse(key, { anchor, readable = false, explanation =
   const v = byKey[key];
   const ok = await verifyVerse(key);
   if (!ok) { console.error(`[fitrah] verse ${key} failed its integrity check; nothing is shown.`); return { shown: false }; }
-  const isFinal = key === PROVISIONAL.verses.final;
-  const alt = key === '57:17' ? '30:50' : '57:17';
   const revealStart = performance.now();
   const words = v.ayah_texts.map((a) => a.ar.split(' '));
   const totalWords = words.reduce((s, w) => s + w.length, 0);
@@ -94,12 +92,8 @@ export async function revealVerse(key, { anchor, readable = false, explanation =
   const trToggle = i18n.lang === 'ar' ? h('button', { class: 'tr-toggle', type: 'button' }, 'عرض ترجمة المعاني بالإنجليزية') : null;
   if (trToggle) { trLayer.classList.add('collapsed'); trToggle.addEventListener('click', () => { trLayer.classList.toggle('collapsed'); }); }
 
-  const tags = h('div', { class: 'tags' },
-    h('span', { class: 'tag' }, i18n.t({ ar: 'بانتظار المراجعة الشرعية', en: 'Pending Sharia review' })),
-    isFinal ? h('span', { class: 'tag prov' }, i18n.t({
-      ar: `اختيار مؤقّت — يحتاج إلى تحقّق ومراجعة شرعية قبل اعتماده (البديل: ${arDigits(alt)})`,
-      en: `Provisional selection — requires verification and Sharia review before it is canonical (alternative: ${alt})`,
-    })) : null);
+  // the verses of this scene are confirmed by the project: no review badge on the card
+  const tags = h('div', { class: 'tags' });
   const exLayer = explanation ? h('div', { class: 'layer explain', 'data-type': CT.DALIL_EXPLANATION },
     label(CT.DALIL_EXPLANATION), h('p', { class: 'explain-text', lang: i18n.lang, dir: i18n.dir }, i18n.t(explanation))) : null;
   const cont = h('button', { class: 'continue', type: 'button' }, i18n.t({ ar: 'متابعة', en: 'Continue' }));
