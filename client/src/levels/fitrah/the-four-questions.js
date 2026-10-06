@@ -11,6 +11,7 @@ import { scene, camera, renderer, start, onUpdate, cinematic, bloomPass, renderN
 import { i18n } from '../../core/i18n.js';
 import { hintPointer } from '../../core/device.js';
 import { openTalk, talkStatus } from '../../core/help/talk.js';
+import { trackFps } from '../../core/analytics.js';
 import { createChamber } from './chamber.js';
 import { createCameraRig } from './camera.js';
 import { createDalil } from './dalil.js';
@@ -50,6 +51,8 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
   chamber.setPlayerSide(i18n.dir === 'rtl' ? -1 : 1);
   i18n.onChange(() => chamber.setPlayerSide(i18n.dir === 'rtl' ? -1 : 1));
   rig.shot('establish', { snap: true });
+  const fitQ = () => chamber.fitQuestions(window.innerWidth / Math.max(1, window.innerHeight));
+  fitQ(); window.addEventListener('resize', fitQ);
   rig.update(1 / 60, 0);
   dalil.place(new THREE.Vector3(0.6, 1.3, 1.2)); // far ahead, by the centre: he walks to the player once the story begins
 
@@ -111,6 +114,7 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
 
   let fps = 60;
   start(document.getElementById('stage'));
+  trackFps('fitrah', () => fps);
   onUpdate((dt, t) => {
     fps += (1 / Math.max(dt, 1e-3) - fps) * 0.05;
     rig.update(dt, t);

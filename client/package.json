@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview --host",
     "dev:fitrah": "vite --host --config vite.fitrah.config.js --open /fitrah.html",
-    "build:fitrah": "vite build --config vite.fitrah.config.js"
+    "build:fitrah": "vite build --config vite.fitrah.config.js",
+    "build:server": "esbuild ../server/fitrah-server.mjs --bundle --platform=node --format=esm --target=node18 --outfile=../server/dist/fitrah-server.mjs --loader:.json=json",
+    "serve:prod": "node ../server/dist/fitrah-server.mjs"
   },
   "dependencies": {
     "@fontsource/amiri-quran": "^5.3.0",

@@ -12,6 +12,10 @@ import '../fonts.css';
 import './shell.css';
 import { i18n } from '../core/i18n.js';
 import { LEVELS, PATHS, levelById, levelsIn, isPlayable } from '../levels/registry.js';
+import { track } from '../core/analytics.js';
+
+// WebGL 2 is required by every level; without it the menu explains instead of failing
+const webgl2 = (() => { try { return !!document.createElement('canvas').getContext('webgl2'); } catch { return false; } })();
 
 const REDUCED = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 const NAME_KEY = 'fitrah:';
@@ -299,9 +303,20 @@ function exitToMenu({ to } = {}) {
   });
 }
 
+function notice(msg) {
+  const el = h('div', { class: 'fm-notice', role: 'alert' }, i18n.t(msg));
+  document.body.append(el);
+  setTimeout(() => el.classList.add('on'), 20);
+  setTimeout(() => { el.classList.remove('on'); setTimeout(() => el.remove(), 800); }, 6000);
+}
 async function enter(level, { fromMenu = true } = {}) {
   if (state.busy || !isPlayable(level)) return;
+  if (!webgl2) {
+    notice({ ar: 'تحتاج هذه الرحلة إلى متصفح حديث يدعم WebGL 2 (Chrome أو Safari أو Edge أو Firefox بإصدار حديث).', en: 'This journey needs a recent browser with WebGL 2 (a current Chrome, Safari, Edge or Firefox).' });
+    return;
+  }
   state.busy = true;
+  track('level_start', { lv: level.id });
   const audioContext = fromMenu ? unlockAudio() : null;
   const lang = i18n.lang;
   writeRoute(level.id, lang);
@@ -323,7 +338,14 @@ async function enter(level, { fromMenu = true } = {}) {
   shell.replaceChildren();
   document.body.classList.add('in-level');
   document.body.dataset.level = level.id;
-  const runtime = mod.mount({ lang, fromMenu, audioContext, pointerType: lastPointer, exit: exitToMenu }) || {};
+  let runtime;
+  try { runtime = mod.mount({ lang, fromMenu, audioContext, pointerType: lastPointer, exit: exitToMenu }) || {}; } catch (err) {
+    // the player never sees a developer error: a quiet message, then back to the menu
+    console.error('[fitrah] could not start', level.id, err);
+    track('error', { lv: level.id, v: 'mount' });
+    veilTitle.replaceChildren(h('i', {}, i18n.t({ ar: 'تعذّر بدء المشهد على هذا الجهاز. نعود إلى القائمة.', en: 'The scene could not start on this device. Returning to the menu.' })));
+    await wait(2600); writeRoute('menu', lang); location.reload(); return;
+  }
   // the level's first frames compile its shaders behind the veil; hold the title a moment, then open
   await frames(3);
   const held = performance.now() - t0;

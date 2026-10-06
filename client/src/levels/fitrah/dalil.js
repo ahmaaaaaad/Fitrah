@@ -18,6 +18,7 @@ import { createFigure } from '../../core/figures.js';
 import { reviewedAnswer, atDepth } from './content.js';
 import { buildPrompt, validate } from './dalil-prompt.js';
 import { SPEED } from './config.js';
+import { track } from '../../core/analytics.js';
 
 // ---------------------------------------------------------------- shaders (the body's language is The Water's)
 const coreVS = /* glsl */`varying vec3 vN; varying vec3 vV;
@@ -207,6 +208,7 @@ export function createDalil({ scene, camera, ui, audio, rig }) {
     catch { return; } // cancelled
     ui.askState(''); pose.listening = 0; state = 'attending';
     conversation.push({ q, a: r.text }); if (conversation.length > 6) conversation.shift();
+    track('question', { lv: 'fitrah', v: r.referHuman ? 'referred' : r.source }); // how it was answered, never what was asked
     ui.caption({ ar: r.text, en: r.text }, { anchor: screen, duration: lineSeconds(r.text) + 4, type: r.type || CT.NARRATIVE_DIALOGUE, cites: r.cite || [], source: r.source });
     pose.speaking = 1; setTimeout(() => { pose.speaking = 0; }, lineSeconds(r.text) * 1000);
     if (r.animation === 'point' || r.intent === 'guide') pose.pulse = 1;
@@ -221,7 +223,7 @@ export function createDalil({ scene, camera, ui, audio, rig }) {
   function update(dt, t) {
     dt = Math.min(dt, 0.25);
     B.uTime.value = t;
-    if (homeLocked) goal.copy(rig.companionSpot(side(), 3.9));
+    if (homeLocked) goal.copy(rig.companionSpot(side(), window.innerWidth < window.innerHeight ? 4.8 : 3.9));
     goal.y = 0;
     // a calm, critically damped walk (in small steps, so slow frames keep the pace)
     const wv = 1.5;

@@ -16,6 +16,7 @@ import { createPillars } from './pillars.js';
 import { i18n } from '../../core/i18n.js';
 import { revealVerse, revealHadith } from './reveal.js';
 import { SPEED, START_DEPTH } from './config.js';
+import { track } from '../../core/analytics.js';
 
 export const STEPS = ['opening', 'depth', 'four', 'ch1', 'ch1-answer', 'ch2', 'ch3', 'ch4', 'ending'];
 const WARMTH = { dark: 0, opening: 0.1, four: 0.15, creation: 0.25, created: 0.7, purpose: 0.6, practice: 0.75, return: 0.35, dawn: 0.7, ending: 0.9 };
@@ -163,7 +164,7 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
     while (!chain.s.done) {
       await Promise.race([guard(chain.done), sleep(1)]);
       const idle = (performance.now() - Math.max(chain.s.lastLinkAt, lastNudge)) / 1000 * SPEED;
-      if (!chain.s.done && idle > 20) { lastNudge = performance.now(); say(I.stall).catch(() => {}); }
+      if (!chain.s.done && idle > 20) { lastNudge = performance.now(); say(I.stall).catch(() => {}); track('stall', { lv: 'fitrah', v: `chain-${chain.s.linked}` }); }
     }
     chain.stop(); D.interaction = null; ui.unlabel('start');
     // the last link reaches into the dark: nothing there explains itself
@@ -299,7 +300,7 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
     await source({ key: C.ending.source, explanation: C.ending.explanation, order: 'verse-first' }, null);
     answeredLabels();
     await say(C.ending.final);
-    D.done = true; ev('complete');
+    D.done = true; ev('complete'); track('level_complete', { lv: 'fitrah', v: D.depth });
     ui.endCard({
       onTafakor: exit ? () => exit({ to: 'tafakor' }) : null,
       onAsk: () => dalil.openAsk(),
@@ -320,6 +321,7 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
       for (; i < STEPS.length; i++) {
         if (mine.signal.aborted) return;
         D.step = STEPS[i];
+        track('chapter', { lv: 'fitrah', v: STEPS[i] });
         await FN[STEPS[i]]();
       }
     } catch (e) {

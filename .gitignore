@@ -4,3 +4,4 @@ dist
 .env.*
 dist-revival
 dist-fitrah
+server/dist/

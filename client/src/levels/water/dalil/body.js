@@ -23,6 +23,14 @@ void main(){ vUv = uv; float age = uTime - aFoot.w; vA = clamp(1.0 - age / 2.6, 
 const footFS = /* glsl */`varying vec2 vUv; varying float vA;
 void main(){ float r = length((vUv - 0.5) * 2.0); float g = (1.0 - smoothstep(0.2, 1.0, r)) * vA; if (g < 0.002) discard; gl_FragColor = vec4(vec3(1.2, 0.9, 0.5) * g * 0.6, g); }`;
 
+function auraTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d'), grd = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.2, 'rgba(255,255,255,0.55)'); grd.addColorStop(0.5, 'rgba(255,255,255,0.12)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grd; g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+
 export function createDalilBody(scene) {
   const group = new THREE.Group(); group.name = 'dalil';
   const coreMat = new THREE.ShaderMaterial({ uniforms: { uI: { value: 1 } }, vertexShader: coreVS, fragmentShader: coreFS });
@@ -33,7 +41,10 @@ export function createDalilBody(scene) {
   });
   const halo = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), haloMat);
   halo.frustumCulled = false; halo.renderOrder = 12;
-  group.add(core, halo);
+  // a soft warm aura, the same light Dalil carries in Fitrah: easy to find in the open valley
+  const aura = new THREE.Sprite(new THREE.SpriteMaterial({ map: auraTexture(), color: '#ffc778', transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+  aura.scale.setScalar(0.95); aura.renderOrder = 11;
+  group.add(aura, core, halo);
   scene.add(group);
 
   // footfalls
@@ -75,6 +86,7 @@ export function createDalilBody(scene) {
       haloMat.uniforms.uI.value = pose.intensity;
       haloMat.uniforms.uPulse.value = pose.pulse;
       haloMat.uniforms.uSize.value = 0.5 + pose.pulse * 0.35 + pose.intensity * 0.1;
+      aura.material.opacity = pose.intensity * (0.42 + pose.pulse * 0.25); aura.scale.setScalar(0.95 + pose.pulse * 0.3 + Math.sin(t * 1.3) * 0.03);
       haloMat.uniforms.uLean.value.set(Math.max(-1.5, Math.min(1.5, wind.x * 0.25)), Math.max(-1.5, Math.min(1.5, wind.z * 0.25)));
       U.uDalil.value.set(x, gy + 0.2, z, pose.intensity);
       pose.pulse *= Math.exp(-dt * 1.5);

@@ -18,7 +18,7 @@ const VS = /* glsl */`
     gl_Position = projectionMatrix * viewMatrix * w; }`;
 const FS = /* glsl */`
   uniform vec3 uBase, uRim, uBack, uLamp, uLampPos; uniform float uRimI, uBackI, uLampI, uHem, uHemY, uAlpha, uFade;
-  uniform vec3 uBackDir;
+  uniform vec3 uBackDir, uSunDir, uSunCol, uCloth; uniform float uSunI;
   varying vec3 vN; varying vec3 vV; varying vec3 vW; varying float vY;
   void main(){
     vec3 n = normalize(vN); vec3 v = normalize(vV);
@@ -29,6 +29,8 @@ const FS = /* glsl */`
     vec3 L = uLampPos - vW; float dl = length(L);
     float lamp = max(dot(n, L / dl), 0.0) / (1.0 + dl * dl * 2.5);
     vec3 c = uBase + uRim * back * uRimI + uBack * fres * uBackI + uLamp * lamp * uLampI;
+    // in daylight (The Water) the cloth also takes the sun, softly wrapped
+    c += uCloth * uSunCol * (max(dot(n, uSunDir), 0.0) * 0.7 + 0.3) * uSunI;
     // a thin band of light at the hem (Dalil's trim)
     c += uRim * smoothstep(0.035, 0.0, abs(vY - uHemY)) * uHem;
     gl_FragColor = vec4(mix(c, vec3(0.0), uFade), uAlpha);
@@ -58,6 +60,7 @@ function makeMaterial(o) {
       uRimI: { value: o.rimI ?? 1 }, uBackI: { value: o.backI ?? 0.25 }, uLampI: { value: o.lampI ?? 0 },
       uHem: { value: o.hem ?? 0 }, uHemY: { value: o.hemY ?? 0.06 }, uAlpha: { value: 1 }, uFade: { value: 0 },
       uBackDir: { value: new THREE.Vector3(0, 0.25, -1).normalize() },
+      uSunDir: { value: new THREE.Vector3(0, 1, 0) }, uSunCol: { value: new THREE.Color('#ffffff') }, uSunI: { value: 0 }, uCloth: { value: new THREE.Color(o.cloth || '#5a4636') },
     },
   });
 }
@@ -78,11 +81,13 @@ function playerGeometry() {
 /** A hooded, cloaked guide. Height about 1.82 m; origin at the feet. The lantern arm is separate. */
 function guideGeometry() {
   // the cloak: a long bell from the shoulders to the ground
-  const prof = [[0.0, 0.0], [0.34, 0.0], [0.33, 0.12], [0.3, 0.5], [0.26, 0.95], [0.235, 1.25], [0.215, 1.38], [0.16, 1.45], [0.0, 1.47]]
+  const prof = [[0.0, 0.0], [0.36, 0.0], [0.345, 0.12], [0.31, 0.5], [0.27, 0.95], [0.25, 1.22], [0.245, 1.34], [0.2, 1.42], [0.0, 1.45]]
     .map(([r, y]) => new THREE.Vector2(r, y));
   const cloak = new THREE.LatheGeometry(prof, 40); cloak.scale(1, 1, 0.78);
-  const hood = sphere(0.135, 0, 1.6, 0.0, 1.0, 1.22, 1.08);
-  const cowl = new THREE.ConeGeometry(0.2, 0.32, 24, 1, true); cowl.translate(0, 1.48, 0.01);
+  // a hood with a soft peak, a little forward over the face (no face is drawn)
+  const hoodProf = [[0.0, 1.38], [0.15, 1.4], [0.175, 1.5], [0.172, 1.6], [0.155, 1.69], [0.12, 1.77], [0.07, 1.83], [0.02, 1.87], [0.0, 1.875]].map(([r, y]) => new THREE.Vector2(r, y));
+  const hood = new THREE.LatheGeometry(hoodProf, 32); hood.scale(1, 1, 1.12); hood.translate(0, 0, -0.03);
+  const cowl = new THREE.ConeGeometry(0.24, 0.3, 28, 1, true); cowl.translate(0, 1.47, 0.0);
   const shoulderL = sphere(0.09, -0.2, 1.36, 0, 1.2, 0.9, 1.0);
   const armL = capsule(0.06, 0.48, -0.25, 1.06, 0.02, 0, 0.08); // the arm at rest
   return mergeGeometries([cloak, hood, cowl, shoulderL, armL].map(clean));
@@ -96,7 +101,7 @@ function guideArm() {
 /**
  * @param {'player'|'guide'} kind
  */
-export function createFigure(kind) {
+export function createFigure(kind, { mirror = true } = {}) {
   const group = new THREE.Group(); group.name = kind;
   const inner = new THREE.Group(); group.add(inner);
   const isGuide = kind === 'guide';
@@ -117,7 +122,7 @@ export function createFigure(kind) {
   }
   // a reflection in the dark floor (the floor is drawn semi-transparent over what lies below it)
   const mirrorMat = mat.clone(); mirrorMat.uniforms = mat.uniforms; mirrorMat.side = THREE.BackSide;
-  const mirrorRoot = new THREE.Group(); mirrorRoot.scale.y = -1; group.add(mirrorRoot);
+  const mirrorRoot = new THREE.Group(); mirrorRoot.scale.y = -1; if (mirror) group.add(mirrorRoot);
   const mInner = new THREE.Group(); mirrorRoot.add(mInner);
   mInner.add(new THREE.Mesh(body.geometry, mirrorMat));
   let mArm = null;
@@ -138,9 +143,11 @@ export function createFigure(kind) {
       inner.rotation.y = st.yaw;
       const w = pose.walking || 0;
       st.gait += dt * (1.6 + w * 6);
-      inner.position.y = Math.sin(t * 1.4) * 0.006 + Math.abs(Math.sin(st.gait)) * 0.025 * w;
+      const kneel = pose.kneel || 0;
+      inner.position.y = Math.sin(t * 1.4) * 0.006 + Math.abs(Math.sin(st.gait)) * 0.025 * w - kneel * 0.42;
+      inner.scale.y = 1 - kneel * 0.08;
       inner.rotation.z = Math.sin(t * 0.7) * 0.012 * (1 - w) + Math.sin(st.gait) * 0.02 * w;
-      inner.rotation.x = -0.05 * w + (pose.speaking ? Math.sin(t * 3.1) * 0.008 : 0);
+      inner.rotation.x = -0.05 * w - kneel * 0.22 + (pose.speaking ? Math.sin(t * 3.1) * 0.008 : 0);
       if (arm) {
         if (pose.point) {
           group.updateMatrixWorld(true);
@@ -153,9 +160,10 @@ export function createFigure(kind) {
       if (mArm) { mArm.position.copy(arm.position); mArm.quaternion.copy(arm.quaternion); }
       if (pose.lampPos) mat.uniforms.uLampPos.value.copy(pose.lampPos);
       if (pose.backDir) mat.uniforms.uBackDir.value.copy(pose.backDir);
+      if (pose.sunDir) { mat.uniforms.uSunDir.value.copy(pose.sunDir); mat.uniforms.uSunCol.value.copy(pose.sunCol); mat.uniforms.uSunI.value = pose.sunI ?? 0.6; }
     },
     lanternWorld(out = new THREE.Vector3()) { group.updateMatrixWorld(true); return lantern ? lantern.getWorldPosition(out) : group.getWorldPosition(out).setY(1.0); },
-    headWorld(out = new THREE.Vector3()) { return group.getWorldPosition(out).add(tmp.set(0, isGuide ? 1.62 : 1.6, 0)); },
+    headWorld(out = new THREE.Vector3()) { return group.getWorldPosition(out).add(tmp.set(0, isGuide ? 1.68 : 1.6, 0)); },
     setRim(color, i) { mat.uniforms.uRim.value.set(color); if (i != null) mat.uniforms.uRimI.value = i; },
     setFade(f) { mat.uniforms.uFade.value = f; },
     get yaw() { return st.yaw; },

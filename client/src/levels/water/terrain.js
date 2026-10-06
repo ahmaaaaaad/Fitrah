@@ -147,10 +147,14 @@ void main(){
   vec3 wet = mix(vec3(0.07, 0.05, 0.035), vec3(0.1, 0.072, 0.05), n1);
   vec3 col = mix(dry, wet, smoothstep(0.04, 0.55, sm));
   float cw = mix(0.07, 0.0, smoothstep(0.08, 0.42, sm)) * (0.7 + 0.6 * n2);
-  float crack = 1.0 - smoothstep(cw * 0.4, cw, crackDist(vW.xz * 0.95));
+  float cd0 = crackDist(vW.xz * 0.95);
+  float crack = 1.0 - smoothstep(cw * 0.4, cw, cd0);
+  // the plates' lips catch the light where the clay has curled up beside a crack
+  float lip = (smoothstep(cw * 0.9, cw * 1.4, cd0) - smoothstep(cw * 1.4, cw * 2.8, cd0)) * (1.0 - smoothstep(0.08, 0.42, sm));
   crack = max(crack, (1.0 - smoothstep(cw * 0.25, cw * 0.6, crackDist(vW.xz * 2.7 + 7.0))) * 0.55);
   crack *= smoothstep(140.0, 30.0, length(cameraPosition.xz - vW.xz)); // far away the cracks read as texture, not lines
   col = mix(col, col * 0.38, crack * (1.0 - slope * 2.0));
+  col += col * lip * 0.32 * smoothstep(70.0, 12.0, length(cameraPosition.xz - vW.xz)) * (1.0 - slope * 2.0);
   // living ground
   vec3 green = mix(vec3(0.07, 0.13, 0.035), vec3(0.15, 0.2, 0.05), n1) * (0.85 + 0.3 * n2);
   col = mix(col, green, smoothstep(0.12, 0.75, veg) * (1.0 - smoothstep(0.2, 0.45, slope)));

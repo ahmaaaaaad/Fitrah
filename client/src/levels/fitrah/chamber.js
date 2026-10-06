@@ -59,6 +59,7 @@ STATES.dark = STATES.arrive; // older name, kept for review jumps
 
 // the four question lights stand at the far side of the hall, before the aperture
 export const QUESTION_POS = [new THREE.Vector3(-7.2, 2.6, -1.8), new THREE.Vector3(-2.8, 3.6, -5.6), new THREE.Vector3(2.8, 3.6, -5.6), new THREE.Vector3(7.2, 2.6, -1.8)];
+const QX = QUESTION_POS.map((p) => p.x);
 export const PLAYER_LIGHT = new THREE.Vector3(0, 1.05, 6.1);
 export const PLAYER_SPOT = new THREE.Vector3(0.95, 0, 6.95); // where the player's figure stands, beside its light (mirrored in Arabic)
 export const CENTER = new THREE.Vector3(0, 3.0, 0);
@@ -487,6 +488,11 @@ export function createChamber(scene) {
     root, P, setState, setLayout, update, qlights, floor, player,
     parts: { sky, spiral, wall, beam, shaft, rings, frags },
     get layout() { return layoutName; },
+    /** on a narrow screen the four question lights stand closer together, so all four fit */
+    fitQuestions(aspect) {
+      const k = aspect < 0.8 ? 0.5 : aspect < 1.2 ? 0.75 : 1;
+      QUESTION_POS.forEach((p, i) => { p.x = QX[i] * k; qlights[i].group.position.x = p.x; });
+    },
     /** the player's figure stands on the side away from Dalil (1 = right, -1 = left) */
     setPlayerSide(s) { playerSide = s; },
     setQuestionLit(i, on) { if (qlights[i]) qlights[i].lit = on ? 1 : 0; },

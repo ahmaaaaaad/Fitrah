@@ -26,6 +26,7 @@ import { createAudio } from './audio.js';
 import { createDirector } from './director.js';
 import { createPhenomena } from './phenomena.js';
 import { bus } from './events.js';
+import { track, trackFps } from '../../core/analytics.js';
 
 /**
  * Mount The Water (see LevelContext / LevelRuntime in ../registry.js).
@@ -104,6 +105,7 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
 
   let fps = 60;
   start(document.getElementById('stage'));
+  trackFps('water', () => fps);
   onUpdate((dt, t) => {
     fps += (1 / Math.max(dt, 1e-3) - fps) * 0.05;
     U.uTime.value = t;

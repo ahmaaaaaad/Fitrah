@@ -142,3 +142,7 @@ body { -webkit-tap-highlight-color: transparent; }
   .fm-img, .fm-grain { animation: none; }
   .fm-head, .fm-chapters, .fm-intro, .fm-intro div, #veil .veil-title { transition-duration: 0.01s !important; animation-duration: 0.01s !important; }
 }
+
+/* a short notice (e.g. no WebGL 2) */
+.fm-notice { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 10px); max-width: min(520px, calc(100vw - 32px)); padding: 12px 18px; border-radius: 14px; background: rgba(16, 12, 10, 0.86); border: 1px solid rgba(240, 194, 122, 0.4); color: var(--fm-ink); font: 14px/1.6 var(--fm-ui); text-align: center; opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease; z-index: 70; }
+.fm-notice.on { opacity: 1; transform: translate(-50%, 0); }

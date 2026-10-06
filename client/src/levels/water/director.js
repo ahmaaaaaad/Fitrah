@@ -18,6 +18,7 @@ import { revealVerse } from './verse.js';
 import { createTrace, createReveal, createConnect, createAlign, createAttention } from './interact.js';
 import { createHeroFlower } from './phenomena.js';
 import { bus, EV } from './events.js';
+import { track } from '../../core/analytics.js';
 import { LINES, EXPLAIN } from './dalil/lines.js';
 import { renderer } from '../../core/scene.js';
 import { i18n } from '../../core/i18n.js';
@@ -104,7 +105,7 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     setBeat('arrival'); D.interaction = 'none';
     D.look = () => arrivalLook; D.fov = 40;
     bus.emit(EV.ARRIVED);
-    await sleep(3.5, g);
+    await sleep(2.2, g);
   }
 
   async function current(g) {
@@ -147,18 +148,18 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
 
   async function rain(g) {
     setBeat('rain');
-    D.gather = { x: rc.x, z: rc.z, r: rc.r, rate: 0.16 };
+    D.gather = { x: rc.x, z: rc.z, r: rc.r, rate: 0.26 };
     setField('rt', (x, z, v) => (Math.hypot(x - rc.x, z - rc.z) < rc.r ? Math.max(v, 7.5) : v)); // the cloud has been ripening while it gathered
     const p = player.state.position;
     await until(() => rainNear(p.x, p.z) > 0.2, g, 30);
     bus.emit(EV.RAIN_BEGAN); bus.emit(EV.PLAYER_DISCOVERED_RAIN);
     enter(1);
     dalil.notice(ground(p.x, p.z, CONFIG.cloudHeight)); dalil.say(LINES.rain_listen);
-    await sleep(2.5, g);
+    await sleep(1.7, g);
     // the gaze lowers to the ground in front; the rain veils it
     const focus = ahead(6);
     D.look = () => focus; D.fov = 34;
-    await sleep(1.2, g);
+    await sleep(0.9, g);
     const done = reveal.begin();
     input.setActive(reveal);
     D.interaction = 'looking through the rain at the cracked soil';
@@ -197,7 +198,7 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     setBeat('water');
     phenomena.state.splashOn = 0;
     // the first water gathers in the dry stream bed and runs downhill by itself
-    D.waterFrom = aFrom(); D.waterFront = aFrom() + 4; D.waterRun = 2.4;
+    D.waterFrom = aFrom(); D.waterFront = aFrom() + 4; D.waterRun = 3.3;
     const pts = []; const q = new THREE.Vector3();
     for (let a = aFrom() + 4; a <= aTo(); a += 2) { water.pointAt(a, q); pts.push(q.clone().add(new THREE.Vector3(0, 0.2, 0))); }
     const curve = new THREE.CatmullRomCurve3(pts);
@@ -269,7 +270,9 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     const flowerAt = comp.flower;
     hero.place(flowerAt);
     D.look = () => flowerAt.clone().add(new THREE.Vector3(0, 0.6, 0)); D.fov = 34;
-    await until(() => S.vegMeadow > 0.5, g, 40);
+    sim.growth = 2.2; // the meadow has had its rain: no long wait for it to answer
+    await until(() => S.vegMeadow > 0.5, g, 30);
+    sim.growth = 1;
     enter(3); flora.uniforms.uFlowers.value = Math.max(flora.uniforms.uFlowers.value, 0.001);
     D.flowersOn = true;
     hero.bloom();
@@ -309,7 +312,7 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     sim.canopy = true; // the rain eases; the canopy holds
     if (S.cdMeadow < 0.6) { D.gather = { x: M.x + sim.OFF.x * 0.5, z: M.z + sim.OFF.z * 0.5, r: M.r + 24, rate: 0.5, target: 0.8 }; await until(() => S.cdMeadow > 0.65, g, 8); D.gather = null; }
     D.look = () => meadowLook; D.fov = 53;
-    await sleep(2.5, g);
+    await sleep(1.8, g);
     // the cloud begins to thin by itself, drifting with the wind
     const B1 = new THREE.Vector3(M.x + sim.OFF.x, CONFIG.cloudHeight, M.z + sim.OFF.z);
     const B = B1.clone().add(new THREE.Vector3(10, 0, 8)); // farther first, so it starts low in the view
@@ -379,6 +382,7 @@ export function createDirector({ player, dalil, input, ui, audio, water, flora, 
     bus.emit(EV.JOURNEY_COMPLETE);
     await sleep(4, g);
     ui.endCard({ onReplay: () => location.reload() });
+    track('level_complete', { lv: 'water' });
   }
   const meadowLook = ground(M.x + 6, M.z + 6, 9);
   /**

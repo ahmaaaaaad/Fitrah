@@ -88,6 +88,7 @@ export const sim = {
   // director switches
   allowRain: true,
   meadowWeather: false,   // after revelation 1: the weather moves over the meadow
+  growth: 1,              // how fast plants answer the water (the director hurries a long wait)
   canopy: false,          // mechanic 2: clouds hold over the meadow, rain eases, gaps regrow
   frozen: false,          // harmony: the gaps hold steady
   waterFlow: 0, waterFill: 0,
@@ -264,7 +265,7 @@ function step(dt) {
   for (let k = 0; k < NN; k++) {
     const m = clamp01(tmpA[k]); sm[k] = m;
     let v = veg[k];
-    v += dt * 0.06 * smooth(0.26, 0.45, m) * (1 - v);
+    v += dt * 0.06 * sim.growth * smooth(0.26, 0.45, m) * (1 - v);
     if (m < 0.12) v -= dt * 0.004 * v;
     veg[k] = clamp01(v);
   }
