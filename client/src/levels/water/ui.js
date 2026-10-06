@@ -4,7 +4,8 @@
 import { i18n, arDigits } from '../../core/i18n.js';
 import { h } from '../../ui/dom.js';
 import { PROVISIONAL, DEBUG, CONFIG } from './config.js';
-import { CT, CT_LABEL } from './events.js';
+import { CT } from './events.js';
+import { createCaption } from '../../core/ui/caption.js';
 
 const tracked = [];
 function T(el, obj) { el.textContent = i18n.t(obj); tracked.push([el, obj]); return el; }
@@ -30,28 +31,12 @@ export function createUI() {
   }
   i18n.onChange(() => { if (hintObj) hintEl.textContent = i18n.t(hintObj); });
 
-  // ------------------------------------------------------------------ caption (Dalil speaks beside itself)
-  const capLabel = h('span', { class: 'cap-label' });
-  const capText = h('span', { class: 'cap-text' });
-  const capCites = h('span', { class: 'cap-cites' });
-  const cap = h('div', { class: 'caption', role: 'note' }, capLabel, capText, capCites);
-  root.append(cap);
-  let capAnchor = null, capUntil = 0, capObj = null;
-  function caption(obj, { anchor, duration = 5, cites = [], source, type = CT.NARRATIVE_DIALOGUE } = {}) {
-    capObj = obj; capAnchor = anchor;
-    // every line says what kind of text it is; scripture never appears here
-    cap.dataset.type = type;
-    capLabel.textContent = type === CT.NARRATIVE_DIALOGUE ? '' : i18n.t(CT_LABEL[type] || CT_LABEL.NARRATIVE_DIALOGUE);
-    capText.textContent = i18n.t(obj);
-    capText.lang = /[؀-ۿ]/.test(capText.textContent) ? 'ar' : 'en';
-    capText.dir = capText.lang === 'ar' ? 'rtl' : 'ltr';
-    capCites.replaceChildren(...(cites || []).map((c) => h('span', { class: 'cite' }, i18n.lang === 'ar' ? arDigits(c) : c)));
-    cap.dataset.source = source || 'authored';
-    cap.classList.add('on');
-    capUntil = performance.now() + duration * 1000;
-    live.textContent = capText.textContent;
+  // ------------------------------------------------------------------ caption: one steady panel at the bottom edge (shared with Fitrah)
+  const capPanel = createCaption({ root, live, base: 18, avoid: ['.end.on', '.ask.on'], citeLabel: (c) => (i18n.lang === 'ar' ? arDigits(c) : c) });
+  function caption(obj, { duration = 5, cites = [], source, type = CT.NARRATIVE_DIALOGUE } = {}) {
+    capPanel.show(obj, { duration, cites, source, type });
   }
-  function hideCaption() { cap.classList.remove('on'); capUntil = 0; capObj = null; }
+  const hideCaption = () => capPanel.hide();
 
   // ------------------------------------------------------------------ ask ribbon
   const askInput = h('input', { class: 'ask-input', type: 'text', maxlength: '300', autocomplete: 'off' });
@@ -197,14 +182,7 @@ export function createUI() {
   if (hud) root.append(hud);
 
   function update() {
-    if (capUntil && performance.now() > capUntil) hideCaption();
-    if (cap.classList.contains('on') && capAnchor) {
-      const a = capAnchor();
-      const W = window.innerWidth, H = window.innerHeight;
-      const x = a.visible ? Math.min(W - 170, Math.max(170, a.x)) : W * 0.5;
-      const y = a.visible ? Math.min(H - 120, Math.max(80, a.y)) : H - 140;
-      cap.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, -100%)`;
-    }
+    capPanel.update();
     if (hud && cb.getStatus) hud.textContent = Object.entries(cb.getStatus(true)).map(([k, v]) => `${k}: ${v}`).join('\n');
   }
 

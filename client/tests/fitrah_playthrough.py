@@ -66,6 +66,11 @@ with sync_playwright() as pw:
         if visible(".verse .continue.on"):
             verse_n += 1; shots += 1; shot(f"{shots:02d}_source{verse_n}")
             tap(".verse .continue.on"); print(T(), "continue (source)"); time.sleep(1.5); continue
+        if visible(".choices.on"):
+            n_choice = globals().get('n_choice', 0) + 1; globals()['n_choice'] = n_choice
+            shots += 1; shot(f"{shots:02d}_choice{n_choice}")
+            # the first pillar: read its verse (exercises the source path); then go on
+            tap(".choices .quiet" if n_choice == 1 else ".choices .primary"); print(T(), "choice", "read" if n_choice == 1 else "go"); time.sleep(1.5); continue
         if visible(".next.on"):
             shots += 1; shot(f"{shots:02d}_next_{s['step']}")
             tap(".next.on"); print(T(), "next"); time.sleep(1.5); continue

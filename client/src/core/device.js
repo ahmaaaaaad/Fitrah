@@ -61,6 +61,13 @@ export function interactionRegion() {
     left: ins.left + edge,
     right: ins.right + edge,
     top: Math.max(ins.top + edge, ins.top + menu),
-    bottom: ins.bottom + edge + (cls === 'phone-portrait' ? 10 : 0),
+    bottom: ins.bottom + edge + captionReserve(cls, H),
   };
+}
+
+/** The band at the bottom kept for Dalil's caption panel: interaction points never sit under it. */
+export function captionReserve(cls = deviceClass(), H = window.innerHeight) {
+  if (cls === 'phone-portrait') return 128;
+  if (H < 500) return 64;
+  return Math.min(124, Math.round(H * 0.15));
 }

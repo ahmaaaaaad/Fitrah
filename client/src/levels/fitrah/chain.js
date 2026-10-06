@@ -27,15 +27,18 @@ export const CHAIN_POS = chainPositions(1);
 const tol = () => (isDirect() ? Math.max(64, Math.min(window.innerWidth, window.innerHeight) * 0.09) : Math.max(54, Math.min(window.innerWidth, window.innerHeight) * 0.07));
 const PER = 40; // points per thread
 
-const threadVS = /* glsl */`attribute float aSeg; attribute float aT; uniform float uProg[6]; uniform float uTime, uI, uScale; varying float vA;
+const threadVS = /* glsl */`attribute float aSeg; attribute float aT; uniform float uProg[6]; uniform float uTime, uI, uScale, uGuide, uGuideI; varying float vA;
 void main(){
   int s = int(aSeg + 0.5); float prog = 0.0;
   for (int i = 0; i < 6; i++) if (i == s) prog = uProg[i];
   float shown = step(aT, prog);
   float flow = fract(aT * 2.0 - uTime * 0.5 + aSeg * 0.37);
-  vA = shown * uI * (0.45 + 0.55 * pow(flow, 4.0));
+  // the way to go: the next segment shows faintly ahead of the player, with a pulse running toward the destination
+  float guide = (1.0 - shown) * step(abs(aSeg - uGuide), 0.1) * uGuideI;
+  float pd = (aT - fract(uTime * 0.42)) * 6.0; float pulse = exp(-pd * pd);
+  vA = shown * uI * (0.5 + 0.5 * pow(flow, 4.0)) + guide * (0.16 + 0.55 * pulse);
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
-  gl_PointSize = uScale * (0.7 + 0.6 * pow(flow, 4.0)) / max(0.6, -mv.z);
+  gl_PointSize = uScale * (0.7 + 0.6 * pow(flow, 4.0) * shown + 0.4 * guide * pulse) / max(0.6, -mv.z);
   gl_Position = projectionMatrix * mv; }`;
 const threadFS = /* glsl */`uniform vec3 uColor; varying float vA; void main(){ float r = length(gl_PointCoord - 0.5) * 2.0; float g = (1.0 - smoothstep(0.0, 1.0, r)) * vA; if (g < 0.003) discard; gl_FragColor = vec4(uColor * g, g); }`;
 
@@ -70,10 +73,10 @@ export function createChain({ scene, camera, onLink, onShow, mirror: flip = 1 })
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('aSeg', new THREE.BufferAttribute(seg, 1)); geo.setAttribute('aT', new THREE.BufferAttribute(tt, 1));
-  const uniforms = { uProg: { value: new Array(6).fill(0) }, uTime: { value: 0 }, uI: { value: 1 }, uScale: { value: 50 }, uColor: { value: new THREE.Color('#ffd79a') } };
+  const uniforms = { uProg: { value: new Array(6).fill(0) }, uTime: { value: 0 }, uI: { value: 1 }, uScale: { value: 50 }, uColor: { value: new THREE.Color('#ffd79a') }, uGuide: { value: 0 }, uGuideI: { value: 0 } };
   const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: threadVS, fragmentShader: threadFS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
   const threads = new THREE.Points(geo, mat); threads.frustumCulled = false; threads.renderOrder = 6; group.add(threads);
-  const mUniforms = { ...uniforms, uI: { value: 0.3 } };
+  const mUniforms = { ...uniforms, uI: { value: 0.3 }, uGuideI: { value: 0 } };
   const mirror = new THREE.Points(geo, new THREE.ShaderMaterial({ uniforms: mUniforms, vertexShader: threadVS, fragmentShader: threadFS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
   mirror.scale.y = -1; mirror.frustumCulled = false; group.add(mirror);
   const prog = new Array(6).fill(0), progT = new Array(6).fill(0);
@@ -100,6 +103,7 @@ export function createChain({ scene, camera, onLink, onShow, mirror: flip = 1 })
     s.lastLinkAt = performance.now();
     prog[s.linked - 1] = 1;
     const last = s.linked === n - 1;
+    nodes[s.linked].bloom = 1;
     if (!last) { nodes[s.linked].lit = 1; show(s.linked + 1); }
     onLink?.(s.linked);
     if (last) { s.done = true; s.dragging = false; resolveDone(); }
@@ -138,17 +142,30 @@ export function createChain({ scene, camera, onLink, onShow, mirror: flip = 1 })
         nd.core.material.opacity = nd.shownT * (nd.last ? 0.35 : 0.6 + nd.litT * 0.4) * flick;
         nd.mirror.material.opacity = nd.shownT * 0.18 * (nd.last ? 0.5 : 1);
         nd.mirror.material.color.copy(nd.halo.material.color);
-        nd.g.scale.setScalar(1 + (nd.last ? s.open * 0.25 * Math.sin(t * 2) : 0));
+        nd.bloom = (nd.bloom || 0) * Math.exp(-dt * 1.8);
+        nd.g.scale.setScalar(1 + (nd.last ? s.open * 0.25 * Math.sin(t * 2) : 0) + nd.bloom * 0.9);
       });
       if (s.done) s.open = Math.min(1, s.open + dt * 0.6);
       // screen layer
       CP.forEach((p, i) => { _v.copy(p).project(camera); scr[i].x = (_v.x * 0.5 + 0.5) * window.innerWidth; scr[i].y = (-_v.y * 0.5 + 0.5) * window.innerHeight; scr[i].visible = _v.z < 1 && Math.abs(_v.x) < 1.05 && Math.abs(_v.y) < 1.05; });
+      // the guide: the next segment, shown once the thing it leads to is there
+      const nxtNode = nodes[s.linked + 1];
+      uniforms.uGuide.value = s.linked;
+      const wantGuide = s.active && !s.done && nxtNode && nxtNode.shownT > 0.5 ? (s.dragging ? 1.3 : 1) : 0;
+      uniforms.uGuideI.value += (wantGuide - uniforms.uGuideI.value) * (1 - Math.exp(-dt * 3));
       if (s.active && s.dragging && !s.done) {
         const nx = scr[s.linked + 1];
         const nn = nodes[s.linked + 1], cur = scr[s.linked];
+        // how far along the path the hand has come (projected onto the segment on screen)
+        const ex = nx.x - cur.x, ey = nx.y - cur.y, len2 = Math.max(1, ex * ex + ey * ey);
+        const u = Math.max(0, Math.min(1, ((s.x - cur.x) * ex + (s.y - cur.y) * ey) / len2));
+        const off = Math.abs((s.x - cur.x) * ey - (s.y - cur.y) * ex) / Math.sqrt(len2);
+        if (nn.shownT > 0.5 && off < tol() * 1.5) prog[s.linked] = Math.max(prog[s.linked] * 0.98, u * 0.96);
         const dNext = Math.hypot(nx.x - s.x, nx.y - s.y), dCur = Math.hypot(cur.x - s.x, cur.y - s.y);
         // reached for, not stumbled on: the thing is there, the hand has moved since it appeared, and is nearer to it than to where it started
         if (nx.visible && nn.shownT > 0.6 && performance.now() - (nn.at || 0) > 450 && s.travel > 18 && dNext < tol() && dNext < dCur * 0.8) link();
+      } else if (!s.done && s.linked < n - 1 && prog[s.linked] < 1) {
+        prog[s.linked] *= Math.exp(-dt * 1.5); // let go early: the path waits, the light recedes
       }
       const r = isDirect() ? 14 : 10;
       const f = scr[s.linked], nx = scr[Math.min(n - 1, s.linked + 1)];

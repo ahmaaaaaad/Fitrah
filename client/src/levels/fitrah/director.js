@@ -12,6 +12,7 @@ import { CT } from '../../core/sacred/content-types.js';
 import { C, CHAPTERS, answerById } from './content.js';
 import { QUESTION_POS, CENTER, PILLAR_POS, THRESHOLD_POS, PLAYER_LIGHT } from './chamber.js';
 import { createChain, chainPositions } from './chain.js';
+import { createPillars } from './pillars.js';
 import { i18n } from '../../core/i18n.js';
 import { revealVerse, revealHadith } from './reveal.js';
 import { SPEED, START_DEPTH } from './config.js';
@@ -27,7 +28,7 @@ const cancelled = () => ({ cancelled: true });
 export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, exit, talk }) {
   const D = { step: null, chapter: null, source: null, depth: START_DEPTH || 'exploring', depthChosen: !!START_DEPTH, events: [], started: false, done: false, interaction: null, focus: -1 };
   let ctl = new AbortController();
-  let chain = null;
+  let chain = null, pillars = null, pickResolve = null;
 
   // ------------------------------------------------------------ helpers (all abort with the run)
   const guard = (p) => {
@@ -82,13 +83,14 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
   // ------------------------------------------------------------ the beats
   async function opening() {
     D.chapter = null; D.source = null;
-    env('opening', 'drift', { seconds: 7, shot: 'opening', shotSeconds: 6 });
-    await sleep(1.0);
-    // Dalil comes from the light at the centre of the hall and walks to the player's side
+    // the camera descends from the establishing view to stand behind the player, as the hall wakes
+    env('opening', 'drift', { seconds: 8, shot: 'opening', shotSeconds: 6.5 });
+    await sleep(1.2);
+    // Dalil walks from the light at the centre of the hall to the player's side
     dalil.appear(true);
-    await sleep(0.8);
+    await sleep(0.6);
     dalil.goTo(null);
-    await sleep(2.4);
+    await sleep(4.2);
     ui.showAskButton(true);
     await say(C.opening.welcome);
   }
@@ -105,7 +107,7 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
   async function four() {
     D.chapter = null; D.source = null;
     chamber.resetQuestions(0, 0);
-    env('four', 'drift', { seconds: 5, shot: 'four', pts: [...QUESTION_POS, PLAYER_LIGHT], shotSeconds: 4.5 });
+    env('four', 'drift', { seconds: 5, shot: 'four', pts: QUESTION_POS, shotSeconds: 4.5 });
     await sleep(1.6);
     for (let i = 0; i < 4; i++) {
       chamber.setQuestionShown(i, true); audio.question(i);
@@ -143,12 +145,14 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
       },
       onLink: (i) => {
         audio.link(i); ev(`link:${I.nodes[i].id}`); dalil.pulse(); firstLink();
+        if (i === 1) { ui.unlabel('start'); say(I.ack).catch(() => {}); }
         if (i === 1) ui.label('n0', I.nodes[0].label, below(CHAIN_POS[0], 0.3), { cls: 'node lit', sub: I.node_note });
         if (i < 6) ui.label(`n${i}`, I.nodes[i].label, below(CHAIN_POS[i]), { cls: 'node lit', sub: I.node_note });
       },
     });
     D.interaction = 'connect';
     ui.label('n0', I.nodes[0].label, below(CHAIN_POS[0], 0.3), { cls: 'node' });
+    ui.label('start', I.start_here, CHAIN_POS[0].clone().add(new THREE.Vector3(0, 0.32, 0)), { cls: 'start-here', dy: -18 });
     rig.frame(chain.framePoints(), { seconds: 2 });
     // the instruction stays until the first link; if nothing happens, Dalil says it another way
     for (let k = 0; chain.s.linked === 0; k++) {
@@ -161,7 +165,7 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
       const idle = (performance.now() - Math.max(chain.s.lastLinkAt, lastNudge)) / 1000 * SPEED;
       if (!chain.s.done && idle > 20) { lastNudge = performance.now(); say(I.stall).catch(() => {}); }
     }
-    chain.stop(); D.interaction = null;
+    chain.stop(); D.interaction = null; ui.unlabel('start');
     // the last link reaches into the dark: nothing there explains itself
     audio.open(); ui.labelClass('n6', 'open');
     rig.frame(chain.framePoints(true), { seconds: 3.2 });
@@ -203,23 +207,62 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
   }
 
   async function ch3() {
-    const ch = CHAPTERS[2];
+    const ch = CHAPTERS[2], I = ch.interaction;
     D.chapter = ch; D.source = null;
     ui.clearLabels();
-    ui.chapterCard(3, ch.question, { draft: true });
-    env('practice', 'pillars', { seconds: 7, shot: 'practice', pts: PILLAR_POS.map((p) => p.clone().setY(0.45)), shotSeconds: 5 });
+    ui.chapterCard(3, ch.question);
+    if (!pillars) pillars = createPillars(scene);
+    const pts = [0, 1, 2, 3, 4].flatMap((i) => [pillars.positions[i].clone(), pillars.top(i)]);
+    env('practice', 'low', { seconds: 7, shot: 'practice', pts, shotSeconds: 5 });
+    pillars.show(true);
     await sleep(1.6);
     await say(ch.intro);
-    for (let i = 0; i < 5; i++) {
-      ui.label(`p${i}`, ch.pillars[i].label, PILLAR_POS[i].clone().setY(0.45), { cls: 'pillar' });
-      audio.link(i + 1);
-      await sleep(0.9);
+    ch.pillars.forEach((pl, i) => ui.label(`p${i}`, pl.label, pillars.top(i).add(new THREE.Vector3(0, 0.6, 0)), { cls: 'pillar', sub: pl.sub }));
+    // INSPECT: the player meets the five one by one, in any order; the next in reading order is suggested
+    D.interaction = 'inspect';
+    say(I.instruction).catch(() => {});
+    let queued = null;
+    while (pillars.litCount() < 5) {
+      let picked;
+      if (queued != null && !pillars.isLit(queued)) { picked = queued; queued = null; }
+      else {
+        const next = [0, 1, 2, 3, 4].find((k) => !pillars.isLit(k));
+        pillars.focus(next); ui.labelClass(`p${next}`, 'focus');
+        picked = await guard(new Promise((resolve) => {
+          pickResolve = resolve;
+          ui.next(I.next, { signal: ctl.signal }).then((ok) => { if (ok) resolve(next); });
+        }));
+        pickResolve = null; ui.goOn(); // closes the button when a pillar was tapped instead
+        ui.labelClass(`p${next}`, 'focus', false);
+        if (pillars.isLit(picked)) continue;
+      }
+      const pl = ch.pillars[picked];
+      pillars.light(picked); pillars.focus(-1); audio.link(picked + 1); ev(`pillar:${pl.id}`);
+      ui.labelClass(`p${picked}`, 'lit');
+      dalil.point(pillars.middle(picked)); dalil.look(pillars.middle(picked));
+      dalil.interrupt();
+      say(pl.explain, { type: CT.EDUCATIONAL_CONTEXT, cites: [pl.key] }).catch(() => {});
+      // the source is one tap away: read the verse, or go on (tapping another pillar goes on to it)
+      const last = pillars.litCount() >= 5;
+      const choice = await guard(ui.choice(
+        [{ id: 'read', label: I.read, quiet: true }, { id: 'go', label: last ? { ar: 'متابعة', en: 'Continue' } : I.next }],
+        { signal: ctl.signal, onTap: (resolve) => { pickResolve = (i) => resolve(`pick:${i}`); } },
+      ));
+      pickResolve = null;
+      dalil.point(null);
+      if (choice === 'read') { dalil.interrupt(); await source({ key: pl.key, order: 'verse-first' }, null); }
+      else if (String(choice).startsWith('pick:')) queued = +String(choice).slice(5);
     }
-    await sleep(1.0);
+    D.interaction = null; pillars.focus(-1);
+    // five pillars, one building
+    pillars.join(); audio.answer();
+    await sleep(1.2);
+    await say(I.complete);
     await source(ch.source, ch);
     await answerBeat(ch, 2);
     await say(ch.reflection);
     await chapterEnd(ch, 3);
+    ui.clearLabels(); pillars.show(false);
   }
 
   async function ch4() {
@@ -293,6 +336,7 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
     document.getElementById('verse-layer')?.replaceChildren();
     document.querySelector('#ui .end')?.remove();
     chain?.remove(); chain = null; D.interaction = null; D.done = false;
+    pillars?.show(false); pickResolve = null;
     chamber.resetQuestions(LIT_AT[k], k === 'opening' || k === 'depth' ? 0 : 1);
     chamber.setState(STATE_AT[k], 1.5);
     audio.setWarmth(WARMTH[STATE_AT[k]] ?? 0.3);
@@ -303,6 +347,10 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
 
   /** A tap on the scene: the light the player is invited toward goes on. */
   function tap(x, y) {
+    if (D.interaction === 'inspect' && pillars && pickResolve) {
+      const i = pillars.pick(x, y, camera);
+      if (i >= 0) { const r = pickResolve; pickResolve = null; r(i); return true; }
+    }
     if (D.focus < 0) return false;
     const v = QUESTION_POS[D.focus].clone().project(camera);
     const sx = (v.x * 0.5 + 0.5) * window.innerWidth, sy = (-v.y * 0.5 + 0.5) * window.innerHeight;
@@ -314,6 +362,7 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
     D, run, ff, tap,
     begin: () => run('opening'),
     get chain() { return chain; },
+    get pillars() { return pillars; },
     setDepth,
     /** what Dalil knows when he is asked something */
     context: () => ({

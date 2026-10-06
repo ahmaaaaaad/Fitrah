@@ -10,16 +10,18 @@ import { REDUCED_MOTION } from '../../core/scene.js';
 
 const V = (a) => new THREE.Vector3(...a);
 export const SHOTS = {
-  opening:  { eye: [0, 1.55, 9.4], look: [0, 1.75, 0], fov: 50 },
-  four:     { eye: [0, 1.75, 9.8], look: [0, 2.8, -3], fov: 52 },
-  chain:    { eye: [0, 1.85, 9.9], look: [0, 2.3, 2], fov: 52 },
-  centre:   { eye: [0, 1.75, 9.3], look: [0, 2.9, 0], fov: 50 },
+  // the first frame: high and far behind, the small figure before the vast aperture
+  establish: { eye: [0, 6.2, 27], look: [0, 7.5, -20], fov: 52 },
+  opening:  { eye: [0, 1.8, 10.3], look: [0, 2.4, 0], fov: 50 },
+  four:     { eye: [0, 1.95, 10.4], look: [0, 2.9, -3], fov: 52 },
+  chain:    { eye: [0, 2.4, 10.6], look: [0, 2.6, 1.5], fov: 52 },
+  centre:   { eye: [0, 1.9, 10.2], look: [0, 3.0, 0], fov: 50 },
   purpose:  { eye: [0, 1.7, 8.8], look: [0, 2.7, -9], fov: 50 },
-  practice: { eye: [0, 2.0, 9.4], look: [0, 2.7, -1.2], fov: 54 },
+  practice: { eye: [0, 2.4, 10.0], look: [0, 2.9, -3.0], fov: 52 },
   return:   { eye: [0, 1.6, 8.6], look: [0, 3.5, -10.6], fov: 50 },
   ending:   { eye: [0, 1.8, 10.2], look: [0, 2.8, -2.5], fov: 54 },
 };
-const HALL = 11.3; // the camera never steps past this radius (the walls stand at 12.5)
+const HALL = 13.5; // framing never steps the camera further back than this
 
 function spring(x, v, target, w, dt) {
   // critically damped: arrives without overshoot, starts and ends softly
@@ -72,12 +74,16 @@ export function createCameraRig(camera) {
 
   const off = new THREE.Vector3(), right = new THREE.Vector3(), fwd = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
   function update(dt, t) {
-    dt = Math.min(dt, 0.1);
-    for (const k of ['x', 'y', 'z']) {
-      [cur.eye[k], vel.eye[k]] = spring(cur.eye[k], vel.eye[k], tgt.eye[k], w, dt);
-      [cur.look[k], vel.look[k]] = spring(cur.look[k], vel.look[k], tgt.look[k], w, dt);
+    // slow frames do not slow the choreography: the spring advances in small steps
+    dt = Math.min(dt, 0.25);
+    for (let left = dt; left > 1e-5; left -= 0.04) {
+      const h = Math.min(0.04, left);
+      for (const k of ['x', 'y', 'z']) {
+        [cur.eye[k], vel.eye[k]] = spring(cur.eye[k], vel.eye[k], tgt.eye[k], w, h);
+        [cur.look[k], vel.look[k]] = spring(cur.look[k], vel.look[k], tgt.look[k], w, h);
+      }
+      [cur.fov, vel.fov] = spring(cur.fov, vel.fov, tgt.fov, w, h);
     }
-    [cur.fov, vel.fov] = spring(cur.fov, vel.fov, tgt.fov, w, dt);
     par.x += (par.tx - par.x) * (1 - Math.exp(-dt * 1.5)); par.y += (par.ty - par.y) * (1 - Math.exp(-dt * 1.5));
     fwd.copy(cur.look).sub(cur.eye).normalize(); right.crossVectors(fwd, UP).normalize();
     const d = REDUCED_MOTION ? 0 : sway;
@@ -94,9 +100,9 @@ export function createCameraRig(camera) {
     const r = new THREE.Vector3().crossVectors(f, UP).normalize();
     const aspect = window.innerWidth / Math.max(1, window.innerHeight);
     const halfH = Math.atan(Math.tan((tgt.fov * Math.PI) / 360) * aspect);
-    const s = Math.min(1.05, dist * Math.tan(halfH) * 0.6);
+    const s = Math.min(1.3, dist * Math.tan(halfH) * 0.55);
     const p = tgt.eye.clone().addScaledVector(f, dist).addScaledVector(r, s * side);
-    p.y = Math.max(1.0, tgt.eye.y - 0.3);
+    p.y = 0; // on the floor: he stands, he does not float
     return p;
   }
 

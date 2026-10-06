@@ -132,7 +132,7 @@ void main(){
   if (vPart < 0.5) {
     col = vec3(0.05, 0.1, 0.02) * shade;
   } else {
-    vec2 q = vUv - 0.5; float r = length(q) * 2.0; float a = atan(q.y, q.x);
+    vec2 q = vUv - 0.5; float r = length(q) * 2.0; float a = atan(q.y, q.x + 1e-5);
     float petal = 0.62 + 0.38 * abs(cos(a * 2.5));
     if (r > petal) discard;
     vec3 orange = mix(vec3(0.86, 0.2, 0.025), vec3(0.95, 0.42, 0.04), vSel);

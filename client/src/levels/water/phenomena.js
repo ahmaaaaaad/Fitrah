@@ -30,7 +30,7 @@ void main(){
   float body = smoothstep(0.55, 0.72, streak) * 0.85 + smoothstep(0.66, 0.82, streak2) * 0.45;
   float ends = smoothstep(0.0, 0.06, u) * smoothstep(1.0, 0.9, u);
   float traced = smoothstep(uTraced + 0.01, uTraced - 0.04, u);          // the part already followed
-  float head = exp(-pow((u - uHead) * 38.0, 2.0));                        // where attention is now
+  float hd = (u - uHead) * 38.0; float head = exp(-hd * hd);                        // where attention is now
   float a = uShow * ends * (0.25 + 0.75 * soft) * (0.015 + body * 0.36 + traced * body * 0.25 + head * 0.5);
   vec3 dust = vec3(0.86, 0.8, 0.7);
   vec3 col = mix(dust, vec3(1.0, 0.9, 0.72), traced * 0.6 + head) * (0.55 + 0.45 * uSunCol.r);
@@ -81,7 +81,7 @@ export function createPhenomena(scene, camera, renderer) {
         float dash = smoothstep(0.0, 0.25, ph) * smoothstep(0.75, 0.45, ph);
         float ends = smoothstep(0.0, 0.08, vU) * smoothstep(1.0, 0.9, vU);
         float traced = smoothstep(uTraced + 0.01, uTraced - 0.05, vU);
-        float head = exp(-pow((vU - uHead) * 30.0, 2.0));
+        float hd = (vU - uHead) * 30.0; float head = exp(-hd * hd);
         float a = uShow * ends * dash * (0.32 + traced * 0.22 + head * 0.5) * smoothstep(2.0, 6.0, vD);
         if (a < 0.004) discard;
         vec3 col = mix(vec3(0.88, 0.82, 0.72), vec3(1.0, 0.9, 0.7), traced * 0.5 + head) * (0.7 + 0.3 * uSunCol.r);

@@ -101,7 +101,8 @@ void main(){
   col += vec3(1.0, 0.82, 0.55) * uLightPhase * (1.0 - thick) * (0.18 + 0.4 * toward); // light leaking through thin cloud
   // the rim of a forming break glows with the sun behind it
   float db = distance(vW.xz, uBreak.xy) + (fbm(vW.xz * 0.06 + 2.0) - 0.5) * (4.0 + uBreak.z * 0.7); // an irregular edge, never a ring
-  col += vec3(1.0, 0.86, 0.62) * uBreak.w * exp(-pow((db - uBreak.z) / (5.0 + uBreak.z * 0.3), 2.0)) * 0.45 * (1.0 - thick * 0.5);
+  float bz = (db - uBreak.z) / (5.0 + uBreak.z * 0.3);
+  col += vec3(1.0, 0.86, 0.62) * uBreak.w * exp(-bz * bz) * 0.45 * (1.0 - thick * 0.5);
   col = grade(col);
   float dist = length(vW.xz - cameraPosition.xz);
   col = mix(col, uFogCol, smoothstep(120.0, 420.0, dist) * 0.7);

@@ -44,20 +44,6 @@ button { font-family: inherit; cursor: pointer; }
 .hint { position: fixed; left: 50%; bottom: calc(6vh + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); padding: 9px 18px; border-radius: 999px; background: rgba(12, 12, 20, 0.4); color: var(--ink); font-size: 15px; opacity: 0; transition: opacity 0.9s ease; pointer-events: none !important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); white-space: nowrap; max-width: 94vw; overflow: hidden; text-overflow: ellipsis; }
 .hint.on { opacity: 1; }
 
-/* ------------------------------------------------------------------ Dalil's caption: beside him */
-.caption { position: fixed; left: 0; top: 0; max-width: min(340px, 82vw); padding: 10px 14px; border-radius: 14px; background: rgba(22, 18, 14, 0.56); border: 1px solid rgba(240, 194, 122, 0.3); color: var(--ink); font-size: 15px; line-height: 1.55; opacity: 0; transition: opacity 0.6s ease; pointer-events: none !important; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 3; }
-.caption.on { opacity: 1; }
-#ui:has(.ask.on) .caption { max-width: min(540px, 92vw); background: rgba(16, 15, 20, 0.82); }
-.caption .cap-label { display: block; font-size: 11px; letter-spacing: 0.3px; margin-bottom: 3px; color: rgba(246, 239, 226, 0.6); }
-.caption .cap-label:empty { display: none; }
-.caption .cap-cites { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-.caption .cap-cites:empty { display: none; }
-.caption .cite { font-size: 11.5px; color: var(--gold); border: 1px solid rgba(240, 194, 122, 0.4); border-radius: 999px; padding: 1px 8px; }
-.caption[data-source="template"] .cap-text { color: var(--dim); }
-.caption[data-type="EDUCATIONAL_CONTEXT"] { border-color: rgba(170, 205, 160, 0.42); }
-.caption[data-type="EDUCATIONAL_CONTEXT"] .cap-label { color: rgba(185, 220, 170, 0.88); }
-.caption[data-type="DALIL_EXPLANATION"] .cap-label { color: var(--gold); }
-
 /* ------------------------------------------------------------------ names beside things */
 .wlabel { position: fixed; left: 0; top: 0; text-align: center; white-space: nowrap; pointer-events: none !important; opacity: 0; transition: opacity 0.9s ease; text-shadow: 0 1px 12px rgba(0, 0, 0, 0.85), 0 0 2px rgba(0, 0, 0, 0.6); z-index: 2; }
 .wlabel.on { opacity: 1; }
@@ -75,6 +61,8 @@ button { font-family: inherit; cursor: pointer; }
 .wlabel.node.mystery.open .wl-main { animation: hush 3.2s ease-in-out infinite; }
 @keyframes hush { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
 :root[lang="ar"] .wlabel .wl-main, :root[lang="ar"] .wlabel .wl-sub { font-family: var(--ui) !important; font-weight: 500; letter-spacing: 0; }
+.wlabel.start-here .wl-main { font-size: 12.5px; letter-spacing: 0.4px; color: #ffe3b0; padding: 3px 10px; border-radius: 999px; background: rgba(20, 16, 12, 0.45); border: 1px solid rgba(240, 194, 122, 0.45); animation: starthere 1.8s ease-in-out infinite; }
+@keyframes starthere { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
 .wlabel.pillar .wl-main { font-family: var(--display); font-size: clamp(14px, 1.4vw, 18px); color: #ffe0ab; letter-spacing: 0.5px; }
 
 /* ------------------------------------------------------------------ connect: threads between things already there */
@@ -111,6 +99,16 @@ svg.connect .thread.live { stroke: rgba(255, 236, 200, 0.7); stroke-width: 1.6; 
 /* ------------------------------------------------------------------ going on, asking */
 .next { position: fixed; left: 50%; bottom: calc(5vh + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 10px); opacity: 0; pointer-events: none !important; transition: opacity 0.7s ease, transform 0.7s ease; border-color: rgba(240, 194, 122, 0.55); font-size: 15px; padding: 11px 24px; z-index: 3; }
 .next.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto !important; }
+.choices { position: fixed; left: 50%; bottom: calc(5vh + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 10px); display: flex; gap: 10px; opacity: 0; pointer-events: none !important; transition: opacity 0.6s ease, transform 0.6s ease; z-index: 3; }
+.choices.on { opacity: 1; transform: translate(-50%, 0); pointer-events: auto !important; }
+.choices .pill { font-size: 14.5px; padding: 10px 20px; white-space: nowrap; }
+.choices .pill.primary { border-color: rgba(240, 194, 122, 0.6); }
+.choices .pill.quiet { border-color: var(--line); background: rgba(16, 16, 24, 0.35); }
+.wlabel.pillar.focus .wl-main { color: #fff3d6; text-shadow: 0 0 14px rgba(240, 194, 122, 0.8), 0 1px 12px rgba(0,0,0,0.85); }
+.wlabel.pillar.lit .wl-main { color: #ffd28a; }
+.wlabel.pillar .wl-sub { opacity: 0; transition: opacity 0.8s; }
+.wlabel.pillar.lit .wl-sub, .wlabel.pillar.focus .wl-sub { opacity: 1; }
+@media (max-width: 600px) { .wlabel.pillar .wl-sub { display: none; } .wlabel.pillar .wl-main { font-size: 12.5px; } }
 .ask-btn { position: fixed; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); inset-inline-start: calc(14px + env(safe-area-inset-left, 0px)); display: flex; align-items: center; gap: 8px; border: 1px solid rgba(240, 194, 122, 0.35); background: var(--glass); color: var(--ink); padding: 8px 14px 8px 12px; border-radius: 999px; font-size: 13.5px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: opacity 0.6s ease; z-index: 3; }
 .ask-btn .dot { width: 9px; height: 9px; border-radius: 50%; background: #ffd9a0; box-shadow: 0 0 10px #ffc16a; }
 .ask-btn.hide { opacity: 0; pointer-events: none !important; }
@@ -209,7 +207,6 @@ svg.connect .thread.live { stroke: rgba(255, 236, 200, 0.7); stroke-width: 1.6; 
 
 /* ------------------------------------------------------------------ small screens */
 @media (max-width: 600px) {
-  .caption { font-size: 14px; }
   .chapter { max-width: calc(100vw - 120px); }
   .chapter .ch-q { font-size: 21px; }
   .wlabel.qlabel .wl-main { font-size: 13px; }
@@ -232,7 +229,7 @@ svg.connect .thread.live { stroke: rgba(255, 236, 200, 0.7); stroke-width: 1.6; 
   .verse.compact .tag { font-size: 11px; padding: 1px 8px; }
   .verse.compact .explain-text { font-size: 12.5px; line-height: 1.4; }
 }
-@media (prefers-reduced-motion: reduce) { .verse .w, .verse, .caption, .hint, .wlabel, .answer, .chapter { transition: opacity 0.3s linear; } }
+@media (prefers-reduced-motion: reduce) { .verse .w, .verse, .hint, .wlabel, .answer, .chapter { transition: opacity 0.3s linear; } }
 
 /* debug HUD (?debug) */
 .hud { position: fixed; top: 12px; inset-inline-start: 12px; margin: 0; padding: 8px 10px; background: rgba(0, 0, 0, 0.5); color: #d8f5e8; font: 11px/1.45 ui-monospace, monospace; border-radius: 8px; direction: ltr; text-align: left; pointer-events: none !important; z-index: 8; }

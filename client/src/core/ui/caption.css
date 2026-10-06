@@ -1,0 +1,35 @@
+/* Dalil's caption: a steady translucent panel at the bottom edge, in every level. */
+.caption {
+  position: fixed; left: 50%; top: auto; right: auto;
+  bottom: calc(var(--cap-lift, 18px) + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 8px) !important;
+  width: min(600px, calc(100vw - 32px)); max-width: none;
+  padding: 10px 16px 11px; border-radius: 16px;
+  background: linear-gradient(to top, rgba(12, 10, 9, 0.66), rgba(12, 10, 9, 0.46));
+  border: 1px solid rgba(240, 194, 122, 0.22);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  color: #f6efe2; font-size: 16px; line-height: 1.6; text-align: start;
+  opacity: 0; transition: opacity 0.45s ease, transform 0.45s ease, bottom 0.35s ease;
+  pointer-events: none !important; z-index: 3;
+}
+.caption.on { opacity: 1; transform: translate(-50%, 0) !important; }
+.caption .cap-head { display: flex; align-items: center; gap: 7px; font-size: 11.5px; letter-spacing: 0.3px; margin: 0 0 3px; color: rgba(246, 239, 226, 0.6); }
+.caption .cap-dot { width: 7px; height: 7px; border-radius: 50%; background: #ffd9a0; box-shadow: 0 0 8px #ffc16a; flex: none; }
+.caption .cap-name { color: #f0c27a; font-weight: 600; }
+.caption .cap-label:not(:empty)::before { content: '·'; margin-inline-end: 7px; color: rgba(246, 239, 226, 0.4); }
+.caption .cap-text { display: block; margin: 0; }
+.caption .cap-cites { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 5px; }
+.caption .cap-cites:empty { display: none; }
+.caption .cite { font-size: 11.5px; color: #f0c27a; border: 1px solid rgba(240, 194, 122, 0.4); border-radius: 999px; padding: 1px 8px; }
+.caption[data-source="template"] .cap-text { color: rgba(246, 239, 226, 0.72); }
+.caption[data-type="EDUCATIONAL_CONTEXT"] { border-color: rgba(170, 205, 160, 0.38); }
+.caption[data-type="EDUCATIONAL_CONTEXT"] .cap-label { color: rgba(185, 220, 170, 0.88); }
+.caption[data-type="DALIL_EXPLANATION"] .cap-label { color: #f0c27a; }
+@media (max-width: 600px) { .caption { font-size: 15px; padding: 9px 13px 10px; } }
+@media (max-height: 460px) {
+  /* a phone on its side: narrower and lower, so the middle of the picture stays clear */
+  .caption { width: min(520px, 62vw); font-size: 13.5px; line-height: 1.5; padding: 7px 12px 8px; }
+  .caption .cap-head { font-size: 10.5px; margin-bottom: 1px; }
+}
+@media (prefers-reduced-motion: reduce) { .caption { transition: opacity 0.3s linear; } }

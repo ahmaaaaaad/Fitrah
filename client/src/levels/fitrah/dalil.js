@@ -14,6 +14,7 @@ import { inputKind } from '../../core/device.js';
 import { createDalilAI } from '../../core/dalil/ask.js';
 import { CT } from '../../core/sacred/content-types.js';
 import { glowSprite, glowTexture } from './chamber.js';
+import { createFigure } from '../../core/figures.js';
 import { reviewedAnswer, atDepth } from './content.js';
 import { buildPrompt, validate } from './dalil-prompt.js';
 import { SPEED } from './config.js';
@@ -59,7 +60,7 @@ function createBody(scene) {
   const halo = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), haloMat); halo.frustumCulled = false; halo.renderOrder = 12;
   const gaze = glowSprite('#fff1d8', 0.09, 0); // a small glint that settles on the side he is looking toward
   // his own warm light: soft, golden, larger than the player's small white one (works without bloom too)
-  const aura = glowSprite('#ffc778', 0.8, 0), inner = glowSprite('#ffe6bf', 0.26, 0);
+  const aura = glowSprite('#ffc778', 0.6, 0), inner = glowSprite('#ffe6bf', 0.2, 0);
   aura.renderOrder = 11; inner.renderOrder = 12;
   const light = new THREE.PointLight('#ffcf8f', 0, 5.5, 1.7);
   group.add(aura, inner, core, halo, gaze, light);
@@ -92,7 +93,10 @@ function createBody(scene) {
   const ring = new THREE.Sprite(new THREE.SpriteMaterial({ map: ringTexture(), color: '#ffd9a0', transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
   ring.renderOrder = 14; scene.add(ring);
 
-  return { group, core, coreMat, haloMat, gaze, aura, inner, light, mirror, poolMat, pool, foot, fAttr, uTime, arcPos, arcGeo, arcMat, arc, ring,
+  // the guide himself: a cloaked figure who carries this light
+  const figure = createFigure('guide');
+  scene.add(figure.group);
+  return { group, figure, core, coreMat, haloMat, gaze, aura, inner, light, mirror, poolMat, pool, foot, fAttr, uTime, arcPos, arcGeo, arcMat, arc, ring,
     step(x, z, heading) {
       side = -side;
       const k = footIdx++ % N, sx = Math.cos(heading + Math.PI / 2) * 0.07 * side, sz = Math.sin(heading + Math.PI / 2) * 0.07 * side;
@@ -105,7 +109,7 @@ function createBody(scene) {
 // ---------------------------------------------------------------- Dalil
 export function createDalil({ scene, camera, ui, audio, rig }) {
   const B = createBody(scene);
-  const pos = new THREE.Vector3(-0.9, 1.25, 6.3), vel = new THREE.Vector3(), goal = pos.clone();
+  const pos = new THREE.Vector3(-0.9, 0, 6.3), vel = new THREE.Vector3(), goal = pos.clone();
   const lookAt = new THREE.Vector3(0, 2, 0);
   const pointAt = { on: false, target: new THREE.Vector3(), t: 0 };
   const pose = { intensity: 0, target: 0, pulse: 0, speaking: 0, listening: 0 };
@@ -116,10 +120,18 @@ export function createDalil({ scene, camera, ui, audio, rig }) {
   const queue = [];
   let speaking = null, lineId = 0;
   const lineSeconds = (text) => Math.min(12, Math.max(3.2, 2.2 + text.length * 0.058)) / SPEED;
+  /** where his head is on screen (and whether he is in view) */
   function screen() {
-    const v = B.group.position.clone().project(camera);
+    const v = B.figure.headWorld().project(camera);
     const W = window.innerWidth, H = window.innerHeight;
-    return { x: (v.x * 0.5 + 0.5) * W, y: (-v.y * 0.5 + 0.5) * H - 26, visible: v.z < 1 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05 };
+    return { x: (v.x * 0.5 + 0.5) * W, y: (-v.y * 0.5 + 0.5) * H, visible: v.z < 1 && Math.abs(v.x) < 1.05 && Math.abs(v.y) < 1.05 };
+  }
+  /** his whole figure on screen, as a box (head to feet) */
+  function bounds() {
+    const W = window.innerWidth, H = window.innerHeight;
+    const h = B.figure.headWorld().project(camera), f = B.figure.group.position.clone().project(camera);
+    const x = (h.x * 0.5 + 0.5) * W, y0 = (-h.y * 0.5 + 0.5) * H, y1 = (-f.y * 0.5 + 0.5) * H;
+    return { x, y0, y1, w: Math.max(40, (y1 - y0) * 0.36), visible: h.z < 1 && Math.abs(h.x) < 1.1 };
   }
   /**
    * Speak one line. obj may be {ar,en}, a depth object, or a device object ({mouse,touch,pen}).
@@ -203,45 +215,63 @@ export function createDalil({ scene, camera, ui, audio, rig }) {
   }
 
   // ------------------------------------------------------------ motion
-  const tmp = new THREE.Vector3(), prev = new THREE.Vector3();
+  const tmp = new THREE.Vector3(), prev = new THREE.Vector3(), lamp = new THREE.Vector3(), toCam = new THREE.Vector3();
+  const BACK = new THREE.Vector3(0, 0.58, -0.82);
+  let yaw = 0;
   function update(dt, t) {
-    dt = Math.min(dt, 0.1);
+    dt = Math.min(dt, 0.25);
     B.uTime.value = t;
-    if (homeLocked) goal.copy(rig.companionSpot(side()));
-    // a calm, critically damped glide
+    if (homeLocked) goal.copy(rig.companionSpot(side(), 3.9));
+    goal.y = 0;
+    // a calm, critically damped walk (in small steps, so slow frames keep the pace)
     const wv = 1.5;
     prev.copy(pos);
-    vel.addScaledVector(tmp.copy(goal).sub(pos), wv * wv * dt).addScaledVector(vel, -2 * wv * dt);
-    pos.addScaledVector(vel, dt);
-    const moved = Math.hypot(pos.x - prev.x, pos.z - prev.z);
+    for (let left = dt; left > 1e-5; left -= 0.04) {
+      const h = Math.min(0.04, left);
+      vel.addScaledVector(tmp.copy(goal).sub(pos), wv * wv * h).addScaledVector(vel, -2 * wv * h);
+      pos.addScaledVector(vel, h);
+    }
+    pos.y = 0;
+    const moved = Math.hypot(pos.x - prev.x, pos.z - prev.z), speed = moved / Math.max(dt, 1e-4);
     B.gait += moved;
-    if (B.gait > 0.4 && moved > 0.0005) { B.gait = 0; B.step(pos.x, pos.z, Math.atan2(pos.z - prev.z, pos.x - prev.x)); }
+    if (B.gait > 0.55 && moved > 0.0005) { B.gait = 0; B.step(pos.x, pos.z, Math.atan2(pos.z - prev.z, pos.x - prev.x)); }
 
     pose.intensity += (pose.target - pose.intensity) * (1 - Math.exp(-dt * 1.2));
     const speak = pose.speaking ? 0.5 + 0.5 * Math.sin(t * 7.3) * Math.sin(t * 2.9) : 0;
-    const breathe = Math.sin(t * 1.6) * 0.025;
-    B.group.position.set(pos.x, pos.y + breathe + pose.listening * 0.04, pos.z);
+    // he faces where he walks; when he speaks or listens he turns to the player; otherwise toward what matters
+    const facePlayer = pose.speaking || state === 'attending' || state === 'listening';
+    if (speed > 0.25) yaw = Math.atan2(-(pos.x - prev.x), -(pos.z - prev.z));
+    else {
+      const f = facePlayer ? toCam.copy(camera.position) : (pointAt.on ? pointAt.target : lookAt);
+      yaw = Math.atan2(-(f.x - pos.x), -(f.z - pos.z));
+      if (facePlayer) yaw += side() * -0.35; // three-quarters, not square on
+    }
+    B.figure.group.position.copy(pos);
+    B.figure.group.visible = pose.intensity > 0.01;
+    B.figure.update(dt, t, { yaw, walking: Math.min(1, speed / 0.9), speaking: pose.speaking, point: pointAt.on ? pointAt.target : null, lampPos: lamp, backDir: BACK });
+    B.figure.setFade(1 - Math.min(1, pose.intensity * 1.2));
+    B.figure.lanternWorld(lamp);
     const I = pose.intensity * (1 - pose.listening * 0.25);
+    B.group.position.copy(lamp);
     B.core.scale.setScalar(1 + Math.sin(t * 2.1) * 0.04 + pose.pulse * 0.25 + speak * 0.08);
     B.coreMat.uniforms.uI.value = I;
     B.haloMat.uniforms.uI.value = I;
     B.haloMat.uniforms.uPulse.value = Math.max(pose.pulse, speak * 0.6);
-    B.haloMat.uniforms.uSize.value = 0.85 + pose.pulse * 0.4 + speak * 0.1 + (pose.listening ? 0.1 * Math.sin(t * 2) : 0);
+    B.haloMat.uniforms.uSize.value = 0.62 + pose.pulse * 0.35 + speak * 0.08 + (pose.listening ? 0.08 * Math.sin(t * 2) : 0);
     B.light.intensity = I * (2.4 + speak * 0.6);
-    B.aura.material.opacity = I * (0.45 + speak * 0.12 + pose.pulse * 0.2); B.aura.scale.setScalar(0.8 + pose.pulse * 0.25 + speak * 0.06 + Math.sin(t * 1.3) * 0.025);
+    B.aura.material.opacity = I * (0.42 + speak * 0.12 + pose.pulse * 0.2); B.aura.scale.setScalar(0.6 + pose.pulse * 0.2 + speak * 0.05 + Math.sin(t * 1.3) * 0.02);
     B.inner.material.opacity = I * 0.85;
-    B.mirror.position.set(pos.x, -B.group.position.y, pos.z); B.mirror.material.opacity = I * 0.28;
+    B.mirror.position.set(lamp.x, -lamp.y, lamp.z); B.mirror.material.opacity = I * 0.28;
     B.pool.position.set(pos.x, 0.012, pos.z); B.poolMat.uniforms.uI.value = I * 0.9;
-    // where he looks: toward what he points at, else toward the light ahead
     const look = pointAt.on ? pointAt.target : lookAt;
-    tmp.copy(look).sub(B.group.position).normalize().multiplyScalar(0.13);
-    B.gaze.position.lerp(tmp, 1 - Math.exp(-dt * 4)); B.gaze.material.opacity = I * 0.9;
-    // the arc of light toward the target
+    tmp.copy(look).sub(lamp).normalize().multiplyScalar(0.11);
+    B.gaze.position.lerp(tmp, 1 - Math.exp(-dt * 4)); B.gaze.material.opacity = I * 0.7;
+    // the arc of light from his lantern toward what he points at
     pointAt.t += ((pointAt.on ? 1 : 0) - pointAt.t) * (1 - Math.exp(-dt * (pointAt.on ? 2.2 : 3.0)));
     if (!pointAt.on && pointAt.t < 0.01) pointAt.t = 0;
     B.ring.visible = pointAt.t > 0; B.arc.visible = pointAt.t > 0;
     if (pointAt.t > 0.01) {
-      const a = B.group.position, b = pointAt.target;
+      const a = lamp, b = pointAt.target;
       const mid = tmp.copy(a).add(b).multiplyScalar(0.5); mid.y += a.distanceTo(b) * 0.18;
       for (let i = 0; i < 56; i++) {
         const u = (i / 55) * Math.min(1, pointAt.t * 1.4), iu = 1 - u;
@@ -266,7 +296,7 @@ export function createDalil({ scene, camera, ui, audio, rig }) {
     /** fade in beside the player (or out) */
     appear(on = true) { pose.target = on ? 1 : 0; state = on ? 'present' : 'hidden'; },
     /** put him somewhere at once (default: the player's side) */
-    place(v = null) { homeLocked = !v; goal.copy(v || rig.companionSpot(side())); pos.copy(goal); vel.set(0, 0, 0); },
+    place(v = null) { homeLocked = !v; goal.copy(v || rig.companionSpot(side(), 3.9)); goal.y = 0; pos.copy(goal); vel.set(0, 0, 0); },
     /** walk to a place (null: back to the player's side) */
     goTo(v) { if (!v) { homeLocked = true; return; } homeLocked = false; goal.copy(v); },
     look(v) { lookAt.copy(v); },
@@ -274,9 +304,11 @@ export function createDalil({ scene, camera, ui, audio, rig }) {
     point(v) { if (!v) { pointAt.on = false; if (state === 'pointing') state = 'present'; return; } pointAt.target.copy(v); pointAt.on = true; pose.pulse = 1; state = 'pointing'; },
     pulse() { pose.pulse = 1; },
     /** is a screen point on (or very near) Dalil? */
-    hit(x, y) { const s = screen(); return s.visible && Math.hypot(s.x - x, s.y + 26 - y) < Math.max(44, window.innerHeight * 0.06); },
+    hit(x, y) { const b = bounds(); return b.visible && Math.abs(x - b.x) < Math.max(36, b.w * 0.7) && y > b.y0 - 30 && y < b.y1 + 10; },
+    bounds,
     bind({ context, suggestions, talk }) { if (context) getContext = context; if (suggestions) getSuggestions = suggestions; if (talk) onTalk = talk; },
     get position() { return B.group.position; },
+    get figure() { return B.figure; },
     // for the review panel
     glow: B,
   };

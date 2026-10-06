@@ -32,8 +32,8 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
   cinematic.uniforms.uVignette.value = 0.72;
   cinematic.uniforms.uGrain.value = 0.03;
   cinematic.uniforms.uCA.value = 0.0012;
-  bloomPass.threshold = 0.62; bloomPass.strength = 0.85; bloomPass.radius = 0.55;
-  camera.near = 0.05; camera.far = 220; camera.updateProjectionMatrix();
+  bloomPass.threshold = 0.72; bloomPass.strength = 0.6; bloomPass.radius = 0.5;
+  camera.near = 0.08; camera.far = 600; camera.updateProjectionMatrix();
 
   const chamber = createChamber(scene);
   const rig = createCameraRig(camera);
@@ -45,8 +45,11 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
   dalil.bind({ context: director.context, suggestions: director.suggestions, talk });
 
   // first frame: the dark hall, the camera at the player's place, Dalil already beside them (unlit)
-  chamber.snap('dark');
-  rig.shot('opening', { snap: true });
+  // first frame: the vast hall from high and far behind, the small figure before the aperture
+  chamber.snap('arrive');
+  chamber.setPlayerSide(i18n.dir === 'rtl' ? -1 : 1);
+  i18n.onChange(() => chamber.setPlayerSide(i18n.dir === 'rtl' ? -1 : 1));
+  rig.shot('establish', { snap: true });
   rig.update(1 / 60, 0);
   dalil.place(new THREE.Vector3(0.6, 1.3, 1.2)); // far ahead, by the centre: he walks to the player once the story begins
 
@@ -111,8 +114,9 @@ export function mount({ lang, fromMenu = false, audioContext = null, pointerType
   onUpdate((dt, t) => {
     fps += (1 / Math.max(dt, 1e-3) - fps) * 0.05;
     rig.update(dt, t);
-    chamber.update(dt, t, renderer);
+    chamber.update(dt, t, renderer, camera);
     director.chain?.update(dt, t);
+    director.pillars?.update(dt, t);
     dalil.update(dt * Math.max(1, SPEED * 0.75), t);
     ui.update();
   });

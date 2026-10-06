@@ -11,7 +11,32 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
 const params = new URLSearchParams(location.search);
-export const QUALITY = params.get('q') === 'low' ? 'low' : 'high';
+// ---------------------------------------------------------------------------
+// Quality profiles. The device decides a starting profile (screen, memory, cores,
+// and the GPU once a context exists); the adaptive resolution below then follows
+// the real frame times. ?q=cinematic|high|balanced|performance (or ?q=low) forces one.
+//   cinematic  everything, full resolution          (fast desktops)
+//   high       everything, resolution capped at 2   (desktops, recent laptops)
+//   balanced   bloom on, fewer particles, ratio 1.5 (phones and tablets)
+//   performance no bloom or MSAA, half the particles (older devices, software GPUs)
+// ---------------------------------------------------------------------------
+export const PROFILES = {
+  cinematic: { particles: 1.0, pixelRatioMax: 2.5, bloom: true, msaa: 4, name: 'cinematic' },
+  high: { particles: 1.0, pixelRatioMax: 2, bloom: true, msaa: 4, name: 'high' },
+  balanced: { particles: 0.6, pixelRatioMax: 1.5, bloom: true, msaa: 0, name: 'balanced' },
+  performance: { particles: 0.35, pixelRatioMax: 1, bloom: false, msaa: 0, name: 'performance' },
+};
+function guessProfile() {
+  const forced = params.get('q');
+  if (forced === 'low') return 'performance';
+  if (PROFILES[forced]) return forced;
+  const coarse = window.matchMedia?.('(pointer: coarse)').matches;
+  const mem = navigator.deviceMemory || 4, cores = navigator.hardwareConcurrency || 4;
+  if (coarse) return mem >= 6 && cores >= 6 ? 'balanced' : (mem <= 2 || cores <= 4 ? 'performance' : 'balanced');
+  return cores >= 12 && mem >= 8 ? 'cinematic' : 'high';
+}
+let profileName = guessProfile();
+export let QUALITY = profileName === 'performance' ? 'low' : 'high';
 export const REDUCED_MOTION = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
 // ---------------------------------------------------------------------------
@@ -23,7 +48,7 @@ export const CONFIG = {
   camera: { fov: 48, near: 0.1, far: 4000 },
   msaaSamples: QUALITY === 'low' ? 0 : 4,
   pixelRatio: {
-    max: 2, min: 1, step: 0.25,
+    max: 2, min: 0.75, step: 0.25,
     slowFrameMs: 22, fastFrameMs: 15,
     sampleFrames: 90, cooldownMs: 2000,
   },
@@ -42,6 +67,17 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = CONFIG.exposure;
 
+// a software renderer (no GPU) gets the lightest profile, whatever the screen says
+try {
+  const gl = renderer.getContext(), ext = gl.getExtension('WEBGL_debug_renderer_info');
+  const gpu = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : '';
+  if (/swiftshader|llvmpipe|software|basic render/i.test(gpu) && !PROFILES[params.get('q')]) profileName = 'performance';
+  PROFILES.gpu = gpu;
+} catch { /* the GPU name is optional */ }
+QUALITY = profileName === 'performance' ? 'low' : 'high';
+/** The active profile: { particles, pixelRatioMax, bloom, msaa, name } */
+export const PROFILE = PROFILES[profileName];
+
 export const scene = new THREE.Scene();
 export const camera = new THREE.PerspectiveCamera(
   CONFIG.camera.fov, window.innerWidth / window.innerHeight, CONFIG.camera.near, CONFIG.camera.far,
@@ -50,17 +86,35 @@ export const camera = new THREE.PerspectiveCamera(
 // ---------------------------------------------------------------------------
 // Post-processing: Render → Bloom → Output (ACES + sRGB) → Cinematic
 // ---------------------------------------------------------------------------
+CONFIG.msaaSamples = PROFILE.msaa;
+CONFIG.pixelRatio.max = PROFILE.pixelRatioMax;
 const composerTarget = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight, {
   type: THREE.HalfFloatType, samples: CONFIG.msaaSamples,
 });
 export const composer = new EffectComposer(renderer, composerTarget);
 composer.addPass(new RenderPass(scene, camera));
+// A guard before the bloom: one invalid pixel (NaN or infinity, which some mobile GPUs
+// produce where desktop drivers quietly do not) would otherwise be spread by the bloom
+// into a large black block across the middle of the picture. Such pixels become black,
+// and very bright ones are capped, so the bloom stays a glow.
+export const sanitize = new ShaderPass({
+  uniforms: { tDiffuse: { value: null } },
+  vertexShader: /* glsl */`varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: /* glsl */`
+    uniform sampler2D tDiffuse; varying vec2 vUv;
+    void main() {
+      vec4 c = texture2D(tDiffuse, vUv);
+      bool bad = any(isnan(c)) || any(isinf(c)) || !(c.r >= 0.0 && c.r < 1e5) || !(c.g >= 0.0 && c.g < 1e5) || !(c.b >= 0.0 && c.b < 1e5);
+      gl_FragColor = bad ? vec4(0.0, 0.0, 0.0, 1.0) : vec4(min(c.rgb, vec3(48.0)), c.a);
+    }`,
+});
+composer.addPass(sanitize);
 
 export const bloomPass = new UnrealBloomPass(
   new THREE.Vector2(window.innerWidth, window.innerHeight),
   CONFIG.bloom.strength, CONFIG.bloom.radius, CONFIG.bloom.threshold,
 );
-bloomPass.enabled = QUALITY !== 'low';
+bloomPass.enabled = PROFILE.bloom;
 composer.addPass(bloomPass);
 composer.addPass(new OutputPass());
 

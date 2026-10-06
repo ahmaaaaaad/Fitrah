@@ -1,11 +1,12 @@
-// The interface of the Fitrah level. It stays quiet: Dalil's caption beside him,
+// The interface of the Fitrah level. It stays quiet: Dalil's words in one steady panel at the bottom,
 // the names of things beside the things, one heading when a question is answered,
 // one button when the player decides to go on. A corner menu holds language,
 // depth, sound, the review jumps and the list of everything still provisional.
 import * as THREE from 'three';
 import { i18n, arDigits } from '../../core/i18n.js';
 import { h } from '../../ui/dom.js';
-import { CT, CT_LABEL } from '../../core/sacred/content-types.js';
+import { CT } from '../../core/sacred/content-types.js';
+import { createCaption } from '../../core/ui/caption.js';
 import { C } from './content.js';
 import { DEBUG } from './config.js';
 
@@ -34,31 +35,16 @@ export function createUI({ camera }) {
   }
   i18n.onChange(() => { if (hintObj) hintEl.textContent = i18n.t(hintObj); });
 
-  // ------------------------------------------------------------------ caption: Dalil speaks beside himself
-  const capLabel = h('span', { class: 'cap-label' });
-  const capText = h('span', { class: 'cap-text' });
-  const capCites = h('span', { class: 'cap-cites' });
-  const cap = h('div', { class: 'caption', role: 'note' }, capLabel, capText, capCites);
-  root.append(cap);
-  let capAnchor = null, capUntil = 0, capObj = null, capType = CT.NARRATIVE_DIALOGUE, capCiteList = [];
-  function fillCaption() {
-    cap.dataset.type = capType;
-    capLabel.textContent = capType === CT.NARRATIVE_DIALOGUE ? '' : i18n.t(CT_LABEL[capType] || CT_LABEL.NARRATIVE_DIALOGUE);
-    capText.textContent = i18n.t(capObj);
-    capText.lang = /[؀-ۿ]/.test(capText.textContent) ? 'ar' : 'en';
-    capText.dir = capText.lang === 'ar' ? 'rtl' : 'ltr';
-    capCites.replaceChildren(...capCiteList.map((c) => h('span', { class: 'cite' }, i18n.t(refLabel(c)))));
+  // ------------------------------------------------------------------ caption: one steady panel at the bottom edge (shared with The Water)
+  const capPanel = createCaption({
+    root, live, base: 66,
+    avoid: ['.next.on', '.choices.on', '.depth.on', '.end.on', '.ask.on'],
+    citeLabel: (c) => i18n.t(refLabel(c)),
+  });
+  function caption(obj, { duration = 5, cites = [], source, type = CT.NARRATIVE_DIALOGUE } = {}) {
+    capPanel.show(obj, { duration, cites, source, type });
   }
-  function caption(obj, { anchor, duration = 5, cites = [], source, type = CT.NARRATIVE_DIALOGUE } = {}) {
-    capObj = obj; capAnchor = anchor; capType = type; capCiteList = cites || [];
-    fillCaption();
-    cap.dataset.source = source || 'authored';
-    cap.classList.add('on');
-    capUntil = performance.now() + duration * 1000;
-    live.textContent = capText.textContent;
-  }
-  i18n.onChange(() => { if (capObj && cap.classList.contains('on')) fillCaption(); });
-  function hideCaption() { cap.classList.remove('on'); capUntil = 0; capObj = null; }
+  const hideCaption = () => capPanel.hide();
 
   // ------------------------------------------------------------------ ask: a ribbon at the bottom, and a way to a person
   const askInput = h('input', { class: 'ask-input', type: 'text', maxlength: '300', autocomplete: 'off', enterkeyhint: 'send' });
@@ -186,7 +172,21 @@ export function createUI({ camera }) {
     });
   }
   nextBtn.addEventListener('click', () => nextResolve?.());
-  const goOn = () => { if (nextResolve) { nextResolve(); return true; } return false; };
+  // a row of choices (the primary is last); Enter takes the primary
+  const choices = h('div', { class: 'choices' });
+  root.append(choices);
+  let choiceResolve = null;
+  function choice(items, { signal, onTap } = {}) {
+    return new Promise((resolve) => {
+      const done = (id) => { if (!choiceResolve) return; choiceResolve = null; choices.classList.remove('on'); resolve(id); };
+      choices.replaceChildren(...items.map((it, k) => { const b = h('button', { type: 'button', class: `pill${it.quiet ? ' quiet' : ''}${k === items.length - 1 ? ' primary' : ''}`, onClick: () => done(it.id) }); T(b, it.label); return b; }));
+      choiceResolve = () => done(items[items.length - 1].id);
+      choices.classList.add('on');
+      onTap?.(done);
+      signal?.addEventListener('abort', () => { choiceResolve = null; choices.classList.remove('on'); resolve(null); }, { once: true });
+    });
+  }
+  const goOn = () => { if (nextResolve) { nextResolve(); return true; } if (choiceResolve) { choiceResolve(); return true; } return false; };
 
   // ------------------------------------------------------------------ corner menu
   const menuBtn = h('button', { class: 'menu-btn', type: 'button', 'aria-haspopup': 'dialog', 'aria-label': 'Menu' }, h('span'), h('span'), h('span'));
@@ -278,19 +278,8 @@ export function createUI({ camera }) {
   if (hud) root.append(hud);
 
   function update() {
-    if (capUntil && performance.now() > capUntil) hideCaption();
+    capPanel.update();
     const W = window.innerWidth, H = window.innerHeight;
-    if (cap.classList.contains('on') && state.askOpen) {
-      // while the player is asking, Dalil's answer sits just above the ribbon, where they are looking
-      const r = ask.getBoundingClientRect();
-      cap.style.transform = `translate(${Math.round(W / 2)}px, ${Math.round(r.top - 10)}px) translate(-50%, -100%)`;
-    } else if (cap.classList.contains('on') && capAnchor) {
-      const a = capAnchor();
-      const cw = cap.offsetWidth || 300, ch = cap.offsetHeight || 60;
-      const x = a.visible ? Math.min(W - cw / 2 - 10, Math.max(cw / 2 + 10, a.x)) : W * 0.5;
-      const y = a.visible ? Math.min(H - 16, Math.max(ch + 64, a.y)) : H - 120;
-      cap.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px) translate(-50%, -100%)`;
-    }
     for (const L of labels.values()) {
       _v.copy(L.world).project(camera);
       const vis = _v.z < 1 && Math.abs(_v.x) < 1.2 && Math.abs(_v.y) < 1.2;
@@ -305,7 +294,7 @@ export function createUI({ camera }) {
     offerTalk(on) { askTalk.hidden = !on; },
     showAskButton(on) { askBtn.dataset.on = on ? '1' : ''; askBtn.classList.toggle('hide', !on || state.askOpen); },
     label, unlabel, clearLabels, labelClass, labels,
-    chooseDepth, chapterCard, hideChapter, answer,
+    chooseDepth, chapterCard, hideChapter, answer, choice,
     /** names in the hall step back while a source is on screen */
     hushLabels(on) { root.classList.toggle('hush', on); }, dockAnswer, hideAnswer, next, goOn,
     live: (obj) => { live.textContent = i18n.t(obj); }, toggleMenu, mountStart, endCard, update, state, cb, refreshStatus,

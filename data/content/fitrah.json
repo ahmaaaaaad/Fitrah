@@ -101,30 +101,30 @@
         },
         "instruction": {
           "mouse": {
-            "ar": "انقر مع الاستمرار على نورك، ثم اسحب إلى ما جاء قبلك.",
-            "en": "Click and hold on your light, then drag to what came before you."
+            "ar": "انقر مع الاستمرار على نورك، ثم تتبّع الخط إلى ما جاء قبلك.",
+            "en": "Click and hold your light, then trace the path to what came before you."
           },
           "touch": {
-            "ar": "المس نورك مطوّلًا، ثم اسحب إلى ما جاء قبلك.",
-            "en": "Touch and hold your light, then drag to what came before you."
+            "ar": "المس نورك مطوّلًا، ثم تتبّع الخط بإصبعك إلى ما جاء قبلك.",
+            "en": "Touch and hold your light, then trace the path to what came before you."
           },
           "pen": {
-            "ar": "اضغط على نورك مطوّلًا، ثم اسحب إلى ما جاء قبلك.",
-            "en": "Press and hold on your light, then drag to what came before you."
+            "ar": "اضغط بالقلم على نورك، ثم تتبّع الخط إلى ما جاء قبلك.",
+            "en": "Press the pen on your light, then trace the path to what came before you."
           }
         },
         "stall": {
           "mouse": {
-            "ar": "أبقِ الزر مضغوطًا، واسحب من نقطة إلى التي قبلها.",
-            "en": "Keep the button held down, and drag from one point to the one before it."
+            "ar": "ابدأ من نورك، وأبقِ الزر مضغوطًا وأنت تتبع الخط حتى نهايته.",
+            "en": "Start at your light, and keep the button held as you follow the line to its end."
           },
           "touch": {
-            "ar": "أبقِ إصبعك على الشاشة، واسحب من نقطة إلى التي قبلها.",
-            "en": "Keep your finger down, and drag from one point to the one before it."
+            "ar": "ابدأ من نورك، وأبقِ إصبعك على الشاشة وأنت تتبع الخط حتى نهايته.",
+            "en": "Start at your light, and keep your finger down as you follow the line to its end."
           },
           "pen": {
-            "ar": "أبقِ القلم على الشاشة، واسحب من نقطة إلى التي قبلها.",
-            "en": "Keep the pen down, and drag from one point to the one before it."
+            "ar": "ابدأ من نورك، وأبقِ القلم على الشاشة وأنت تتبع الخط حتى نهايته.",
+            "en": "Start at your light, and keep the pen down as you follow the line to its end."
           }
         },
         "nodes": [
@@ -179,23 +179,31 @@
           }
         ],
         "node_note": {
-          "ar": "له بداية",
-          "en": "had a beginning"
+          "ar": "له خالق",
+          "en": "has a Creator"
         },
         "end": {
           "type": "EDUCATIONAL_CONTEXT",
           "exploring": {
-            "ar": "لكلٍّ من هذه بداية، ولم يوجِد أيٌّ منها نفسه. وزيادة الحلقات لا تغيّر ذلك.",
-            "en": "Each of these had a beginning, and none of them brought itself into being. Adding more links does not change that."
+            "ar": "كلٌّ من هذه مخلوق، ولم يوجِد أيٌّ منها نفسه. ومهما طالت السلسلة فهي تشير إلى ما وراءها: إلى الذي أوجدها كلها.",
+            "en": "Each of these was created, and none of them made itself. However long the chain grows, it points beyond itself: to the One who brought all of it into being."
           },
           "learning": {
-            "ar": "كل حلقة وُجدت بعد أن لم تكن، وسلسلة من الموجودات بعد عدم لا تفسّر نفسها مهما طالت.",
-            "en": "Every link came to be after it was not. A chain of things that began cannot explain itself, however long it grows."
+            "ar": "والداك، والأرض، والشمس، والنجوم: كلٌّ منها أُوجد بعد أن لم يكن، ولم يوجِد نفسه. وسلسلة المخلوقات تنتهي إلى خالقٍ غير مخلوق.",
+            "en": "Your parents, the earth, the sun, the stars: each was brought into being, and none brought itself. A chain of created things leads to a Creator who is not created."
           },
           "reflective": {
-            "ar": "مهما امتدّت السلسلة، تبقى كلها محتاجة إلى من أوجدها.",
-            "en": "However far the chain runs, all of it still needs the One who brought it into being."
+            "ar": "كل حلقة في السلسلة مخلوقة؛ ونهايتها ليست حلقة أخرى، بل الخالق.",
+            "en": "Every link in the chain is created. It ends not in one more link, but in the Creator."
           }
+        },
+        "ack": {
+          "ar": "هكذا. تابِع: ما الذي جاء قبل ذلك؟",
+          "en": "That's it. Keep going: what came before that?"
+        },
+        "start_here": {
+          "ar": "ابدأ من هنا",
+          "en": "Start here"
         }
       },
       "source": {
@@ -359,7 +367,25 @@
             "ar": "الشهادة",
             "en": "Shahadah"
           },
-          "key": "47:19"
+          "key": "47:19",
+          "sub": {
+            "ar": "الشهادتان",
+            "en": "Testimony of faith"
+          },
+          "explain": {
+            "exploring": {
+              "ar": "الشهادة: أن يشهد الإنسان أنه لا معبود بحقٍّ سوى الله، وأن محمدًا رسوله. بها يدخل الإسلام.",
+              "en": "The Shahadah: bearing witness that none is worthy of worship but Allah, and that Muhammad is His Messenger. It is how a person enters Islam."
+            },
+            "learning": {
+              "ar": "الشهادتان أساس الأركان كلها: إفراد الله بالعبادة، واتباع رسوله ﷺ.",
+              "en": "The two testimonies are the ground of the other pillars: worship directed to Allah alone, and following His Messenger."
+            },
+            "reflective": {
+              "ar": "كلمةٌ يقولها اللسان، ويصدّقها القلب، ويظهر أثرها في العمل.",
+              "en": "Words said with the tongue, affirmed by the heart, and shown in what a person does."
+            }
+          }
         },
         {
           "id": "salah",
@@ -367,7 +393,25 @@
             "ar": "الصلاة",
             "en": "Salah"
           },
-          "key": "4:103"
+          "key": "4:103",
+          "sub": {
+            "ar": "الصلوات الخمس",
+            "en": "Prayer"
+          },
+          "explain": {
+            "exploring": {
+              "ar": "الصلاة: خمس صلوات في اليوم والليلة، صلةٌ بين الإنسان وربه في أوقاتٍ محددة.",
+              "en": "Salah: five prayers through the day and night, a connection between a person and their Lord at set times."
+            },
+            "learning": {
+              "ar": "تُؤدّى الصلوات الخمس في أوقاتها المحددة، على طهارة، مع التوجّه إلى القبلة.",
+              "en": "The five prayers are performed at their set times, in a state of purity, facing the qibla."
+            },
+            "reflective": {
+              "ar": "خمس وقفات كل يوم، تعيد ترتيب اليوم حول من خلقك.",
+              "en": "Five pauses each day that set the day around the One who made you."
+            }
+          }
         },
         {
           "id": "zakah",
@@ -375,7 +419,25 @@
             "ar": "الزكاة",
             "en": "Zakah"
           },
-          "key": "9:103"
+          "key": "9:103",
+          "sub": {
+            "ar": "العطاء الواجب",
+            "en": "Obligatory giving"
+          },
+          "explain": {
+            "exploring": {
+              "ar": "الزكاة: جزءٌ محدد من المال يُعطى كل عام لمن يحتاجه.",
+              "en": "Zakah: a set portion of wealth given each year to those in need."
+            },
+            "learning": {
+              "ar": "تجب الزكاة في المال إذا بلغ مقدارًا معيّنًا ومضى عليه عام، وتُصرف في وجوهٍ حددتها الشريعة.",
+              "en": "Zakah is due on wealth above a set amount held for a year, and goes to purposes the Shariah defines."
+            },
+            "reflective": {
+              "ar": "مالٌ يطهُر حين يُعطى، وقلبٌ يتحرّر من التعلّق به.",
+              "en": "Wealth is purified when it is given, and the heart is freed from clinging to it."
+            }
+          }
         },
         {
           "id": "sawm",
@@ -383,7 +445,25 @@
             "ar": "الصوم",
             "en": "Sawm"
           },
-          "key": "2:183"
+          "key": "2:183",
+          "sub": {
+            "ar": "صوم رمضان",
+            "en": "Fasting"
+          },
+          "explain": {
+            "exploring": {
+              "ar": "الصوم: الامتناع عن الطعام والشراب من الفجر إلى غروب الشمس في شهر رمضان.",
+              "en": "Sawm: fasting from food and drink from dawn until sunset during the month of Ramadan."
+            },
+            "learning": {
+              "ar": "يصوم المسلم شهر رمضان كل عام، فيمتنع نهارًا عن الطعام والشراب وسائر المفطرات، طاعةً لله.",
+              "en": "Muslims fast the month of Ramadan each year, abstaining in daylight from food, drink and all that breaks the fast, in obedience to Allah."
+            },
+            "reflective": {
+              "ar": "جوعٌ قليل يذكّر بالنعمة، وصبرٌ يربّي التقوى.",
+              "en": "A little hunger that recalls every blessing, and patience that grows mindfulness of Allah."
+            }
+          }
         },
         {
           "id": "hajj",
@@ -391,15 +471,59 @@
             "ar": "الحج",
             "en": "Hajj"
           },
-          "key": "3:97"
+          "key": "3:97",
+          "sub": {
+            "ar": "حج البيت",
+            "en": "Pilgrimage"
+          },
+          "explain": {
+            "exploring": {
+              "ar": "الحج: رحلة إلى مكة مرةً في العمر لمن قدر عليها، يجتمع فيها المسلمون من كل مكان.",
+              "en": "Hajj: a journey to Makkah once in a lifetime for those who are able, where Muslims gather from everywhere."
+            },
+            "learning": {
+              "ar": "يؤدّي الحجاج مناسك محددة في أيام ثابتة من شهر ذي الحجة، اقتداءً بالنبي ﷺ.",
+              "en": "Pilgrims perform set rites on fixed days of Dhul-Hijjah, following the example of the Prophet."
+            },
+            "reflective": {
+              "ar": "ملايين في لباسٍ واحدٍ بسيط، يذكّرون بأن الرجوع للجميع إلى الله.",
+              "en": "Millions in the same simple clothing, a reminder that everyone returns to Allah."
+            }
+          }
         }
       ],
       "interaction": {
         "kind": "inspect",
-        "built": false,
+        "built": true,
         "why": {
-          "ar": "يلتقي اللاعب بالأركان الخمسة أجزاءً لبناء واحد، لا قائمة مهام.",
-          "en": "The player meets the five as parts of one structure, not a checklist."
+          "ar": "يلتقي اللاعب بالأركان الخمسة واحدًا واحدًا، ثم يراها بناءً واحدًا.",
+          "en": "The player meets the five pillars one by one, then sees them as one structure."
+        },
+        "instruction": {
+          "mouse": {
+            "ar": "انقر على كل ركن لتعرف ما هو.",
+            "en": "Click each pillar to see what it is."
+          },
+          "touch": {
+            "ar": "المس كل ركن لتعرف ما هو.",
+            "en": "Tap each pillar to see what it is."
+          },
+          "pen": {
+            "ar": "المس كل ركن بالقلم لتعرف ما هو.",
+            "en": "Tap each pillar with the pen to see what it is."
+          }
+        },
+        "read": {
+          "ar": "اقرأ الآية",
+          "en": "Read the verse"
+        },
+        "next": {
+          "ar": "الركن التالي",
+          "en": "Next pillar"
+        },
+        "complete": {
+          "ar": "خمسة أركان، وبناءٌ واحد.",
+          "en": "Five pillars, one building."
         }
       },
       "source": {
