@@ -61,6 +61,7 @@ button { font-family: inherit; cursor: pointer; }
 .wlabel.node.mystery.open .wl-main { animation: hush 3.2s ease-in-out infinite; }
 @keyframes hush { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.9; } }
 :root[lang="ar"] .wlabel .wl-main, :root[lang="ar"] .wlabel .wl-sub { font-family: var(--ui) !important; font-weight: 500; letter-spacing: 0; }
+.wlabel.start-here { z-index: 2; }
 .wlabel.start-here .wl-main { font-size: 12.5px; letter-spacing: 0.4px; color: #ffe3b0; padding: 3px 10px; border-radius: 999px; background: rgba(20, 16, 12, 0.45); border: 1px solid rgba(240, 194, 122, 0.45); animation: starthere 1.8s ease-in-out infinite; }
 @keyframes starthere { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
 .wlabel.pillar .wl-main { font-family: var(--display); font-size: clamp(14px, 1.4vw, 18px); color: #ffe0ab; letter-spacing: 0.5px; }
@@ -108,7 +109,9 @@ svg.connect .thread.live { stroke: rgba(255, 236, 200, 0.7); stroke-width: 1.6; 
 .wlabel.pillar.lit .wl-main { color: #ffd28a; }
 .wlabel.pillar .wl-sub { opacity: 0; transition: opacity 0.8s; }
 .wlabel.pillar.lit .wl-sub, .wlabel.pillar.focus .wl-sub { opacity: 1; }
-@media (max-width: 600px) { .wlabel.pillar .wl-sub { display: none; } .wlabel.pillar .wl-main { font-size: 12.5px; } }
+/* where the five stand close together on screen, only the pillar being met or suggested names its meaning */
+@media (max-height: 520px), (max-width: 900px) { .wlabel.pillar.lit:not(.current):not(.focus) .wl-sub { opacity: 0; } .wlabel.pillar .wl-main { font-size: 14px; } }
+@media (max-width: 600px) { .wlabel.pillar:not(.current) .wl-sub { display: none; } .wlabel.pillar .wl-main { font-size: 12.5px; } }
 .ask-btn { position: fixed; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); inset-inline-start: calc(14px + env(safe-area-inset-left, 0px)); display: flex; align-items: center; gap: 8px; border: 1px solid rgba(240, 194, 122, 0.35); background: var(--glass); color: var(--ink); padding: 8px 14px 8px 12px; border-radius: 999px; font-size: 13.5px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: opacity 0.6s ease; z-index: 3; }
 .ask-btn .dot { width: 9px; height: 9px; border-radius: 50%; background: #ffd9a0; box-shadow: 0 0 10px #ffc16a; }
 .ask-btn.hide { opacity: 0; pointer-events: none !important; }

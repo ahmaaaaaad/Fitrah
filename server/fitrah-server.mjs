@@ -13,7 +13,7 @@
 // ANALYTICS (1 to record), ANALYTICS_FILE (fitrah-events.jsonl).
 import http from 'node:http';
 import { readFile, stat, appendFile } from 'node:fs/promises';
-import { extname, join, normalize, resolve, dirname } from 'node:path';
+import { extname, join, normalize, resolve, dirname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as waterPrompt from '../client/src/levels/water/dalil/prompt.js';
 import * as fitrahPrompt from '../client/src/levels/fitrah/dalil-prompt.js';
@@ -122,7 +122,7 @@ async function file(req, res) {
   let path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (path === '/' || path === '') path = '/fitrah.html';
   const full = normalize(join(DIST, path));
-  if (!full.startsWith(DIST)) return send(res, 403, 'forbidden');
+  if (full !== DIST && !full.startsWith(DIST + sep)) return send(res, 403, 'forbidden');
   try {
     const s = await stat(full);
     if (!s.isFile()) throw new Error('not a file');

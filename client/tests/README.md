@@ -28,6 +28,17 @@ AR=1 MOBILE=1 python3 fitrah_playthrough.py f_land 844 390   # landscape, in Ara
 python3 water_dalil.py none|good|quote|badcite|deny|agency   # asking Dalil, with the artifact's model mocked
 ```
 
+Every script takes `PORT=…` to use another server. `ENDAT=ch2|ch3|ch4` stops `fitrah_playthrough.py` at a chapter.
+To check the production server (security headers, the page's metas, no console errors under its CSP):
+
+```
+cd client && npm run build:fitrah && npm run build:server
+PORT=8790 ANALYTICS=1 node ../server/dist/fitrah-server.mjs &
+curl -s localhost:8790/healthz
+PORT=8790 python3 tests/fitrah_playthrough.py f_prod 1280 720
+(cd tests && PORT=8790 ./water_full_playthrough.sh w_prod 960 540)
+```
+
 `fitrah_run.py` drives one run (commands are listed at its top). It prints every line Dalil speaks, the chain's
 framing (`D.chainFrame`: authored / turned / widened, the lens, the safe region) and where the four points are on screen.
 URL flags as above, plus `speed=4` to hurry the simulation and Dalil for review.

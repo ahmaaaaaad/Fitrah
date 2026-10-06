@@ -153,7 +153,9 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
     });
     D.interaction = 'connect';
     ui.label('n0', I.nodes[0].label, below(CHAIN_POS[0], 0.3), { cls: 'node' });
-    ui.label('start', I.start_here, CHAIN_POS[0].clone().add(new THREE.Vector3(0, 0.32, 0)), { cls: 'start-here', dy: -18 });
+    // "start here" sits on the open side of your light, away from the way the path goes (and from the next name)
+    const away = new THREE.Vector3(Math.sign(CHAIN_POS[0].x - CHAIN_POS[1].x) || -flip, 0, 0).multiplyScalar(0.7);
+    ui.label('start', I.start_here, CHAIN_POS[0].clone().add(away).add(new THREE.Vector3(0, 0.1, 0)), { cls: 'start-here' });
     rig.frame(chain.framePoints(), { seconds: 2 });
     // the instruction stays until the first link; if nothing happens, Dalil says it another way
     for (let k = 0; chain.s.linked === 0; k++) {
@@ -239,6 +241,7 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
       }
       const pl = ch.pillars[picked];
       pillars.light(picked); pillars.focus(-1); audio.link(picked + 1); ev(`pillar:${pl.id}`);
+      [0, 1, 2, 3, 4].forEach((k) => ui.labelClass(`p${k}`, 'current', k === picked));
       ui.labelClass(`p${picked}`, 'lit');
       dalil.point(pillars.middle(picked)); dalil.look(pillars.middle(picked));
       dalil.interrupt();
@@ -255,6 +258,7 @@ export function createDirector({ scene, camera, chamber, rig, dalil, ui, audio, 
       else if (String(choice).startsWith('pick:')) queued = +String(choice).slice(5);
     }
     D.interaction = null; pillars.focus(-1);
+    [0, 1, 2, 3, 4].forEach((k) => ui.labelClass(`p${k}`, 'current', false));
     // five pillars, one building
     pillars.join(); audio.answer();
     await sleep(1.2);
