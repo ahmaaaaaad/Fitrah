@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "cd client && npm ci",
-  "buildCommand": "cd client && npm run build:fitrah",
-  "outputDirectory": "client/dist-fitrah",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build:fitrah",
+  "outputDirectory": "dist-fitrah",
   "rewrites": [{ "source": "/", "destination": "/fitrah.html" }]
 }
