@@ -1,0 +1,33 @@
+<section id="architecture" data-transition="fade" style="background:#F4EEE3;color:#1C1612;font-family:'IBM Plex Sans Arabic', Tahoma, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-size:24px;font-weight:600;letter-spacing:4px;color:#8A5A14;text-transform:uppercase">Engineering · البنية</p>
+<h2 style="font-family:'Reem Kufi', Georgia, serif;font-size:72px;font-weight:600;line-height:1.1;color:#1C1612">Built to publish</h2>
+</div>
+<div style="display:flex;gap:28px;align-items:stretch">
+<div style="flex:3;display:flex;flex-direction:column;gap:20px;background:#FBF8F2;border:1px solid #D9CDB8;border-radius:20px;padding:36px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;color:#8A5A14;text-transform:uppercase">In the browser</p>
+<div style="display:flex;gap:16px">
+<div style="flex:1;background:#1C1612;color:#F6EFE2;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:6px"><h3 style="font-size:28px;font-weight:600;line-height:1.2">Menu</h3><p style="font-size:24px;color:#CDBFA9;line-height:1.35">Two paths; each level loads only when chosen</p></div>
+<div style="flex:1;background:#1C1612;color:#F6EFE2;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:6px"><h3 style="font-size:28px;font-weight:600;line-height:1.2">Fitrah</h3><p style="font-size:24px;color:#CDBFA9;line-height:1.35">The four questions</p></div>
+<div style="flex:1;background:#1C1612;color:#F6EFE2;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:6px"><h3 style="font-size:28px;font-weight:600;line-height:1.2">The Water</h3><p style="font-size:24px;color:#CDBFA9;line-height:1.35">The first Tafakor world</p></div>
+</div>
+<div style="background:#EFE6D6;border-radius:14px;padding:24px;display:flex;flex-direction:column;gap:8px">
+<h3 style="font-size:28px;font-weight:600;line-height:1.2">Shared core</h3>
+<p style="font-size:24px;color:#5C5045;line-height:1.4">Rendering and device quality · framing for every screen · the dialogue panel · verified verses and answer validation · Dalil’s AI adapters · “Talk to someone”</p>
+</div>
+<p style="font-size:24px;color:#5C5045">Vite · Three.js · GSAP · most player-facing text kept out of the rendering code</p>
+</div>
+<div style="flex:2;display:flex;flex-direction:column;gap:20px;background:#1C1612;color:#F6EFE2;border-radius:20px;padding:36px">
+<p style="font-size:24px;font-weight:600;letter-spacing:3px;color:#F0C27A;text-transform:uppercase">On the server</p>
+<ul style="font-size:26px;line-height:1.45;color:#E6DCCB">
+<li>Static build with caching and security headers</li>
+<li>Dalil’s model route: key kept server-side, rate-limited, same validation</li>
+<li>Optional anonymous events: no words, no identities</li>
+<li>No key? The site still works on reviewed answers</li>
+</ul>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;font-size:24px;color:#7A6C5E">Fitrah · فطرة</p>
+<p style="position:absolute;right:128px;bottom:64px;width:120px;text-align:right;font-size:24px;color:#7A6C5E">14</p>
+<aside>Under the hood, Fitrah is a web application built with Vite, Three.js and GSAP, with no heavy framework, so it opens in a browser on a phone or a computer with nothing to install. The menu holds the two paths, and each level loads only when the player chooses it. The levels are built on one core: rendering with quality profiles chosen from the device, a framing system that keeps the same composition on any screen, one dialogue panel, the verified verse records and the answer validation, Dalil's AI adapters and the Talk to someone panel. Most player-facing text, in Arabic and English, is kept out of the rendering code, so it can be reviewed and corrected without touching the engine. The Water carries the same verse and answer checks in its own modules. On the server side, one small Node process serves the build with caching and security headers, answers Dalil's questions with the provider key kept on the server, rate-limited and with the same validation as the client, and can record anonymous usage events if the host turns them on. If no key is configured, the site still works: Dalil answers from reviewed content.</aside>
+</section>

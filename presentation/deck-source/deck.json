@@ -1,0 +1,21 @@
+{
+  "v": 4,
+  "createdOnFiles": { "v": 1, "at": "2026-10-06T11:20:00Z" },
+  "lists": "css",
+  "title": "Fitrah — Competition Presentation",
+  "cover": "cover",
+  "order": ["cover", "questions", "paths", "journey", "discover", "pillars", "verse", "water", "gestures", "dalil", "answers", "safeguards", "screens", "architecture", "tested", "next", "closing"],
+  "sections": {
+    "s1": { "description": "Why Fitrah: the four questions and the product's two paths", "start": "cover" },
+    "s2": { "description": "The Fitrah journey: four chapters, discovery before each answer, the verse given its place", "start": "journey" },
+    "s3": { "description": "Tafakor: The Water, an experiential world built on witness gestures", "start": "water" },
+    "s4": { "description": "Dalil the guide, how he answers, and the safeguards for sacred content", "start": "dalil" },
+    "s5": { "description": "Product and engineering: every screen, the architecture, the tests", "start": "screens" },
+    "s6": { "description": "What comes next, and thanks", "start": "next" }
+  },
+  "faces": {
+    "reem-kufi": { "family": "Reem Kufi", "href": "https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&display=swap" },
+    "ibm-plex-sans-arabic": { "family": "IBM Plex Sans Arabic", "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" }
+  },
+  "designSystems": []
+}
